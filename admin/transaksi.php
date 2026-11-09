@@ -62,234 +62,179 @@ foreach ($params as $key => $val) {
 }
 $stmt->execute();
 $data = $stmt->fetchAll();
-$extraHead = '<style>
-    @media print {
-        .sidebar, .topbar, .filter-panel, .btn-print, .btn-cancel, .page-header-wrap a {
-            display: none !important;
-        }
-        body, .app-layout, .main-wrapper {
-            background: #ffffff !important;
-            color: #000000 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            display: block !important;
-        }
-        .content {
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        .stat-grid {
-            display: none !important;
-        }
-        .table-container {
-            box-shadow: none !important;
-            border: 1px solid #000 !important;
-        }
-        .table-data th, .table-data td {
-            border: 1px solid #ddd !important;
-            color: #000 !important;
-        }
-    }
-</style>';
-$pageTitle = 'Riwayat Transaksi';
+
+$pageTitle   = 'Riwayat Transaksi';
 $currentPage = 'transaksi';
+$extraHead   = '<link rel="stylesheet" href="../assets/css/tabel.css?v=1">';
+
+$blnId = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+function tglId(?string $t, array $b): string {
+    if (!$t) return '-';
+    $ts = strtotime($t);
+    return date('j', $ts) . ' ' . $b[(int) date('n', $ts) - 1] . ' ' . date('Y', $ts);
+}
+
+$adaFilter = $keyword !== '' || $filterStatus !== '' || $tglDari !== '' || $tglSampai !== '';
+$labelStatus = ['dipinjam' => 'Sedang dipinjam', 'dikembalikan' => 'Sudah dikembalikan', 'terlambat' => 'Terlambat'];
+$ringkas = [];
+if ($filterStatus !== '') $ringkas[] = 'Status: ' . ($labelStatus[$filterStatus] ?? $filterStatus);
+if ($keyword !== '')      $ringkas[] = 'Kata kunci: "' . $keyword . '"';
+if ($tglDari !== '')      $ringkas[] = 'Dari ' . tglId($tglDari, $blnId);
+if ($tglSampai !== '')    $ringkas[] = 'Sampai ' . tglId($tglSampai, $blnId);
+
+// Tautan pil status: pertahankan kata kunci dan rentang tanggal
+$pertahankan = array_filter(['keyword' => $keyword, 'tgl_dari' => $tglDari, 'tgl_sampai' => $tglSampai], fn($v) => $v !== '');
+$pilHref = fn(string $st) => 'transaksi.php' . ($pertahankan || $st !== '' ? '?' . http_build_query($st !== '' ? $pertahankan + ['status' => $st] : $pertahankan) : '');
+
 require 'includes/header.php';
 ?>
-        <div class="page-header-wrap">
-            <div>
-                <h1>Riwayat &amp; Laporan Transaksi</h1>
-                <p class="page-subtitle">Arsip seluruh aktivitas sirkulasi peminjaman dan pengembalian buku siswa.</p>
-            </div>
-            <button onclick="window.print()" class="btn-print" style="display: inline-flex; align-items: center; gap: 8px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 6 2 18 2 18 9"/>
-                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                    <rect x="6" y="14" width="12" height="8"/>
-                </svg>
-                Cetak Laporan
-            </button>
-        </div>
+<div class="d-head">
+    <div>
+        <h1>Riwayat &amp; Laporan Transaksi</h1>
+        <p>Arsip seluruh aktivitas sirkulasi peminjaman dan pengembalian buku siswa.</p>
+    </div>
+    <div class="d-btn-row">
+        <button type="button" onclick="window.print()" class="btn-d main"><?= ic('history') ?>Cetak Laporan</button>
+    </div>
+</div>
 
-        <!-- STAT RINGKAS TRANSAKSI -->
-        <div class="stat-grid" style="margin-bottom: 24px;">
-            <div class="stat-card">
-                <div class="stat-card-header">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                            <polyline points="10 9 9 9 8 9"/>
-                        </svg>
-                    </div>
-                </div>
-                <h3><?= $totalSemua ?></h3>
-                <p>Total Seluruh Transaksi</p>
-            </div>
-            <div class="stat-card stat-primary">
-                <div class="stat-card-header">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                        </svg>
-                    </div>
-                </div>
-                <h3><?= $totalDipinjam ?></h3>
-                <p>Sedang Dipinjam Siswa</p>
-            </div>
-            <div class="stat-card stat-success">
-                <div class="stat-card-header">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
-                    </div>
-                </div>
-                <h3><?= $totalKembali ?></h3>
-                <p>Selesai Dikembalikan</p>
-            </div>
-            <div class="stat-card stat-warning">
-                <div class="stat-card-header">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                    </div>
-                </div>
-                <h3><?= $totalTerlambat ?></h3>
-                <p>Terlambat Dikembalikan</p>
-            </div>
-        </div>
+<!-- RINGKASAN -->
+<section class="d-stats four" aria-label="Ringkasan transaksi">
+    <?php foreach ([
+        ['grid',  'slate', $totalSemua,     'Total Seluruh Transaksi',  'seluruh riwayat sirkulasi'],
+        ['open',  'blue',  $totalDipinjam,  'Sedang Dipinjam Siswa',    'belum dikembalikan'],
+        ['check', 'green', $totalKembali,   'Selesai Dikembalikan',     'sudah kembali ke stok'],
+        ['clock', 'red',   $totalTerlambat, 'Terlambat Dikembalikan',   'melewati batas kembali'],
+    ] as [$ik, $wr, $n, $jd, $sb]): ?>
+    <article class="stat t-<?= $wr ?>">
+        <div class="stat-ico"><?= ic($ik, 23) ?></div>
+        <strong><?= (int) $n ?></strong>
+        <h3><?= $jd ?></h3>
+        <p><?= $sb ?></p>
+    </article>
+    <?php endforeach; ?>
+</section>
 
-        <!-- FILTER & PENCARIAN -->
-        <div class="filter-panel" style="padding: 20px;">
-            <form action="transaksi.php" method="GET" style="width: 100%;" autocomplete="off">
-                <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end;">
-                    <div style="flex: 2; min-width: 220px;">
-                        <label style="font-size: 12.5px; font-weight: 700; color: var(--slate-600); margin-bottom: 4px; display: block;">Kata Kunci Pencarian</label>
-                        <input type="text" name="keyword" placeholder="Cari nama siswa, NIS, judul buku, kode..." value="<?= htmlspecialchars($keyword) ?>" autocomplete="off">
-                    </div>
-                    <div style="flex: 1; min-width: 160px;">
-                        <label style="font-size: 12.5px; font-weight: 700; color: var(--slate-600); margin-bottom: 4px; display: block;">Status Transaksi</label>
-                        <select name="status">
-                            <option value="">Semua Status</option>
-                            <option value="dipinjam" <?= $filterStatus === 'dipinjam' ? 'selected' : '' ?>>Sedang Dipinjam</option>
-                            <option value="dikembalikan" <?= $filterStatus === 'dikembalikan' ? 'selected' : '' ?>>Sudah Dikembalikan</option>
-                            <option value="terlambat" <?= $filterStatus === 'terlambat' ? 'selected' : '' ?>>Terlambat</option>
-                        </select>
-                    </div>
-                    <div style="flex: 1; min-width: 140px;">
-                        <label style="font-size: 12.5px; font-weight: 700; color: var(--slate-600); margin-bottom: 4px; display: block;">Dari Tanggal</label>
-                        <input type="date" name="tgl_dari" value="<?= htmlspecialchars($tglDari) ?>" autocomplete="off">
-                    </div>
-                    <div style="flex: 1; min-width: 140px;">
-                        <label style="font-size: 12.5px; font-weight: 700; color: var(--slate-600); margin-bottom: 4px; display: block;">Sampai Tanggal</label>
-                        <input type="date" name="tgl_sampai" value="<?= htmlspecialchars($tglSampai) ?>" autocomplete="off">
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button type="submit" class="btn btn-primary" style="height: 42px;">Filter</button>
-                        <?php if (!empty($keyword) || !empty($filterStatus) || !empty($tglDari) || !empty($tglSampai)): ?>
-                            <a href="transaksi.php" class="btn-cancel" style="margin: 0; height: 42px;">Reset</a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </form>
-        </div>
+<!-- FILTER -->
+<section class="tr-bar" aria-label="Filter transaksi">
+    <nav class="pills" aria-label="Filter status">
+        <?php foreach ([['', 'Semua'], ['dipinjam', 'Sedang Dipinjam'], ['dikembalikan', 'Sudah Dikembalikan'], ['terlambat', 'Terlambat']] as [$kode, $lbl]): ?>
+            <a href="<?= htmlspecialchars($pilHref($kode)) ?>" class="<?= $filterStatus === $kode ? 'on' : '' ?>" <?= $filterStatus === $kode ? 'aria-current="true"' : '' ?>><?= $lbl ?></a>
+        <?php endforeach; ?>
+    </nav>
 
-        <div style="margin-bottom: 14px; font-size: 13.5px; color: var(--slate-500); display: flex; justify-content: space-between; align-items: center;">
-            <span>Ditemukan <strong><?= count($data) ?></strong> data transaksi sirkulasi</span>
+    <form action="transaksi.php" method="GET" class="tr-form" autocomplete="off">
+        <?php if ($filterStatus !== ''): ?><input type="hidden" name="status" value="<?= htmlspecialchars($filterStatus) ?>"><?php endif; ?>
+        <div class="tr-f has-ico">
+            <label for="keyword">Kata kunci</label>
+            <svg class="s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="keyword" name="keyword" placeholder="Nama siswa, NIS, judul buku, kode..." value="<?= htmlspecialchars($keyword) ?>" autocomplete="off">
         </div>
-
-        <!-- TABEL DATA TRANSAKSI -->
-        <div class="table-container">
-            <table class="table-data">
-                <thead>
-                    <tr>
-                        <th style="width: 44px;">No</th>
-                        <th>Kode Transaksi</th>
-                        <th>Tgl Pinjam</th>
-                        <th>Siswa Peminjam</th>
-                        <th>Kelas</th>
-                        <th>Judul Buku &amp; Kode Eksemplar</th>
-                        <th>Batas Waktu</th>
-                        <th>Tgl Kembali</th>
-                        <th>Keterangan</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($data)): ?>
-                        <tr>
-                            <td colspan="10">
-                                Tidak ada catatan transaksi yang cocok dengan kriteria filter pencarian.
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($data as $i => $row):
-                            $isAktifDipinjam = $row['status'] === 'dipinjam';
-                            $isTerlambat = ($isAktifDipinjam && $row['tgl_kembali_rencana'] < $today) || $row['status'] === 'terlambat';
-                            
-                            $keterangan = '-';
-                            if ($isAktifDipinjam) {
-                                if ($today > $row['tgl_kembali_rencana']) {
-                                    $telatHari = (int) round((strtotime($today) - strtotime($row['tgl_kembali_rencana'])) / 86400);
-                                    $keterangan = "<span style='color: var(--danger-solid); font-weight: 700;'>Lewat {$telatHari} hari</span>";
-                                } else {
-                                    $sisaHari = (int) round((strtotime($row['tgl_kembali_rencana']) - strtotime($today)) / 86400);
-                                    $keterangan = "<span style='color: var(--brand-primary); font-weight: 600;'>Sisa {$sisaHari} hari</span>";
-                                }
-                            } else {
-                                if ($row['tgl_kembali_aktual']) {
-                                    if ($row['tgl_kembali_aktual'] > $row['tgl_kembali_rencana']) {
-                                        $telatHari = (int) round((strtotime($row['tgl_kembali_aktual']) - strtotime($row['tgl_kembali_rencana'])) / 86400);
-                                        $keterangan = "<span style='color: var(--warning-solid); font-weight: 600;'>Telat {$telatHari} hari</span>";
-                                    } else {
-                                        $keterangan = "<span style='color: var(--success-solid); font-weight: 600;'>Tepat waktu</span>";
-                                    }
-                                }
-                            }
-
-                            if ($isTerlambat) {
-                                $badgeClass = 'badge-danger';
-                                $labelStatus = 'Terlambat';
-                            } elseif ($row['status'] === 'dikembalikan') {
-                                $badgeClass = 'badge-success';
-                                $labelStatus = 'Dikembalikan';
-                            } else {
-                                $badgeClass = 'badge-info';
-                                $labelStatus = 'Dipinjam';
-                            }
-                        ?>
-                            <tr>
-                                <td><?= $i + 1 ?></td>
-                                <td><code><?= htmlspecialchars($row['kode_transaksi']) ?></code></td>
-                                <td><?= htmlspecialchars($row['tgl_pinjam']) ?></td>
-                                <td>
-                                    <strong style="color: var(--slate-900);"><?= htmlspecialchars($row['nama_lengkap'] ?? '[Anggota Dihapus]') ?></strong>
-                                    <div style="font-size: 11px; color: var(--slate-500);">NIS: <?= htmlspecialchars($row['nis'] ?? '-') ?></div>
-                                </td>
-                                <td><?= htmlspecialchars($row['kelas'] ?? '-') ?></td>
-                                <td>
-                                    <?php if (!empty($row['judul'])): ?>
-                                        <div style="font-weight: 600; color: var(--slate-900);"><?= htmlspecialchars($row['judul']) ?></div>
-                                        <div><code><?= htmlspecialchars($row['kode_item'] ?? '-') ?></code></div>
-                                    <?php else: ?>
-                                        <div style="color: var(--slate-400); font-style: italic;">[Buku / Eksemplar Dihapus]</div>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?= htmlspecialchars($row['tgl_kembali_rencana']) ?></td>
-                                <td><?= $row['tgl_kembali_aktual'] ? htmlspecialchars($row['tgl_kembali_aktual']) : '-' ?></td>
-                                <td><?= $keterangan ?></td>
-                                <td><span class="<?= $badgeClass ?>"><?= $labelStatus ?></span></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+        <div class="tr-f">
+            <label for="tgl_dari">Dari tanggal</label>
+            <input type="date" id="tgl_dari" name="tgl_dari" value="<?= htmlspecialchars($tglDari) ?>">
         </div>
+        <div class="tr-f">
+            <label for="tgl_sampai">Sampai tanggal</label>
+            <input type="date" id="tgl_sampai" name="tgl_sampai" value="<?= htmlspecialchars($tglSampai) ?>">
+        </div>
+        <div class="tr-act">
+            <button type="submit" class="tr-btn">Terapkan</button>
+            <?php if ($adaFilter): ?><a href="transaksi.php" class="tr-reset">Reset</a><?php endif; ?>
+        </div>
+    </form>
+</section>
+
+<!-- TABEL -->
+<section class="act" aria-labelledby="hTrx">
+    <div class="act-top">
+        <div class="panel-ico"><?= ic('history') ?></div>
+        <div class="panel-h" style="display:block">
+            <h2 id="hTrx">Daftar transaksi</h2>
+            <p><?= $adaFilter ? 'Hasil sesuai filter yang dipilih.' : 'Diurutkan dari peminjaman terbaru.' ?></p>
+        </div>
+        <span class="tr-count">Ditemukan <b><?= count($data) ?></b> transaksi</span>
+    </div>
+    <div class="print-head">
+        <div class="ph-top"><span><b>Pinjam.In</b> &nbsp;Perpustakaan Digital Sekolah</span><span>Dicetak <?= tglId($today, $blnId) ?>, <?= (new DateTime('now', new DateTimeZone('Asia/Jakarta')))->format('H:i') ?> WIB</span></div>
+        <h1>Laporan Transaksi Sirkulasi Buku</h1>
+        <p><?= $ringkas ? htmlspecialchars(implode('  |  ', $ringkas)) : 'Semua transaksi' ?> &mdash; <?= count($data) ?> data ditampilkan</p>
+        <div class="ph-sum">
+            <div><b><?= (int) $totalSemua ?></b>Total transaksi</div>
+            <div><b><?= (int) $totalDipinjam ?></b>Sedang dipinjam</div>
+            <div><b><?= (int) $totalKembali ?></b>Sudah dikembalikan</div>
+            <div><b><?= (int) $totalTerlambat ?></b>Terlambat</div>
+        </div>
+    </div>
+
+    <div class="tbl wide">
+        <?php if (empty($data)): ?>
+            <div class="tr-empty">
+                <span><?= ic('history') ?></span>
+                <b><?= $adaFilter ? 'Tidak ada transaksi yang cocok' : 'Belum ada transaksi tercatat' ?></b>
+                <?php if ($adaFilter): ?>
+                    Coba ubah kata kunci atau rentang tanggal, atau <a href="transaksi.php">reset filter</a>.
+                <?php else: ?>
+                    Transaksi akan muncul di sini setelah ada peminjaman pertama.
+                <?php endif; ?>
+            </div>
+        <?php else: ?>
+        <table>
+            <thead>
+                <tr><th>Kode Transaksi</th><th>Siswa Peminjam</th><th>Buku</th><th>Tgl Pinjam</th><th>Batas Waktu</th><th>Tgl Kembali</th><th>Keterangan</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+            <?php foreach ($data as $row):
+                $isAktifDipinjam = $row['status'] === 'dipinjam';
+                $isTerlambat = ($isAktifDipinjam && $row['tgl_kembali_rencana'] < $today) || $row['status'] === 'terlambat';
+
+                $kt = '-'; $ktKls = 'none';
+                if ($isAktifDipinjam) {
+                    if ($today > $row['tgl_kembali_rencana']) {
+                        $h = (int) round((strtotime($today) - strtotime($row['tgl_kembali_rencana'])) / 86400);
+                        $kt = "Lewat {$h} hari"; $ktKls = 'late';
+                    } else {
+                        $h = (int) round((strtotime($row['tgl_kembali_rencana']) - strtotime($today)) / 86400);
+                        $kt = "Sisa {$h} hari"; $ktKls = 'run';
+                    }
+                } elseif ($row['tgl_kembali_aktual']) {
+                    if ($row['tgl_kembali_aktual'] > $row['tgl_kembali_rencana']) {
+                        $h = (int) round((strtotime($row['tgl_kembali_aktual']) - strtotime($row['tgl_kembali_rencana'])) / 86400);
+                        $kt = "Telat {$h} hari"; $ktKls = 'warn';
+                    } else {
+                        $kt = 'Tepat waktu'; $ktKls = 'ok';
+                    }
+                }
+
+                if ($isTerlambat)                       { $bd = 'late'; $lb = 'Terlambat'; }
+                elseif ($row['status'] === 'dikembalikan') { $bd = 'ok';   $lb = 'Dikembalikan'; }
+                else                                    { $bd = 'run';  $lb = 'Dipinjam'; }
+            ?>
+                <tr>
+                    <td><code><?= htmlspecialchars($row['kode_transaksi']) ?></code></td>
+                    <td>
+                        <?php if ($row['nama_lengkap']): ?>
+                            <strong><?= htmlspecialchars($row['nama_lengkap']) ?></strong>
+                            <small>NIS <?= htmlspecialchars($row['nis'] ?? '-') ?> &middot; <?= htmlspecialchars($row['kelas'] ?? '-') ?></small>
+                        <?php else: ?><span class="gone">[Anggota dihapus]</span><?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if (!empty($row['judul'])): ?>
+                            <strong><?= htmlspecialchars($row['judul']) ?></strong>
+                            <small><?= htmlspecialchars($row['kode_item'] ?? '-') ?></small>
+                        <?php else: ?><span class="gone">[Buku / eksemplar dihapus]</span><?php endif; ?>
+                    </td>
+                    <td class="nw"><?= tglId($row['tgl_pinjam'], $blnId) ?></td>
+                    <td class="nw"><?= tglId($row['tgl_kembali_rencana'], $blnId) ?></td>
+                    <td class="nw"><?= tglId($row['tgl_kembali_aktual'], $blnId) ?></td>
+                    <td><span class="kt <?= $ktKls ?>"><?= $kt ?></span></td>
+                    <td><span class="bd <?= $bd ?>"><?= $lb ?></span></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+    </div>
+    <div class="print-foot"><div>Petugas Perpustakaan<i></i><b><?= htmlspecialchars($_SESSION['admin_nama'] ?? 'Administrator') ?></b></div></div>
+</section>
 <?php require 'includes/footer.php'; ?>

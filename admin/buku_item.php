@@ -188,7 +188,7 @@ require 'includes/header.php';
             </form>
 
             <!-- OPSIONAL: DAFTARKAN KODE MANUAL -->
-            <details style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--slate-200);">
+            <!-- <details style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--slate-200);">
                 <summary style="cursor: pointer; font-size: 13px; font-weight: 600; color: var(--slate-600); user-select: none;">
                     ➕ Daftarkan Barcode / Kode Manual Khusus (Opsional)
                 </summary>
@@ -203,7 +203,7 @@ require 'includes/header.php';
                         <button type="submit" class="btn btn-secondary">Simpan Kode Manual</button>
                     </form>
                 </div>
-            </details>
+            </details> -->
         </div>
 
         <!-- TABEL EKSEMPLAR -->

@@ -15,6 +15,7 @@ if (isset($_GET['error']) || (isset($_GET['success']) && $_GET['success'] === 'd
 }
 
 require_once 'config/koneksi.php';
+require_once 'config/upload_cover.php';
 
 $lamaPinjam = 7;
 
@@ -196,6 +197,11 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
 .panel .btn{margin-top:20px;width:100%}
 .panel-hint{margin-top:12px;font-size:13.5px;color:var(--muted);text-align:center}.panel-hint a{color:var(--baize);font-weight:600}
 
+.panel-cover{width:132px;aspect-ratio:3/4;margin:0 0 18px;overflow:hidden;background:var(--paper);border-radius:6px 10px 10px 6px;box-shadow:0 14px 24px -12px rgba(0,0,0,.45),inset 5px 0 0 rgba(0,0,0,.15)}
+.panel-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.panel-cover.is-empty{display:flex;align-items:flex-end;padding:12px 10px 12px 16px;background:var(--c);color:#fff}
+.panel-cover.is-empty span{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;font:700 14px/1.2 var(--serif)}
+
 /* peran */
 .roles{padding:0 0 96px}
 .tabs{margin-top:30px;display:inline-flex;gap:4px;padding:4px;background:var(--white);border:1px solid var(--line);border-radius:12px}
@@ -237,7 +243,6 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
 <header class="site-header" id="header">
   <div class="wrap">
     <a href="index.php" class="brand" aria-label="Pinjam.In, beranda">
-      <span class="brand-mark"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M9 7h6"/><path d="M9 11h6"/></svg></span>
       Pinjam.In
     </a>
     <nav class="nav" aria-label="Navigasi utama">
@@ -354,6 +359,7 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
               $tinggi = 190 + (((int)$buku['id'] * 53) % 80);
               $lebar  = 50 + ((mb_strlen((string)$buku['judul']) % 4) * 6);
               $ada    = (int)$buku['total_tersedia'];
+              $coverUrl = coverUrl($buku['cover'] ?? null, 'uploads/covers/');
             ?>
             <button type="button" class="spine <?= $ada > 0 ? '' : 'is-out' ?>"
               style="height:<?= $tinggi ?>px;width:<?= $lebar ?>px;background:<?= $warna ?>"
@@ -365,6 +371,7 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
               data-tahun="<?= e($buku['tahun_terbit'] ?? '-') ?>"
               data-kategori="<?= e($kat) ?>"
               data-warna="<?= e($warna) ?>"
+              data-cover="<?= e($coverUrl) ?>"
               data-total="<?= (int)$buku['total_eksemplar'] ?>"
               data-tersedia="<?= $ada ?>"
               data-search="<?= e(mb_strtolower($buku['judul'] . ' ' . $buku['pengarang'] . ' ' . $buku['penerbit'] . ' ' . $kat)) ?>">
@@ -378,6 +385,7 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
         </div>
 
         <aside class="panel" id="panel" aria-live="polite">
+          <div class="panel-cover is-empty" id="pCover"></div>
           <span class="panel-cat" id="pCat"></span>
           <h3 id="pTitle"></h3>
           <p class="panel-author" id="pAuthor"></p>
@@ -608,6 +616,14 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
       spines.forEach(function (s) { s.setAttribute('aria-pressed', s === sp ? 'true' : 'false'); });
       var d = sp.dataset, total = parseInt(d.total, 10) || 0, ada = parseInt(d.tersedia, 10) || 0;
       panel.style.setProperty('--c', d.warna);
+      var cv = $('pCover'); cv.innerHTML = '';
+      if (d.cover) {
+        cv.className = 'panel-cover';
+        var im = new Image(); im.alt = 'Sampul ' + d.judul; im.src = d.cover; cv.appendChild(im);
+      } else {
+        cv.className = 'panel-cover is-empty';
+        var sp2 = document.createElement('span'); sp2.textContent = d.judul; cv.appendChild(sp2);
+      }
       $('pCat').textContent = d.kategori;
       $('pTitle').textContent = d.judul;
       $('pAuthor').textContent = 'Oleh ' + (d.pengarang || '-');

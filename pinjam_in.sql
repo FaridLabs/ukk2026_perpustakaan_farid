@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 19, 2026 at 06:21 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: Nov 08, 2026 at 05:19 AM
+-- Server version: 10.4.27-MariaDB
+-- PHP Version: 7.4.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -65,11 +65,10 @@ CREATE TABLE `anggota` (
 --
 
 INSERT INTO `anggota` (`id`, `nis`, `kode_rfid`, `nama_lengkap`, `kelas`, `no_hp`, `username`, `password`, `created_at`) VALUES
-(15, '2425009', '1709191630', 'Muhammad Farid Malik', 'XII RPL 2', '085', 'farid', '$2y$10$DrAry8ABBHwoQxlj.BTKMOE2cRQaOrsr3Y2qtQEJbft2sJ989DEuK', '2026-09-10 07:46:52'),
 (16, '24250223', '1705319278', 'BAGAS NATASAPUTRA', 'XII RPL 2', '085', 'bagas', '$2y$10$Oddy9NtoSApmKhOn.O.iv.DFAbT.kByXzDnAJCP3R0D/pCSHG1KpG', '2026-09-10 07:49:16'),
 (17, '5252536', '1709911214', 'Yaya Dadan Jaya', 'XII RPL 2', '085', 'yaya', '$2y$10$y7AmlbS8f5urqQjB9olbl.HRXwM0eyHbV7mnNWmsMUA0h.bGglkpe', '2026-09-10 07:49:33'),
 (18, '123242', '1705876302', 'farel', 'kuliah', '213314', 'buku pinjam', '$2y$10$bQMr39Kda.J0El4ucbTgaO.RbC7aONJ1jq4qODPa256pWfqg3Uy.q', '2026-10-08 04:34:12'),
-(21, '2425123', NULL, 'Muhammad Farid Malik', 'XII RPL 2', '085798231433', 'fariddd', '$2y$10$WrnYRmVSkIv.ic/uUOk8a.Hcfw5lla.nkvXnAO28AvXB2iiipEOA2', '2026-10-19 03:46:13'),
+(21, '2425123', NULL, 'Muhammad Farid Malik', 'XII RPL 2', '085798231433', 'fariddd', '$2y$10$yYiJ5mFk8rqm4iZVkYbQduGIlyDZQlWn8ypSJpYT58XEUTRlYWFfq', '2026-10-19 03:46:13'),
 (22, '2425888', NULL, 'Budi Santoso', 'XII RPL 1', '08123456789', 'budisantoso', '$2y$10$OvFTpZHl2GgIDHVd9XTEm.00TViHhAbNqmj1azCbSPvLvWO9dBpTm', '2026-10-19 03:57:27');
 
 -- --------------------------------------------------------
@@ -86,19 +85,20 @@ CREATE TABLE `buku` (
   `penerbit` varchar(100) DEFAULT NULL,
   `tahun_terbit` year(4) DEFAULT NULL,
   `kategori_id` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `cover` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `buku`
 --
 
-INSERT INTO `buku` (`id`, `kode_buku`, `judul`, `pengarang`, `penerbit`, `tahun_terbit`, `kategori_id`, `created_at`) VALUES
-(13, 'BK-2026091009395020', '3756', 'Pidi Baiq', 'google', '2020', 1, '2026-09-10 07:39:50'),
-(14, 'BK-2026092103453597', 'Rekayasa Perangkat Lunak', 'Abijar', 'goggle', '2020', 3, '2026-09-21 01:45:35'),
-(15, 'BK-2026100806312225', 'rekayasa perangkat lunak', 'tok dalang', 'bagas', '0000', 1, '2026-10-08 04:31:22'),
-(16, 'BK-2026100806330530', '3786mdpl', 'afgan', 'farel', '2026', 1, '2026-10-08 04:33:05'),
-(17, 'BK-2026100806373110', '3756', 'afgan', 'farel', '2030', 4, '2026-10-08 04:37:31');
+INSERT INTO `buku` (`id`, `kode_buku`, `judul`, `pengarang`, `penerbit`, `tahun_terbit`, `kategori_id`, `created_at`, `cover`) VALUES
+(13, 'BK-2026091009395020', '3756', 'Pidi Baiq', 'google', 2020, 1, '2026-09-10 07:39:50', NULL),
+(14, 'BK-2026092103453597', 'Rekayasa Perangkat Lunak', 'Abijar', 'goggle', 2020, 3, '2026-09-21 01:45:35', NULL),
+(15, 'BK-2026100806312225', 'rekayasa perangkat lunak', 'tok dalang', 'bagas', 0000, 1, '2026-10-08 04:31:22', NULL),
+(16, 'BK-2026100806330530', '3786mdpl', 'afgan', 'farel', 2026, 1, '2026-10-08 04:33:05', NULL),
+(17, 'BK-2026100806373110', '3756', 'afgan', 'farel', 2030, 4, '2026-10-08 04:37:31', 'cover_d18a73a134538c9c.jpg');
 
 -- --------------------------------------------------------
 
@@ -265,13 +265,13 @@ ALTER TABLE `buku`
 -- AUTO_INCREMENT for table `buku_item`
 --
 ALTER TABLE `buku_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `kategori`
 --
 ALTER TABLE `kategori`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `transaksi`

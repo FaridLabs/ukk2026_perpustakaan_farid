@@ -38,6 +38,7 @@ if (!function_exists('ic')) {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
     <link rel="stylesheet" href="../assets/css/admin.css?v=1.0">
+    <link rel="stylesheet" href="../assets/css/transition.css?v=1.0">
     <?php if (!empty($extraHead)) echo $extraHead; ?>
 </head>
 <body class="adm">

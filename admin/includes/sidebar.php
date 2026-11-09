@@ -1,8 +1,8 @@
 <?php
 $currentPage = $currentPage ?? basename($_SERVER['PHP_SELF'], '.php');
-$namaAdmin   = $_SESSION['admin_nama'] ?? 'Administrator';
+$sbNamaAdmin = $_SESSION['admin_nama'] ?? 'Administrator';
 
-$menu = [
+$sbMenu = [
     'MENU UTAMA' => [
         ['dashboard',    'dashboard.php',    'home',    'Dashboard'],
         ['peminjaman',   'peminjaman.php',   'loan',    'Peminjaman Buku'],
@@ -16,8 +16,8 @@ $menu = [
     ],
 ];
 // Halaman turunan yang tetap menandai menu induknya
-$alias = ['buku_item' => 'buku'];
-$aktif = $alias[$currentPage] ?? $currentPage;
+$sbAlias = ['buku_item' => 'buku'];
+$sbAktif = $sbAlias[$currentPage] ?? $currentPage;
 ?>
 <aside class="side" id="sidebar" aria-label="Menu admin">
     <a href="dashboard.php" class="side-brand" aria-label="Pinjam.In, dashboard">
@@ -32,18 +32,17 @@ $aktif = $alias[$currentPage] ?? $currentPage;
     <div class="side-user">
         <div class="side-ava"><?= ic('user', 24) ?></div>
         <div class="side-who">
-            <b><?= htmlspecialchars($namaAdmin) ?></b>
-            <small>Administrator</small>
+            <b><?= htmlspecialchars($sbNamaAdmin) ?></b>
+            <div class="side-role"><small>Administrator</small><span class="pill-on">Online</span></div>
         </div>
-        <span class="pill-on">Online</span>
     </div>
 
     <nav class="side-nav">
-        <?php foreach ($menu as $judul => $items): ?>
-            <div class="side-label"><?= htmlspecialchars($judul) ?></div>
-            <?php foreach ($items as [$kode, $href, $ikon, $label]): ?>
-                <a href="<?= $href ?>" class="<?= $aktif === $kode ? 'active' : '' ?>" <?= $aktif === $kode ? 'aria-current="page"' : '' ?>>
-                    <?= ic($ikon) ?><span><?= $label ?></span>
+        <?php foreach ($sbMenu as $sbJudul => $sbGrup): ?>
+            <div class="side-label"><?= htmlspecialchars($sbJudul) ?></div>
+            <?php foreach ($sbGrup as [$sbKode, $sbHref, $sbIkon, $sbLabel]): ?>
+                <a href="<?= $sbHref ?>" class="<?= $sbAktif === $sbKode ? 'active' : '' ?>" <?= $sbAktif === $sbKode ? 'aria-current="page"' : '' ?>>
+                    <?= ic($sbIkon) ?><span><?= $sbLabel ?></span>
                 </a>
             <?php endforeach; ?>
         <?php endforeach; ?>

@@ -1,6 +1,13 @@
 <?php
 require 'cek_session_admin.php';
 require 'koneksi.php';
+require_once __DIR__ . '/upload_cover.php';
+
+// Jika file yang diunggah melebihi post_max_size, PHP mengosongkan $_POST sepenuhnya
+if (empty($_POST) && !empty($_SERVER['CONTENT_LENGTH'])) {
+    header('Location: ../admin/buku.php?error=cover&pesan=' . urlencode('Ukuran file melebihi batas server. Gunakan cover maksimal 2 MB.'));
+    exit;
+}
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
@@ -21,6 +28,14 @@ if ($action === 'tambah') {
         exit;
     }
 
+    // Upload cover (opsional). Dilakukan sebelum transaksi supaya file tidak valid langsung ditolak.
+    $hasilCover = simpanCover($_FILES['cover'] ?? null);
+    if (!$hasilCover['ok']) {
+        header('Location: ../admin/buku.php?error=cover&pesan=' . urlencode($hasilCover['error']));
+        exit;
+    }
+    $coverBaru = $hasilCover['file']; // null jika tidak ada file diunggah
+
     try {
         $koneksi->beginTransaction();
 
@@ -33,8 +48,8 @@ if ($action === 'tambah') {
         } while ($cekKode->fetch()['total'] > 0);
 
         $stmt = $koneksi->prepare("
-            INSERT INTO buku (kode_buku, judul, pengarang, penerbit, tahun_terbit, kategori_id)
-            VALUES (:kode_buku, :judul, :pengarang, :penerbit, :tahun_terbit, :kategori_id)
+            INSERT INTO buku (kode_buku, judul, pengarang, penerbit, tahun_terbit, kategori_id, cover)
+            VALUES (:kode_buku, :judul, :pengarang, :penerbit, :tahun_terbit, :kategori_id, :cover)
         ");
         $stmt->bindParam(':kode_buku',    $kode_buku);
         $stmt->bindParam(':judul',        $judul);
@@ -42,6 +57,7 @@ if ($action === 'tambah') {
         $stmt->bindParam(':penerbit',     $penerbit);
         $stmt->bindParam(':tahun_terbit', $tahun_terbit);
         $stmt->bindParam(':kategori_id',  $kategori_id);
+        $stmt->bindValue(':cover',        $coverBaru, $coverBaru === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $stmt->execute();
 
         $bukuId = $koneksi->lastInsertId();
@@ -62,7 +78,10 @@ if ($action === 'tambah') {
         exit;
 
     } catch (Exception $e) {
-        $koneksi->rollBack();
+        if ($koneksi->inTransaction()) {
+            $koneksi->rollBack();
+        }
+        hapusCover($coverBaru); // jangan tinggalkan file yatim jika data gagal disimpan
         header('Location: ../admin/buku.php?error=system');
         exit;
     }
@@ -75,24 +94,65 @@ if ($action === 'tambah') {
     $penerbit     = trim($_POST['penerbit'] ?? '');
     $tahun_terbit = $_POST['tahun_terbit'] ?? null;
     $kategori_id  = $_POST['kategori_id'] ?? null;
+    $hapusCover   = !empty($_POST['hapus_cover']);
 
     if (empty($judul) || empty($kategori_id) || empty($id)) {
         header('Location: ../admin/buku.php?error=empty');
         exit;
     }
 
-    $stmt = $koneksi->prepare("
-        UPDATE buku SET judul = :judul, pengarang = :pengarang, penerbit = :penerbit,
-            tahun_terbit = :tahun_terbit, kategori_id = :kategori_id
-        WHERE id = :id
-    ");
-    $stmt->bindParam(':judul',        $judul);
-    $stmt->bindParam(':pengarang',    $pengarang);
-    $stmt->bindParam(':penerbit',     $penerbit);
-    $stmt->bindParam(':tahun_terbit', $tahun_terbit);
-    $stmt->bindParam(':kategori_id',  $kategori_id);
-    $stmt->bindParam(':id',           $id);
-    $stmt->execute();
+    // Ambil cover yang sedang dipakai
+    $stmtLama = $koneksi->prepare("SELECT cover FROM buku WHERE id = :id");
+    $stmtLama->bindParam(':id', $id);
+    $stmtLama->execute();
+    $barisLama = $stmtLama->fetch();
+    if (!$barisLama) {
+        header('Location: ../admin/buku.php');
+        exit;
+    }
+    $coverLama = $barisLama['cover'] ?? null;
+
+    // Upload cover baru (opsional)
+    $hasilCover = simpanCover($_FILES['cover'] ?? null);
+    if (!$hasilCover['ok']) {
+        header('Location: ../admin/buku.php?edit=' . urlencode($id) . '&error=cover&pesan=' . urlencode($hasilCover['error']));
+        exit;
+    }
+    $coverBaru = $hasilCover['file'];
+
+    // Tentukan cover akhir: file baru > hapus > tetap pakai yang lama
+    if ($coverBaru !== null) {
+        $coverFinal = $coverBaru;
+    } elseif ($hapusCover) {
+        $coverFinal = null;
+    } else {
+        $coverFinal = $coverLama;
+    }
+
+    try {
+        $stmt = $koneksi->prepare("
+            UPDATE buku SET judul = :judul, pengarang = :pengarang, penerbit = :penerbit,
+                tahun_terbit = :tahun_terbit, kategori_id = :kategori_id, cover = :cover
+            WHERE id = :id
+        ");
+        $stmt->bindParam(':judul',        $judul);
+        $stmt->bindParam(':pengarang',    $pengarang);
+        $stmt->bindParam(':penerbit',     $penerbit);
+        $stmt->bindParam(':tahun_terbit', $tahun_terbit);
+        $stmt->bindParam(':kategori_id',  $kategori_id);
+        $stmt->bindValue(':cover',        $coverFinal, $coverFinal === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindParam(':id',           $id);
+        $stmt->execute();
+    } catch (Exception $e) {
+        hapusCover($coverBaru); // batalkan file baru jika update gagal
+        header('Location: ../admin/buku.php?error=system');
+        exit;
+    }
+
+    // Data tersimpan, baru hapus file cover lama yang sudah tidak dipakai
+    if (!empty($coverLama) && $coverLama !== $coverFinal) {
+        hapusCover($coverLama);
+    }
 
     header('Location: ../admin/buku.php?success=edit');
     exit;
@@ -112,9 +172,17 @@ if ($action === 'tambah') {
         exit;
     }
 
+    // Simpan nama cover dulu supaya file bisa dihapus setelah barisnya terhapus
+    $stmtCover = $koneksi->prepare("SELECT cover FROM buku WHERE id = :id");
+    $stmtCover->bindParam(':id', $id);
+    $stmtCover->execute();
+    $coverHapus = $stmtCover->fetch()['cover'] ?? null;
+
     $stmt = $koneksi->prepare("DELETE FROM buku WHERE id = :id");
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+
+    hapusCover($coverHapus);
 
     header('Location: ../admin/buku.php?success=hapus');
     exit;

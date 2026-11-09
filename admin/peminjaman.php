@@ -13,6 +13,7 @@ $anggota      = null;
 $listDipinjam = [];
 $jumlahAktif  = 0;
 $batasPinjam  = 3;
+$lamaPinjam   = 7; // hanya untuk teks aturan; angka sebenarnya diatur di proses_transaksi_admin.php
 
 // Jika anggota sudah di-scan (ada di session)
 if (isset($_SESSION['admin_scan_anggota_id'])) {
@@ -43,252 +44,196 @@ if (isset($_SESSION['admin_scan_anggota_id'])) {
     $jumlahAktif  = count($listDipinjam);
 }
 
-$today = date('Y-m-d');
-$pageTitle = 'Peminjaman Buku';
+$today       = date('Y-m-d');
+$pageTitle   = 'Peminjaman Buku';
 $currentPage = 'peminjaman';
+
+$blnId = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+function tglId(string $t, array $b): string {
+    $ts = strtotime($t);
+    return date('j', $ts) . ' ' . $b[(int) date('n', $ts) - 1] . ' ' . date('Y', $ts);
+}
+
+$extraHead = '<link rel="stylesheet" href="../assets/css/scan.css?v=2">';
+
 require 'includes/header.php';
+
+$cekIkon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
 ?>
-        <div class="page-header-wrap">
+<div class="d-head">
+    <div>
+        <h1>Peminjaman Buku</h1>
+        <p>Alur peminjaman cepat berbasis RFID Kartu Anggota dan Barcode/QR Buku.</p>
+    </div>
+</div>
+
+<!-- LANGKAH -->
+<ol class="pm-steps" aria-label="Langkah peminjaman">
+    <li class="pm-step <?= $anggota ? 'done' : 'active' ?>" <?= !$anggota ? 'aria-current="step"' : '' ?>>
+        <span class="n"><?= $anggota ? $cekIkon : '1' ?></span>
+        <div><small>Langkah 1</small><b>Scan Kartu Anggota / NIS</b></div>
+    </li>
+    <li class="pm-line <?= $anggota ? 'on' : '' ?>" aria-hidden="true"></li>
+    <li class="pm-step <?= $anggota ? 'active' : '' ?>" <?= $anggota ? 'aria-current="step"' : '' ?>>
+        <span class="n">2</span>
+        <div><small>Langkah 2</small><b>Scan QR Buku Fisik</b></div>
+    </li>
+</ol>
+
+<!-- NOTIFIKASI -->
+<?php if (isset($_GET['success']) && $_GET['success'] === 'pinjam'): ?>
+    <div class="pm-alert ok" role="status">
+        <?= ic('check') ?>
+        <div>Peminjaman berhasil dicatat. Buku "<strong><?= htmlspecialchars($_GET['judul'] ?? '') ?></strong>" dipinjamkan, batas pengembalian <?= $lamaPinjam ?> hari ke depan.</div>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_GET['error'])):
+    $judulError = htmlspecialchars($_GET['judul'] ?? 'Buku ini');
+    $errMap = [
+        'tidak_ditemukan'      => 'Kartu anggota tidak dikenali. Pastikan RFID atau NIS sudah terdaftar di data anggota.',
+        'buku_tidak_ditemukan' => 'Kode QR/barcode buku tidak ditemukan di sistem.',
+        'batas'                => 'Anggota telah mencapai batas maksimal peminjaman (3 buku). Kembalikan buku terlebih dahulu.',
+        'sudah_pinjam_judul'   => '<strong>Cegah Dobel Scan:</strong> Siswa ini sudah meminjam 1 eksemplar buku "' . $judulError . '". Sistem otomatis menolak peminjaman ganda buku yang sama.',
+        'stok_habis'           => 'Semua eksemplar fisik buku "' . $judulError . '" saat ini sedang dipinjam oleh siswa lain.',
+        'sedang_dipinjam'      => 'Buku "' . $judulError . '" berstatus sedang dipinjam dan belum dikembalikan.',
+        'status_tidak_valid'   => 'Status fisik buku tidak tersedia untuk dipinjam (rusak atau hilang).',
+        'system'               => 'Terjadi kendala pada sistem. Silakan ulangi proses.',
+        'anggota_hilang'       => 'Data anggota tidak ditemukan. Silakan scan ulang.',
+        'empty'                => 'Input scan tidak boleh kosong.',
+    ];
+?>
+    <div class="pm-alert err" role="alert">
+        <?= ic('clock') ?>
+        <div><?= $errMap[$_GET['error']] ?? 'Terjadi kesalahan pada transaksi peminjaman.' ?></div>
+    </div>
+<?php endif; ?>
+
+<?php if (!$anggota): ?>
+    <!-- LANGKAH 1: SCAN KARTU ANGGOTA -->
+    <div class="pm-wrap">
+        <section class="pm-scan" aria-labelledby="hKartu">
+            <div class="pm-reader" aria-hidden="true"><i></i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></svg></div>
+            <div class="pm-body">
+                <h2 id="hKartu">Scan Kartu RFID / Ketik NIS Anggota</h2>
+                <p>Tempelkan kartu pelajar di pembaca RFID. Tidak punya kartu? Ketik NIS siswa lalu tekan Enter.</p>
+                <form action="../config/proses_scan_anggota_admin.php" method="POST" id="form-kartu" autocomplete="off">
+                    <div class="pm-field">
+                        <div class="pm-in" id="wrap-kartu">
+                            <i></i>
+                            <input type="text" name="kode_kartu" id="input-kartu" autofocus autocomplete="off" aria-label="Kode kartu RFID atau NIS" placeholder="Scan kartu RFID / ketik NIS siswa...">
+                        </div>
+                        <button type="submit" id="btn-kartu" class="pm-go">Cari Anggota <?= ic('chev', 18) ?></button>
+                    </div>
+                </form>
+                <p class="pm-status" id="status-kartu" role="status">Siap. Kursor sudah ada di kolom ini, langsung scan kartu.</p>
+            </div>
+        </section>
+
+        <aside class="pm-rules" aria-label="Aturan peminjaman">
+            <h3>Aturan peminjaman</h3>
+            <ul>
+                <li><span><?= $batasPinjam ?></span><div><b>Maksimal <?= $batasPinjam ?> buku aktif</b><small>per anggota, sampai ada yang dikembalikan.</small></div></li>
+                <li><span><?= $lamaPinjam ?></span><div><b><?= $lamaPinjam ?> hari masa pinjam</b><small>dihitung dari tanggal peminjaman.</small></div></li>
+                <li><span>1</span><div><b>Satu eksemplar per judul</b><small>judul yang sama tidak bisa dipinjam dua kali oleh siswa yang sama.</small></div></li>
+            </ul>
+        </aside>
+    </div>
+
+<?php else: ?>
+    <!-- LANGKAH 2: ANGGOTA TERVERIFIKASI -->
+    <?php
+        $kata    = preg_split('/\s+/', trim($anggota['nama_lengkap']));
+        $inisial = mb_strtoupper(mb_substr($kata[0], 0, 1) . (isset($kata[1]) ? mb_substr($kata[1], 0, 1) : ''));
+        $penuh   = $jumlahAktif >= $batasPinjam;
+    ?>
+    <section class="pm-member" aria-label="Anggota terverifikasi">
+        <div class="pm-ava" aria-hidden="true"><?= htmlspecialchars($inisial) ?></div>
+        <div class="pm-who">
+            <h2><?= htmlspecialchars($anggota['nama_lengkap']) ?></h2>
+            <p>
+                <span>NIS <b><?= htmlspecialchars($anggota['nis']) ?></b></span>
+                <span>Kelas <b><?= htmlspecialchars($anggota['kelas']) ?></b></span>
+                <?php if ($anggota['kode_rfid']): ?><span>RFID <code><?= htmlspecialchars($anggota['kode_rfid']) ?></code></span><?php endif; ?>
+            </p>
+        </div>
+        <div class="pm-quota">
+            <small><b><?= $jumlahAktif ?> / <?= $batasPinjam ?></b> slot pinjam terpakai</small>
+            <div class="pm-slots <?= $penuh ? 'full' : '' ?>" aria-hidden="true">
+                <?php for ($s = 0; $s < $batasPinjam; $s++): ?><i class="<?= $s < $jumlahAktif ? 'on' : '' ?>"></i><?php endfor; ?>
+            </div>
+        </div>
+        <a href="peminjaman.php?reset=1" class="pm-swap"><?= ic('return', 16) ?>Ganti Anggota</a>
+    </section>
+
+    <?php if ($penuh): ?>
+        <div class="pm-warn" role="alert">
+            <?= ic('clock') ?>
             <div>
-                <h1>Peminjaman Buku</h1>
-                <p class="page-subtitle">Alur peminjaman cepat berbasis RFID Kartu Anggota dan Barcode/QR Buku.</p>
+                Anggota ini sudah mencapai <strong>batas maksimal peminjaman (<?= $batasPinjam ?> buku)</strong>. Siswa tidak dapat meminjam buku tambahan sebelum mengembalikan salah satu buku pinjaman.
+                <br><a href="pengembalian.php">Menuju halaman pengembalian &rarr;</a>
             </div>
         </div>
-
-        <!-- STEP INDICATOR -->
-        <div class="step-indicator">
-            <div class="step-box <?= $anggota ? 'done' : 'active' ?>">
-                <span class="step-num"><?= $anggota ? '✓' : '1' ?></span>
-                <div>
-                    <div style="font-size: 11px; text-transform: uppercase; color: var(--slate-400);">Langkah 1</div>
-                    <div>Scan Kartu Anggota / NIS</div>
-                </div>
+    <?php else: ?>
+        <section class="pm-scan pm-single" aria-labelledby="hBuku">
+            <div class="pm-reader pm-qr" aria-hidden="true"><em></em><b></b></div>
+            <div class="pm-body">
+                <h2 id="hBuku">Scan Kode QR / Barcode Eksemplar Buku</h2>
+                <p>Kartu terverifikasi, sisa kuota <strong><?= $batasPinjam - $jumlahAktif ?> buku</strong>. Arahkan scanner ke stiker QR yang tertempel pada fisik buku.</p>
+                <form action="../config/proses_transaksi_admin.php" method="POST" id="form-buku" autocomplete="off">
+                    <div class="pm-field">
+                        <div class="pm-in" id="wrap-buku">
+                            <i></i>
+                            <input type="text" name="kode_item" id="input-buku" autofocus autocomplete="off" aria-label="Kode item buku" placeholder="Scan QR kode item buku (Contoh: BK-...)">
+                        </div>
+                        <button type="submit" id="btn-buku" class="pm-go">Proses Pinjam <?= ic('chev', 18) ?></button>
+                    </div>
+                </form>
+                <p class="pm-status" id="status-buku" role="status">Siap. Scan stiker QR buku yang ingin dipinjam.</p>
             </div>
-            <span class="step-arrow">&rarr;</span>
-            <div class="step-box <?= $anggota ? 'active' : '' ?>">
-                <span class="step-num">2</span>
-                <div>
-                    <div style="font-size: 11px; text-transform: uppercase; color: var(--slate-400);">Langkah 2</div>
-                    <div>Scan QR Buku Fisik</div>
-                </div>
+        </section>
+    <?php endif; ?>
+
+    <!-- PINJAMAN AKTIF -->
+    <section class="act pm-list" aria-labelledby="hAktif">
+        <div class="act-top">
+            <div class="panel-ico"><?= ic('book') ?></div>
+            <div class="panel-h" style="display:block">
+                <h2 id="hAktif">Pinjaman aktif <?= htmlspecialchars($kata[0]) ?></h2>
+                <p><?= $jumlahAktif ?> buku belum dikembalikan.</p>
             </div>
         </div>
-
-        <!-- NOTIFIKASI -->
-        <?php if (isset($_GET['success']) && $_GET['success'] === 'pinjam'): ?>
-            <div class="alert alert-success">
-                Peminjaman berhasil dicatat! Buku "<strong><?= htmlspecialchars($_GET['judul'] ?? '') ?></strong>" berhasil dipinjamkan. Batas waktu pengembalian adalah 7 hari ke depan.
-            </div>
-        <?php endif; ?>
-
-        <?php if (isset($_GET['error'])): ?>
-            <?php 
-            $judulError = htmlspecialchars($_GET['judul'] ?? 'Buku ini');
-            $errMap = [
-                'tidak_ditemukan'      => 'Kartu anggota tidak dikenali. Pastikan RFID atau NIS sudah terdaftar di data anggota.',
-                'buku_tidak_ditemukan' => 'Kode QR/barcode buku tidak ditemukan di sistem.',
-                'batas'                => 'Anggota telah mencapai batas maksimal peminjaman (3 buku). Kembalikan buku terlebih dahulu.',
-                'sudah_pinjam_judul'   => '<strong>Cegah Dobel Scan:</strong> Siswa ini sudah meminjam 1 eksemplar buku "' . $judulError . '". Sistem otomatis menolak peminjaman ganda buku yang sama.',
-                'stok_habis'           => 'Semua eksemplar fisik buku "' . $judulError . '" saat ini sedang dipinjam oleh siswa lain.',
-                'sedang_dipinjam'      => 'Buku "' . $judulError . '" berstatus sedang dipinjam dan belum dikembalikan.',
-                'status_tidak_valid'   => 'Status fisik buku tidak tersedia untuk dipinjam (rusak atau hilang).',
-                'system'               => 'Terjadi kendala pada sistem. Silakan ulangi proses.',
-                'anggota_hilang'       => 'Data anggota tidak ditemukan. Silakan scan ulang.',
-                'empty'                => 'Input scan tidak boleh kosong.',
-            ]; 
-            ?>
-            <div class="alert alert-error"><?= $errMap[$_GET['error']] ?? 'Terjadi kesalahan pada transaksi peminjaman.' ?></div>
-        <?php endif; ?>
-
-        <?php if (!$anggota): ?>
-            <!-- STEP 1: SCAN KARTU ANGGOTA -->
-            <div class="form-box rfid-box" style="padding: 32px 28px;">
-                <div style="display: flex; gap: 16px; align-items: flex-start;">
-                    <div style="width: 44px; height: 44px; border-radius: 10px; background: var(--slate-900); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                            <line x1="2" y1="10" x2="22" y2="10"/>
-                        </svg>
-                    </div>
-                    <div style="flex: 1;">
-                        <h3 style="margin-top: 0; margin-bottom: 4px;">Scan Kartu RFID / Ketik NIS Anggota</h3>
-                        <p class="form-desc" style="margin-bottom: 18px;">
-                            Arahkan scanner ke kartu RFID anggota siswa, atau ketikkan NIS secara manual lalu tekan Enter.
-                        </p>
-
-                        <form action="../config/proses_scan_anggota_admin.php" method="POST" id="form-kartu" style="display: flex; gap: 10px; max-width: 620px;" autocomplete="off">
-                            <input type="text" name="kode_kartu" id="input-kartu" autofocus autocomplete="off"
-                                   placeholder="Scan kartu RFID / ketik NIS siswa..."
-                                   style="font-family: var(--font-mono); font-size: 15px; font-weight: 600; padding: 12px 16px; height: 48px;">
-                            <button type="submit" id="btn-kartu" class="btn btn-primary" style="height: 48px; padding: 0 24px;">
-                                Cari Anggota &rarr;
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <script>
-                const formKartu = document.getElementById('form-kartu');
-                const btnKartu  = document.getElementById('btn-kartu');
-                const inp       = document.getElementById('input-kartu');
-                if (formKartu) {
-                    let submitting = false;
-                    formKartu.addEventListener('submit', function (e) {
-                        if (submitting) { e.preventDefault(); return false; }
-                        submitting = true;
-                        btnKartu.disabled = true;
-                    });
-                }
-                if (inp) {
-                    inp.focus();
-                    inp.addEventListener('keydown', e => {
-                        if (e.key === 'Enter') { e.preventDefault(); formKartu.requestSubmit ? formKartu.requestSubmit() : formKartu.submit(); }
-                    });
-                }
-            </script>
-
-        <?php else: ?>
-            <!-- STEP 2: ANGGOTA DITEMUKAN — SCAN QR BUKU -->
-
-            <!-- KARTU IDENTITAS DIGITAL ANGGOTA -->
-            <div class="anggota-card">
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
-                    </div>
-                    <div class="info">
-                        <h3><?= htmlspecialchars($anggota['nama_lengkap']) ?></h3>
-                        <p>
-                            NIS: <strong><?= htmlspecialchars($anggota['nis']) ?></strong> &bull; 
-                            Kelas: <strong><?= htmlspecialchars($anggota['kelas']) ?></strong>
-                            <?php if ($anggota['kode_rfid']): ?>
-                                &bull; RFID: <code><?= htmlspecialchars($anggota['kode_rfid']) ?></code>
-                            <?php endif; ?>
-                        </p>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <div class="badge-slot">
-                        <strong><?= $jumlahAktif ?> / <?= $batasPinjam ?></strong>
-                        Slot Kuota Terpakai
-                    </div>
-                    <a href="peminjaman.php?reset=1" class="btn-reset">
-                        &larr; Ganti Anggota
-                    </a>
-                </div>
-            </div>
-
-            <?php if ($jumlahAktif >= $batasPinjam): ?>
-                <div class="action-hint warn">
-                    Anggota ini sudah mencapai <strong>batas maksimal peminjaman (3 buku)</strong>.
-                    Siswa tidak dapat meminjam buku tambahan sebelum mengembalikan salah satu buku pinjaman.
-                    <div style="margin-top: 10px;">
-                        <a href="pengembalian.php" style="color: var(--brand-primary); font-weight: 700; text-decoration: underline;">Menuju Halaman Pengembalian &rarr;</a>
-                    </div>
-                </div>
+        <div class="tbl">
+            <?php if (empty($listDipinjam)): ?>
+                <p class="pm-empty">Belum ada pinjaman aktif. Buku yang dipinjam hari ini akan muncul di sini.</p>
             <?php else: ?>
-                <div class="action-hint">
-                    Kartu anggota terverifikasi. Sisa kuota peminjaman: <strong><?= $batasPinjam - $jumlahAktif ?> buku</strong>. Silakan scan label buku yang ingin dipinjam.
-                </div>
-
-                <!-- FORM SCAN BUKU -->
-                <div class="form-box" style="padding: 28px;">
-                    <div style="display: flex; gap: 16px; align-items: flex-start;">
-                        <div style="width: 44px; height: 44px; border-radius: 10px; background: var(--slate-900); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-                                <path d="M6 6h10"/>
-                                <path d="M6 10h10"/>
-                            </svg>
-                        </div>
-                        <div style="flex: 1;">
-                            <h3 style="margin-top: 0;">Scan Kode QR / Barcode Eksemplar Buku</h3>
-                            <p class="form-desc" style="margin-bottom: 16px;">
-                                Tempelkan scanner pada label QR stiker yang tertempel pada fisik buku perpustakaan.
-                            </p>
-
-                            <form action="../config/proses_transaksi_admin.php" method="POST" id="form-buku" style="display: flex; gap: 10px; max-width: 620px;" autocomplete="off">
-                                <input type="text" name="kode_item" id="input-buku" autofocus autocomplete="off"
-                                       placeholder="Scan QR kode item buku (Contoh: BK-...)"
-                                       style="font-family: var(--font-mono); font-size: 15px; font-weight: 600; padding: 12px 16px; height: 48px;">
-                                <button type="submit" id="btn-buku" class="btn btn-primary" style="height: 48px; padding: 0 24px;">
-                                    Proses Pinjam &rarr;
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <script>
-                    const formBuku = document.getElementById('form-buku');
-                    const btnBuku  = document.getElementById('btn-buku');
-                    const inpBuku  = document.getElementById('input-buku');
-                    if (formBuku) {
-                        let submittingBuku = false;
-                        formBuku.addEventListener('submit', function (e) {
-                            if (submittingBuku) { e.preventDefault(); return false; }
-                            submittingBuku = true;
-                            btnBuku.disabled = true;
-                        });
-                    }
-                    if (inpBuku) {
-                        inpBuku.focus();
-                        inpBuku.addEventListener('keydown', e => {
-                            if (e.key === 'Enter') { e.preventDefault(); formBuku.requestSubmit ? formBuku.requestSubmit() : formBuku.submit(); }
-                        });
-                    }
-                </script>
+            <table>
+                <thead><tr><th>Judul Buku</th><th>Tanggal Pinjam</th><th>Batas Pengembalian</th><th>Status</th></tr></thead>
+                <tbody>
+                <?php foreach ($listDipinjam as $row):
+                    $sisa = (int) round((strtotime($row['tgl_kembali_rencana']) - strtotime($today)) / 86400);
+                    if ($sisa < 0)      { $kls = 'late'; $lbl = 'Terlambat ' . abs($sisa) . ' hari'; }
+                    elseif ($sisa === 0) { $kls = 'soon'; $lbl = 'Jatuh tempo hari ini'; }
+                    elseif ($sisa === 1) { $kls = 'soon'; $lbl = 'Sisa 1 hari'; }
+                    else                 { $kls = 'ok';   $lbl = 'Sisa ' . $sisa . ' hari'; }
+                ?>
+                    <tr>
+                        <td><strong><?= htmlspecialchars($row['judul']) ?></strong><small><?= htmlspecialchars($row['kode_item']) ?></small></td>
+                        <td><?= tglId($row['tgl_pinjam'], $blnId) ?></td>
+                        <td><?= tglId($row['tgl_kembali_rencana'], $blnId) ?></td>
+                        <td><span class="pm-b <?= $kls ?>"><?= $lbl ?></span></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
             <?php endif; ?>
+        </div>
+    </section>
+<?php endif; ?>
 
-            <!-- BUKU YANG SEDANG AKTIF DIPINJAM -->
-            <div style="margin-top: 32px;">
-                <h3 style="margin-bottom: 12px;">Buku yang Sedang Dipinjam oleh <?= htmlspecialchars($anggota['nama_lengkap']) ?> (<?= $jumlahAktif ?> buku):</h3>
-                
-                <div class="table-container">
-                    <table class="table-data">
-                        <thead>
-                            <tr>
-                                <th style="width: 48px;">No</th>
-                                <th>Judul Buku</th>
-                                <th>Kode Item Fisik</th>
-                                <th>Tanggal Pinjam</th>
-                                <th>Batas Pengembalian</th>
-                                <th>Status Pinjaman</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($listDipinjam)): ?>
-                                <tr><td colspan="6">Anggota ini sedang tidak memiliki buku yang dipinjam.</td></tr>
-                            <?php else: ?>
-                                <?php foreach ($listDipinjam as $i => $row):
-                                    $terlambat = $today > $row['tgl_kembali_rencana'];
-                                    $selisih = (int) round((strtotime($today) - strtotime($row['tgl_kembali_rencana'])) / 86400);
-                                ?>
-                                <tr>
-                                    <td><?= $i + 1 ?></td>
-                                    <td><strong style="color: var(--slate-900);"><?= htmlspecialchars($row['judul']) ?></strong></td>
-                                    <td><code><?= htmlspecialchars($row['kode_item']) ?></code></td>
-                                    <td><?= htmlspecialchars($row['tgl_pinjam']) ?></td>
-                                    <td><?= htmlspecialchars($row['tgl_kembali_rencana']) ?></td>
-                                    <td>
-                                        <?php if ($terlambat): ?>
-                                            <span class="badge-danger">Terlambat <?= $selisih ?> hari</span>
-                                        <?php else: ?>
-                                            <span class="badge-info">Dipinjam</span>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        <?php endif; ?>
+<script src="../assets/js/scan.js"></script>
+<script>
+pasangScan('kartu', 'Siap. Kursor sudah ada di kolom ini, langsung scan kartu.');
+pasangScan('buku', 'Siap. Scan stiker QR buku yang ingin dipinjam.');
+</script>
 <?php require 'includes/footer.php'; ?>

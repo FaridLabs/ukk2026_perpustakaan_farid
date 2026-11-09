@@ -1,6 +1,7 @@
 <?php
 require '../config/cek_session_siswa.php';
 require '../config/koneksi.php';
+require_once '../config/upload_cover.php';
 
 $keyword    = trim($_GET['keyword'] ?? '');
 $kategoriId = trim($_GET['kategori'] ?? '');
@@ -34,6 +35,17 @@ $data = $stmt->fetchAll();
 $kategoriList = $koneksi->query("SELECT * FROM kategori ORDER BY nama_kategori ASC")->fetchAll();
 $pageTitle = 'Katalog Buku';
 $currentPage = 'daftar_buku';
+
+$extraHead = <<<'CSS'
+<style>
+.kt-body{display:flex;gap:14px;align-items:flex-start}
+.kt-cover{flex:none;width:84px;aspect-ratio:3/4;display:grid;place-items:center;overflow:hidden;color:#147a50;background:linear-gradient(135deg,#dcf5e8,#bfe6d1);border-radius:4px 9px 9px 4px;box-shadow:0 10px 18px -10px rgba(16,60,40,.5),inset 4px 0 0 rgba(0,0,0,.12)}
+.kt-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.kt-info{min-width:0;flex:1}
+.kt-info h3{overflow-wrap:anywhere}
+</style>
+CSS;
+
 require 'includes/header.php';
 ?>
         <div class="page-header-wrap">
@@ -78,10 +90,11 @@ require 'includes/header.php';
             <?php else: ?>
                 <?php foreach ($data as $row): 
                     $tersedia = $row['total_tersedia'] > 0;
+                    $cvUrl = coverUrl($row['cover'] ?? null, '../uploads/covers/');
                 ?>
                     <div class="katalog-card">
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px;">
                                 <span class="badge-info" style="font-size: 11px;">
                                     <?= htmlspecialchars($row['nama_kategori'] ?? 'Umum') ?>
                                 </span>
@@ -90,10 +103,24 @@ require 'includes/header.php';
                                 </span>
                             </div>
 
-                            <h3><?= htmlspecialchars($row['judul']) ?></h3>
+                            <div class="kt-body">
+                                <div class="kt-cover">
+                                    <?php if ($cvUrl): ?>
+                                        <img src="<?= htmlspecialchars($cvUrl) ?>" alt="Cover <?= htmlspecialchars($row['judul']) ?>" loading="lazy" width="84" height="112">
+                                    <?php else: ?>
+                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                                            <path d="M8 7h8M8 11h8"/>
+                                        </svg>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="kt-info">
+                                    <h3><?= htmlspecialchars($row['judul']) ?></h3>
 
-                            <p><strong>Penulis:</strong> <?= htmlspecialchars($row['pengarang'] ?: '-') ?></p>
-                            <p><strong>Penerbit:</strong> <?= htmlspecialchars($row['penerbit'] ?: '-') ?> (<?= htmlspecialchars($row['tahun_terbit'] ?: '-') ?>)</p>
+                                    <p><strong>Penulis:</strong> <?= htmlspecialchars($row['pengarang'] ?: '-') ?></p>
+                                    <p><strong>Penerbit:</strong> <?= htmlspecialchars($row['penerbit'] ?: '-') ?> (<?= htmlspecialchars($row['tahun_terbit'] ?: '-') ?>)</p>
+                                </div>
+                            </div>
                         </div>
 
                         <div>
