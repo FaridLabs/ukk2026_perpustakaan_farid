@@ -1,28 +1,38 @@
 <?php
-// siswa/includes/sidebar.php
+/**
+ * ============================================================================
+ * SIDEBAR PORTAL SISWA - PINJAM.IN
+ * ============================================================================
+ * Menampilkan logo sistem, profil ringkas siswa, menu navigasi utama,
+ * indikator buku aktif yang sedang dipinjam, identitas sekolah, dan tombol logout.
+ */
+
+// Menentukan halaman aktif berdasarkan nama file PHP yang sedang berjalan
 $currentPage = $currentPage ?? basename($_SERVER['PHP_SELF'], '.php');
 
+// Mengambil profil siswa dari sesi login
 $namaSiswa  = $_SESSION['anggota_nama'] ?? 'Siswa Perpustakaan';
-$initial    = strtoupper(substr($namaSiswa, 0, 1));
+$initial    = strtoupper(substr(trim($namaSiswa), 0, 1)) ?: 'S';
 $kelasSiswa = $_SESSION['anggota_kelas'] ?? '-';
 
-// Ubah sesuai nama sekolah kamu
+// Konfigurasi nama sekolah untuk perpustakaan
 $namaSekolah = 'SMKN 1 Panyingkiran';
-$subSekolah  = 'Perpustakaan Sekolah';
+$subSekolah  = 'Perpustakaan Digital Sekolah';
 
-// Hitung buku dipinjam untuk badge menu
+// Menghitung jumlah buku yang sedang dipinjam oleh siswa saat ini (untuk badge angka merah/hijau di menu)
 $badgeDipinjam = 0;
 if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
     $stmtBadge = $koneksi->prepare("SELECT COUNT(*) FROM transaksi WHERE anggota_id = :id AND status = 'dipinjam'");
     $stmtBadge->execute([':id' => $_SESSION['anggota_id']]);
-    $badgeDipinjam = (int)$stmtBadge->fetchColumn();
+    $badgeDipinjam = (int) $stmtBadge->fetchColumn();
 }
 ?>
 <aside class="sidebar" id="sidebar">
 
-    <!-- BRAND -->
-    <a href="dashboard.php" class="sb-brand">
+    <!-- 1. IDENTITAS BRAND PINJAM.IN -->
+    <a href="dashboard.php" class="sb-brand" title="Menuju Dashboard Siswa">
         <div class="sb-brand-logo">
+            <!-- Ikon Buku Digital Pinjam.In -->
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
                 <path d="M8 7h8"/>
@@ -31,27 +41,28 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
         </div>
         <div class="sb-brand-text">
             <strong>Pinjam.In</strong>
-            <span>Perpustakaan Digital Sekolah</span>
+            <span>Perpustakaan Digital</span>
         </div>
     </a>
 
-    <!-- KARTU PENGGUNA -->
+    <!-- 2. KARTU PROFIL RINGKAS SISWA -->
     <div class="sb-user">
         <div class="sb-user-avatar"><?= $initial ?></div>
         <div class="sb-user-meta">
             <div class="sb-user-top">
-                <strong title="<?= htmlspecialchars($namaSiswa) ?>"><?= htmlspecialchars($namaSiswa) ?></strong>
-                <span class="sb-online">Online</span>
+                <strong title="<?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?></strong>
+                <span class="sb-online">Aktif</span>
             </div>
-            <span>Siswa &bull; <?= htmlspecialchars($kelasSiswa) ?></span>
+            <span>Kelas <?= htmlspecialchars($kelasSiswa, ENT_QUOTES, 'UTF-8') ?></span>
         </div>
     </div>
 
-    <!-- NAVIGASI -->
+    <!-- 3. DAFTAR MENU NAVIGASI SISWA -->
     <div class="sidebar-nav">
         <div class="nav-group">
-            <div class="nav-group-label">Menu Utama</div>
+            <div class="nav-group-label">Menu Navigasi</div>
             <ul class="nav-group-list">
+                <!-- Menu Dashboard -->
                 <li>
                     <a href="dashboard.php" class="nav-link <?= $currentPage === 'dashboard' ? 'active' : '' ?>">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -63,6 +74,8 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
                         <span>Dashboard</span>
                     </a>
                 </li>
+
+                <!-- Menu Katalog Buku -->
                 <li>
                     <a href="daftar_buku.php" class="nav-link <?= $currentPage === 'daftar_buku' ? 'active' : '' ?>">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -72,6 +85,8 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
                         <span>Katalog Buku</span>
                     </a>
                 </li>
+
+                <!-- Menu Buku Saya (Dilengkapi Badge Indikator Pinjaman Aktif) -->
                 <li>
                     <a href="pinjam.php" class="nav-link <?= $currentPage === 'pinjam' ? 'active' : '' ?>">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -79,10 +94,12 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
                         </svg>
                         <span>Buku Saya</span>
                         <?php if ($badgeDipinjam > 0): ?>
-                            <span class="sb-badge"><?= $badgeDipinjam ?></span>
+                            <span class="sb-badge" title="<?= $badgeDipinjam ?> buku sedang dipinjam"><?= $badgeDipinjam ?></span>
                         <?php endif; ?>
                     </a>
                 </li>
+
+                <!-- Menu Riwayat Peminjaman -->
                 <li>
                     <a href="riwayat.php" class="nav-link <?= $currentPage === 'riwayat' ? 'active' : '' ?>">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -96,7 +113,7 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
         </div>
     </div>
 
-    <!-- BAGIAN BAWAH -->
+    <!-- 4. FOOTER SIDEBAR (INFORMASI SEKOLAH & LOGOUT) -->
     <div class="sb-bottom">
         <div class="sb-school">
             <div class="sb-school-icon">
@@ -109,18 +126,18 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
                 </svg>
             </div>
             <div class="sb-school-text">
-                <strong><?= htmlspecialchars($namaSekolah) ?></strong>
-                <span><?= htmlspecialchars($subSekolah) ?></span>
+                <strong><?= htmlspecialchars($namaSekolah, ENT_QUOTES, 'UTF-8') ?></strong>
+                <span><?= htmlspecialchars($subSekolah, ENT_QUOTES, 'UTF-8') ?></span>
             </div>
         </div>
 
-        <a href="../logout.php" class="sb-logout" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
+        <a href="../logout.php" class="sb-logout" onclick="return confirm('Apakah Anda yakin ingin keluar dari akun perpustakaan?')">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
                 <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
-            <span>Logout</span>
+            <span>Keluar / Logout</span>
         </a>
     </div>
 </aside>
