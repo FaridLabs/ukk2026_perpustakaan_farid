@@ -3,15 +3,16 @@
  * ============================================================================
  * HALAMAN PROFIL SISWA - PINJAM.IN
  * ============================================================================
- * Halaman untuk melihat dan memperbarui data profil siswa (nama lengkap, kontak WhatsApp,
- * alamat domisili, dan pembaruan password akun). Dilengkapi validasi keamanan
- * dan pencatatan riwayat perubahan ke tabel log aktivitas.
+ * Halaman untuk melihat dan memperbarui data profil siswa (nama lengkap, foto profil,
+ * kontak WhatsApp, alamat domisili, dan pembaruan password akun).
+ * Dilengkapi validasi keamanan, upload foto aman, dan pencatatan riwayat perubahan ke tabel log.
  */
 
 // 1. Cek keamanan sesi login siswa
 require '../config/cek_session_siswa.php';
 require '../config/koneksi.php';
 require_once '../config/log_helper.php';
+require_once '../config/upload_foto.php';
 
 $anggotaId = (int) $_SESSION['anggota_id'];
 
@@ -25,14 +26,36 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $alamat      = trim($_POST['alamat'] ?? '');
     $passBaru    = trim($_POST['password_baru'] ?? '');
     $passKonf    = trim($_POST['password_konfirmasi'] ?? '');
+    $hapusFoto   = isset($_POST['hapus_foto']) && $_POST['hapus_foto'] === '1';
 
-    // Validasi input nama
+    // Validasi input nama wajib diisi
     if (empty($namaLengkap)) {
         header('Location: profil.php?error=nama_kosong');
         exit;
     }
 
-    // Validasi jika siswa ingin mengganti password
+    // Ambil data foto yang sedang tersimpan saat ini di database
+    $stmtCekFoto = $koneksi->prepare("SELECT foto FROM anggota WHERE id = :id LIMIT 1");
+    $stmtCekFoto->execute([':id' => $anggotaId]);
+    $fotoLama = $stmtCekFoto->fetchColumn() ?: null;
+    $fotoFinal = $fotoLama;
+
+    // A. Proses Upload Foto Profil Baru jika ada file yang dipilih
+    if (isset($_FILES['foto']) && ($_FILES['foto']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        $hasilUpload = simpanFotoProfil($_FILES['foto'], $fotoLama, 'siswa');
+        if (!$hasilUpload['ok']) {
+            // Jika validasi ukuran/format gagal, kembalikan pesan error ke siswa
+            header('Location: profil.php?error=upload_gagal&msg=' . urlencode($hasilUpload['error']));
+            exit;
+        }
+        $fotoFinal = $hasilUpload['file'];
+    } elseif ($hapusFoto) {
+        // B. Jika siswa mencentang opsi hapus foto saat ini
+        hapusFotoProfil($fotoLama);
+        $fotoFinal = null;
+    }
+
+    // C. Validasi jika siswa ingin mengganti password login
     $ubahPassword = false;
     $hashPassword = null;
     if (!empty($passBaru)) {
@@ -50,36 +73,39 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
     try {
         if ($ubahPassword) {
-            // Update nama, kontak, alamat, dan password baru
+            // Simpan nama, kontak, alamat, foto profil, dan password baru
             $stmtUpdate = $koneksi->prepare("
                 UPDATE anggota 
-                SET nama_lengkap = :nama, no_hp = :hp, alamat = :alamat, password = :pass
+                SET nama_lengkap = :nama, no_hp = :hp, alamat = :alamat, foto = :foto, password = :pass
                 WHERE id = :id
             ");
             $stmtUpdate->execute([
                 ':nama'   => $namaLengkap,
                 ':hp'     => $noHp,
                 ':alamat' => $alamat,
+                ':foto'   => $fotoFinal,
                 ':pass'   => $hashPassword,
                 ':id'     => $anggotaId,
             ]);
         } else {
-            // Update data tanpa mengubah password
+            // Simpan tanpa mengubah password
             $stmtUpdate = $koneksi->prepare("
                 UPDATE anggota 
-                SET nama_lengkap = :nama, no_hp = :hp, alamat = :alamat
+                SET nama_lengkap = :nama, no_hp = :hp, alamat = :alamat, foto = :foto
                 WHERE id = :id
             ");
             $stmtUpdate->execute([
                 ':nama'   => $namaLengkap,
                 ':hp'     => $noHp,
                 ':alamat' => $alamat,
+                ':foto'   => $fotoFinal,
                 ':id'     => $anggotaId,
             ]);
         }
 
-        // Perbarui nama di sesi login agar topbar & sidebar langsung terupdate
+        // Perbarui sesi login siswa agar avatar dan nama di sidebar/topbar langsung terupdate
         $_SESSION['anggota_nama'] = $namaLengkap;
+        $_SESSION['anggota_foto'] = $fotoFinal;
 
         // Catat ke log aktivitas sistem
         catatLog(
@@ -110,6 +136,9 @@ if (!$profil) {
     exit;
 }
 
+// URL foto profil untuk ditampilkan (null jika belum pasang foto)
+$urlFotoProfil = !empty($profil['foto']) ? fotoProfilUrl($profil['foto'], '../uploads/profil/') : null;
+
 // 4. Hitung ringkasan transaksi siswa ini untuk badge profil
 $totalPinjam = (int) $koneksi->query("SELECT COUNT(*) FROM transaksi WHERE anggota_id = {$anggotaId}")->fetchColumn();
 $aktifPinjam = (int) $koneksi->query("SELECT COUNT(*) FROM transaksi WHERE anggota_id = {$anggotaId} AND status = 'dipinjam'")->fetchColumn();
@@ -117,9 +146,10 @@ $aktifPinjam = (int) $koneksi->query("SELECT COUNT(*) FROM transaksi WHERE anggo
 // Parsing pesan notifikasi dari URL query
 $errCode = $_GET['error'] ?? '';
 $sucCode = $_GET['success'] ?? '';
+$errMsg  = $_GET['msg'] ?? '';
 
 if ($sucCode === 'update') {
-    $pesanSukses = 'Data profil akun kamu berhasil disimpan dan diperbarui.';
+    $pesanSukses = 'Data profil dan foto akun kamu berhasil disimpan dan diperbarui.';
 }
 if ($errCode === 'nama_kosong') {
     $pesanError = 'Nama lengkap tidak boleh dibiarkan kosong.';
@@ -127,6 +157,8 @@ if ($errCode === 'nama_kosong') {
     $pesanError = 'Password baru minimal harus terdiri dari 6 karakter.';
 } elseif ($errCode === 'pass_beda') {
     $pesanError = 'Konfirmasi password tidak cocok dengan password baru.';
+} elseif ($errCode === 'upload_gagal') {
+    $pesanError = !empty($errMsg) ? htmlspecialchars($errMsg, ENT_QUOTES, 'UTF-8') : 'Gagal mengunggah foto profil.';
 } elseif ($errCode === 'sistem') {
     $pesanError = 'Terjadi kendala pada sistem saat menyimpan data.';
 }
@@ -144,7 +176,7 @@ require 'includes/header.php';
             Profil Anggota Siswa
         </h1>
         <p class="page-subtitle" style="font-size: 14.5px; color: var(--sw-text-muted); margin: 0;">
-            Kelola data identitas akun perpustakaan, nomor kontak WhatsApp, alamat, dan kata sandi login.
+            Kelola data identitas akun, foto profil, nomor WhatsApp, alamat domisili, dan kata sandi login.
         </p>
     </div>
 </div>
@@ -173,66 +205,100 @@ require 'includes/header.php';
 <?php endif; ?>
 
 <!-- =========================================================================
-     2. LAYOUT 2-KOLOM: OVERVIEW KIRI & FORM EDIT KANAN
+     2. FORMULIR LENGKAP PROFIL (MENGGABUNGKAN UPLOAD FOTO & DATA PRIBADI)
      ========================================================================= -->
-<div style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start;">
-    
-    <!-- KOLOM KIRI: KARTU RINGKASAN IDENTITAS SISWA -->
-    <div style="background: #FFFFFF; border: 1px solid var(--sw-border); border-radius: var(--sw-radius-lg); padding: 26px; box-shadow: var(--sw-shadow-sm); text-align: center;">
-        <!-- Avatar Inisial Besar -->
-        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #157A50 0%, #23A06B 100%); color: #FFFFFF; font-size: 32px; font-weight: 800; display: grid; place-items: center; margin: 0 auto 16px; box-shadow: 0 10px 22px rgba(21, 122, 80, 0.28);">
-            <?= strtoupper(substr(trim($profil['nama_lengkap']), 0, 1)) ?: 'S' ?>
+<form action="profil.php" method="POST" enctype="multipart/form-data" autocomplete="off">
+    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start;">
+        
+        <!-- KOLOM KIRI: KARTU IDENTITAS & FOTO PROFIL -->
+        <div style="background: #FFFFFF; border: 1px solid var(--sw-border); border-radius: var(--sw-radius-lg); padding: 26px; box-shadow: var(--sw-shadow-sm); text-align: center;">
+            
+            <!-- Lingkaran Avatar / Foto Profil -->
+            <div id="swAvatarPreview" style="width: 86px; height: 86px; border-radius: 50%; background: linear-gradient(135deg, #157A50 0%, #23A06B 100%); color: #FFFFFF; font-size: 32px; font-weight: 800; display: grid; place-items: center; margin: 0 auto 14px; box-shadow: 0 10px 22px rgba(21, 122, 80, 0.28); overflow: hidden; position: relative;">
+                <?php if ($urlFotoProfil): ?>
+                    <img src="<?= htmlspecialchars($urlFotoProfil, ENT_QUOTES, 'UTF-8') ?>" alt="Foto Profil" style="width: 100%; height: 100%; object-fit: cover;">
+                <?php else: ?>
+                    <span id="swAvatarInitial"><?= strtoupper(substr(trim($profil['nama_lengkap']), 0, 1)) ?: 'S' ?></span>
+                <?php endif; ?>
+            </div>
+
+            <!-- Tombol Pilih Foto Baru -->
+            <div style="margin-bottom: 16px;">
+                <label for="inputFotoSiswa" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 15px; border-radius: 99px; background: var(--sw-primary-soft); color: var(--sw-primary-dark); font-size: 12.5px; font-weight: 700; cursor: pointer; border: 1px solid rgba(21, 122, 80, 0.2); transition: all 0.2s ease;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    <span>Ganti Foto</span>
+                </label>
+                <!-- Input file disembunyikan agar tampilan lebih rapi dan dikontrol oleh tombol di atas -->
+                <input type="file" 
+                       id="inputFotoSiswa" 
+                       name="foto" 
+                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" 
+                       style="display: none;">
+                
+                <small style="display: block; margin-top: 6px; font-size: 11.5px; color: var(--sw-text-subtle);">
+                    Format JPG, PNG, WEBP &middot; Maks. 2 MB
+                </small>
+
+                <!-- Checkbox Hapus Foto jika user sudah memiliki foto profil -->
+                <?php if (!empty($profil['foto'])): ?>
+                    <label style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--sw-danger); cursor: pointer;">
+                        <input type="checkbox" name="hapus_foto" value="1" id="checkHapusFoto">
+                        <span>Hapus foto saat ini</span>
+                    </label>
+                <?php endif; ?>
+            </div>
+
+            <h2 style="font-size: 18.5px; font-weight: 800; color: var(--sw-text); margin: 0 0 4px; line-height: 1.25;">
+                <?= htmlspecialchars($profil['nama_lengkap'], ENT_QUOTES, 'UTF-8') ?>
+            </h2>
+            <p style="font-size: 13px; color: var(--sw-text-muted); margin: 0 0 14px;">
+                Kelas <?= htmlspecialchars($profil['kelas'], ENT_QUOTES, 'UTF-8') ?>
+            </p>
+
+            <span style="display: inline-block; padding: 4px 12px; border-radius: 99px; background: var(--sw-primary-soft); color: var(--sw-primary-dark); font-size: 12px; font-weight: 700; margin-bottom: 18px;">
+                Anggota Siswa Resmi
+            </span>
+
+            <!-- Ringkasan Spesifikasi Akun -->
+            <div style="border-top: 1px solid var(--sw-border); padding-top: 16px; text-align: left; display: flex; flex-direction: column; gap: 11px; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--sw-text-muted);">Nomor Induk (NIS)</span>
+                    <span style="font-weight: 700; color: var(--sw-text); font-family: var(--sw-mono);"><?= htmlspecialchars($profil['nis'], ENT_QUOTES, 'UTF-8') ?></span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--sw-text-muted);">Username</span>
+                    <span style="font-weight: 600; color: var(--sw-text);">@<?= htmlspecialchars($profil['username'], ENT_QUOTES, 'UTF-8') ?></span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--sw-text-muted);">Kartu RFID</span>
+                    <span>
+                        <?php if (!empty($profil['kode_rfid'])): ?>
+                            <code style="background:var(--sw-primary-soft); color:var(--sw-primary-dark); padding:2px 6px; border-radius:4px; font-family:var(--sw-mono); font-size:11.5px;"><?= htmlspecialchars($profil['kode_rfid'], ENT_QUOTES, 'UTF-8') ?></code>
+                        <?php else: ?>
+                            <span style="color:#C23B3B; font-size:12px;">Belum Ditautkan</span>
+                        <?php endif; ?>
+                    </span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--sw-text-muted);">Total Peminjaman</span>
+                    <span style="font-weight: 700; color: var(--sw-primary);"><?= $totalPinjam ?> buku</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--sw-text-muted);">Sedang Dipinjam</span>
+                    <span style="font-weight: 700; color: <?= $aktifPinjam > 0 ? 'var(--sw-warning)' : 'var(--sw-success)' ?>;"><?= $aktifPinjam ?> buku</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--sw-text-muted);">Terdaftar Sejak</span>
+                    <span style="color: var(--sw-text-muted); font-size: 12px;"><?= date('d M Y', strtotime($profil['created_at'])) ?></span>
+                </div>
+            </div>
         </div>
 
-        <h2 style="font-size: 19px; font-weight: 800; color: var(--sw-text); margin: 0 0 4px; line-height: 1.25;">
-            <?= htmlspecialchars($profil['nama_lengkap'], ENT_QUOTES, 'UTF-8') ?>
-        </h2>
-        <p style="font-size: 13.5px; color: var(--sw-text-muted); margin: 0 0 16px;">
-            Kelas <?= htmlspecialchars($profil['kelas'], ENT_QUOTES, 'UTF-8') ?>
-        </p>
-
-        <span style="display: inline-block; padding: 4px 12px; border-radius: 99px; background: var(--sw-primary-soft); color: var(--sw-primary-dark); font-size: 12px; font-weight: 700; margin-bottom: 20px;">
-            Anggota Siswa Resmi
-        </span>
-
-        <!-- Ringkasan Spesifikasi Akun -->
-        <div style="border-top: 1px solid var(--sw-border); padding-top: 18px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
-            <div style="display: flex; justify-content: space-between;">
-                <span style="color: var(--sw-text-muted);">Nomor Induk (NIS)</span>
-                <span style="font-weight: 700; color: var(--sw-text); font-family: var(--sw-mono);"><?= htmlspecialchars($profil['nis'], ENT_QUOTES, 'UTF-8') ?></span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                <span style="color: var(--sw-text-muted);">Username</span>
-                <span style="font-weight: 600; color: var(--sw-text);">@<?= htmlspecialchars($profil['username'], ENT_QUOTES, 'UTF-8') ?></span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                <span style="color: var(--sw-text-muted);">Kartu RFID</span>
-                <span>
-                    <?php if (!empty($profil['kode_rfid'])): ?>
-                        <code style="background:var(--sw-primary-soft); color:var(--sw-primary-dark); padding:2px 6px; border-radius:4px; font-family:var(--sw-mono); font-size:11.5px;"><?= htmlspecialchars($profil['kode_rfid'], ENT_QUOTES, 'UTF-8') ?></code>
-                    <?php else: ?>
-                        <span style="color:#C23B3B; font-size:12px;">Belum Ditautkan</span>
-                    <?php endif; ?>
-                </span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                <span style="color: var(--sw-text-muted);">Total Peminjaman</span>
-                <span style="font-weight: 700; color: var(--sw-primary);"><?= $totalPinjam ?> buku</span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                <span style="color: var(--sw-text-muted);">Sedang Dipinjam</span>
-                <span style="font-weight: 700; color: <?= $aktifPinjam > 0 ? 'var(--sw-warning)' : 'var(--sw-success)' ?>;"><?= $aktifPinjam ?> buku</span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                <span style="color: var(--sw-text-muted);">Terdaftar Sejak</span>
-                <span style="color: var(--sw-text-muted); font-size: 12px;"><?= date('d M Y', strtotime($profil['created_at'])) ?></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- KOLOM KANAN: FORMULIR PENGATURAN PROFIL -->
-    <div style="background: #FFFFFF; border: 1px solid var(--sw-border); border-radius: var(--sw-radius-lg); padding: 28px; box-shadow: var(--sw-shadow-sm);">
-        <form action="profil.php" method="POST" autocomplete="off">
+        <!-- KOLOM KANAN: FORMULIR DATA PRIBADI & PASSWORD -->
+        <div style="background: #FFFFFF; border: 1px solid var(--sw-border); border-radius: var(--sw-radius-lg); padding: 28px; box-shadow: var(--sw-shadow-sm);">
             
             <h3 style="font-size: 16.5px; font-weight: 800; color: var(--sw-text); margin: 0 0 18px; padding-bottom: 12px; border-bottom: 1px solid var(--sw-border);">
                 1. Data Pribadi Siswa
@@ -318,7 +384,7 @@ require 'includes/header.php';
                 2. Keamanan &amp; Kata Sandi
             </h3>
             <p style="font-size: 13px; color: var(--sw-text-muted); margin: 0 0 16px;">
-                Kosongkan kedua kolom di bawah ini jika kamu tidak ingin mengganti password login.
+                Kosongkan kedua kolom di bawah ini jika kamu tidak ingin mengganti password login akun perpustakaan.
             </p>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 26px;">
@@ -358,8 +424,43 @@ require 'includes/header.php';
                     <span>Simpan Perubahan Profil</span>
                 </button>
             </div>
-        </form>
+        </div>
     </div>
-</div>
+</form>
+
+<script>
+// ============================================================================
+// PREVIEW LANGSUNG FOTO PROFIL SAAT FILE DIPILIH
+// ============================================================================
+// Membaca file gambar dari komputer pengguna menggunakan FileReader API bawaan browser
+// sehingga siswa bisa langsung melihat tampilan fotonya sebelum mengklik tombol simpan.
+const inputFotoSiswa  = document.getElementById('inputFotoSiswa');
+const swAvatarPreview = document.getElementById('swAvatarPreview');
+const checkHapusFoto  = document.getElementById('checkHapusFoto');
+
+if (inputFotoSiswa && swAvatarPreview) {
+    inputFotoSiswa.addEventListener('change', function () {
+        const file = this.files && this.files[0];
+        if (file) {
+            // Validasi sederhana tipe file di sisi browser
+            if (!file.type.match('image.*')) {
+                alert('Silakan pilih file gambar yang valid (JPG, PNG, atau WEBP).');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                // Tampilkan foto di dalam lingkaran avatar
+                swAvatarPreview.innerHTML = '<img src="' + e.target.result + '" alt="Preview Foto" style="width: 100%; height: 100%; object-fit: cover;">';
+                // Jika sebelumnya centang hapus foto aktif, otomatis batalkan karena user memilih foto baru
+                if (checkHapusFoto) {
+                    checkHapusFoto.checked = false;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+</script>
 
 <?php require 'includes/footer.php'; ?>

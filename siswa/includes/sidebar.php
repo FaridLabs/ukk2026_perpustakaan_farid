@@ -7,6 +7,8 @@
  * indikator buku aktif yang sedang dipinjam, identitas sekolah, dan tombol logout.
  */
 
+require_once __DIR__ . '/../../config/upload_foto.php';
+
 // Menentukan halaman aktif berdasarkan nama file PHP yang sedang berjalan
 $currentPage = $currentPage ?? basename($_SERVER['PHP_SELF'], '.php');
 
@@ -14,6 +16,16 @@ $currentPage = $currentPage ?? basename($_SERVER['PHP_SELF'], '.php');
 $namaSiswa  = $_SESSION['anggota_nama'] ?? 'Siswa Perpustakaan';
 $initial    = strtoupper(substr(trim($namaSiswa), 0, 1)) ?: 'S';
 $kelasSiswa = $_SESSION['anggota_kelas'] ?? '-';
+
+// Mengambil foto profil siswa (dari sesi atau query database)
+$fotoSiswa = $_SESSION['anggota_foto'] ?? null;
+if ($fotoSiswa === null && isset($koneksi) && isset($_SESSION['anggota_id'])) {
+    $stmtFotoSiswa = $koneksi->prepare("SELECT foto FROM anggota WHERE id = :id LIMIT 1");
+    $stmtFotoSiswa->execute([':id' => $_SESSION['anggota_id']]);
+    $fotoSiswa = $stmtFotoSiswa->fetchColumn() ?: '';
+    $_SESSION['anggota_foto'] = $fotoSiswa;
+}
+$urlFotoSidebar = !empty($fotoSiswa) ? fotoProfilUrl($fotoSiswa, '../uploads/profil/') : null;
 
 // Konfigurasi nama sekolah untuk perpustakaan
 $namaSekolah = 'SMKN 1 Panyingkiran';
@@ -47,7 +59,13 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
 
     <!-- 2. KARTU PROFIL RINGKAS SISWA -->
     <a href="profil.php" class="sb-user" style="text-decoration:none;" title="Kelola Profil Saya">
-        <div class="sb-user-avatar"><?= $initial ?></div>
+        <div class="sb-user-avatar" style="overflow: hidden;">
+            <?php if ($urlFotoSidebar): ?>
+                <img src="<?= htmlspecialchars($urlFotoSidebar, ENT_QUOTES, 'UTF-8') ?>" alt="Foto <?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?>" style="width: 100%; height: 100%; object-fit: cover;">
+            <?php else: ?>
+                <?= $initial ?>
+            <?php endif; ?>
+        </div>
         <div class="sb-user-meta">
             <div class="sb-user-top">
                 <strong title="<?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?></strong>

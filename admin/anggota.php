@@ -1,6 +1,7 @@
 <?php
 require '../config/cek_session_admin.php';
 require '../config/koneksi.php';
+require_once '../config/upload_foto.php';
 
 $keyword = trim($_GET['keyword'] ?? '');
 
@@ -251,7 +252,14 @@ require 'includes/header.php';
                 <tr data-status="<?= $pinjamAktif > 0 ? 'meminjam' : 'bebas' ?>" data-rfid="<?= $hasRfid ? 'ada' : 'belum' ?>">
                     <td>
                         <div class="usr-cell">
-                            <div class="usr-av"><?= htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8') ?></div>
+                            <?php $fotoAnggotaUrl = !empty($row['foto']) ? fotoProfilUrl($row['foto'], '../uploads/profil/') : null; ?>
+                            <div class="usr-av" style="overflow:hidden;">
+                                <?php if ($fotoAnggotaUrl): ?>
+                                    <img src="<?= htmlspecialchars($fotoAnggotaUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Foto <?= htmlspecialchars($row['nama_lengkap'], ENT_QUOTES, 'UTF-8') ?>" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;">
+                                <?php else: ?>
+                                    <?= htmlspecialchars($inisial, ENT_QUOTES, 'UTF-8') ?>
+                                <?php endif; ?>
+                            </div>
                             <div class="usr-info">
                                 <div class="usr-name">
                                     <strong><?= htmlspecialchars($row['nama_lengkap'], ENT_QUOTES, 'UTF-8') ?></strong>

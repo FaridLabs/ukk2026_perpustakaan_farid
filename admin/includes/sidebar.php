@@ -1,6 +1,18 @@
 <?php
+require_once __DIR__ . '/../../config/upload_foto.php';
+
 $currentPage = $currentPage ?? basename($_SERVER['PHP_SELF'], '.php');
 $sbNamaAdmin = $_SESSION['admin_nama'] ?? 'Administrator';
+
+// Mengambil foto profil admin (dari sesi atau query database)
+$fotoAdmin = $_SESSION['admin_foto'] ?? null;
+if ($fotoAdmin === null && isset($koneksi) && isset($_SESSION['admin_id'])) {
+    $stmtFotoAdmin = $koneksi->prepare("SELECT foto FROM admin WHERE id = :id LIMIT 1");
+    $stmtFotoAdmin->execute([':id' => $_SESSION['admin_id']]);
+    $fotoAdmin = $stmtFotoAdmin->fetchColumn() ?: '';
+    $_SESSION['admin_foto'] = $fotoAdmin;
+}
+$urlFotoAdminSidebar = !empty($fotoAdmin) ? fotoProfilUrl($fotoAdmin, '../uploads/profil/') : null;
 
 $sbMenu = [
     'MENU UTAMA' => [
@@ -34,7 +46,13 @@ $sbAktif = $sbAlias[$currentPage] ?? $currentPage;
     </a>
 
     <a href="profil.php" class="side-user" style="text-decoration:none;" title="Kelola Profil Administrator">
-        <div class="side-ava"><?= ic('user', 24) ?></div>
+        <div class="side-ava" style="overflow:hidden; display:grid; place-items:center;">
+            <?php if ($urlFotoAdminSidebar): ?>
+                <img src="<?= htmlspecialchars($urlFotoAdminSidebar, ENT_QUOTES, 'UTF-8') ?>" alt="Foto Admin" style="width:100%; height:100%; object-fit:cover; border-radius:inherit;">
+            <?php else: ?>
+                <?= ic('user', 24) ?>
+            <?php endif; ?>
+        </div>
         <div class="side-who">
             <b><?= htmlspecialchars($sbNamaAdmin) ?></b>
             <div class="side-role"><small>Administrator</small><span class="pill-on">Online</span></div>

@@ -198,7 +198,7 @@ if ($action === 'tambah') {
         exit;
     }
 
-    $stmtInfo = $koneksi->prepare("SELECT nama_lengkap, nis FROM anggota WHERE id = :id LIMIT 1");
+    $stmtInfo = $koneksi->prepare("SELECT nama_lengkap, nis, foto FROM anggota WHERE id = :id LIMIT 1");
     $stmtInfo->bindParam(':id', $id);
     $stmtInfo->execute();
     $infoAnggota = $stmtInfo->fetch();
@@ -206,6 +206,12 @@ if ($action === 'tambah') {
     $stmt = $koneksi->prepare("DELETE FROM anggota WHERE id = :id");
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+
+    // Hapus file foto anggota jika ada di server
+    if (!empty($infoAnggota['foto'])) {
+        require_once __DIR__ . '/upload_foto.php';
+        hapusFotoProfil($infoAnggota['foto']);
+    }
 
     if ($infoAnggota) {
         catatLog(

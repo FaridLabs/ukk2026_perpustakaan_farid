@@ -12,6 +12,7 @@
 require '../config/cek_session_siswa.php';
 require '../config/koneksi.php';
 require_once '../config/upload_cover.php';
+require_once '../config/upload_foto.php';
 
 $anggotaId = (int) $_SESSION['anggota_id'];
 
@@ -149,11 +150,18 @@ require 'includes/header.php';
     </div>
 
     <!-- Kolom Kanan: Widget Profil Siswa -->
+    <?php
+    $urlFotoSiswa = !empty($profil['foto']) ? fotoProfilUrl($profil['foto'], '../uploads/profil/') : null;
+    ?>
     <div class="sw-profile-widget">
         <div>
             <div class="sw-profile-top">
                 <div class="sw-profile-av">
-                    <?= strtoupper(substr(trim($namaSiswa), 0, 1)) ?: 'S' ?>
+                    <?php if ($urlFotoSiswa): ?>
+                        <img src="<?= htmlspecialchars($urlFotoSiswa, ENT_QUOTES, 'UTF-8') ?>" alt="Foto <?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?>" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    <?php else: ?>
+                        <?= strtoupper(substr(trim($namaSiswa), 0, 1)) ?: 'S' ?>
+                    <?php endif; ?>
                     <span class="sw-online-dot" title="Akun Aktif"></span>
                 </div>
                 <div class="sw-profile-meta">

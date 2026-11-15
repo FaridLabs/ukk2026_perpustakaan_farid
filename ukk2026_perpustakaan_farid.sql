@@ -32,6 +32,7 @@ CREATE TABLE `admin` (
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `nama_lengkap` varchar(100) NOT NULL,
+  `foto` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -56,6 +57,7 @@ CREATE TABLE `anggota` (
   `kelas` varchar(20) NOT NULL,
   `no_hp` varchar(20) DEFAULT NULL,
   `alamat` text DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()

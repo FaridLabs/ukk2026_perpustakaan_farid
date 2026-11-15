@@ -25,6 +25,7 @@ $admin = $stmtAdmin->fetch();
 if ($admin && password_verify($password, $admin['password'])) {
     $_SESSION['admin_id']   = $admin['id'];
     $_SESSION['admin_nama'] = $admin['nama_lengkap'];
+    $_SESSION['admin_foto'] = $admin['foto'] ?? null;
     catatLog(
         $koneksi,
         'admin',
@@ -48,6 +49,7 @@ if ($anggota && password_verify($password, $anggota['password'])) {
     $_SESSION['anggota_id']    = $anggota['id'];
     $_SESSION['anggota_nama']  = $anggota['nama_lengkap'];
     $_SESSION['anggota_kelas'] = $anggota['kelas'];
+    $_SESSION['anggota_foto']  = $anggota['foto'] ?? null;
     catatLog(
         $koneksi,
         'siswa',
