@@ -1185,3 +1185,140 @@
         display: block;
     }
 }
+
+/* ==========================================================================
+   WIDGET PROFIL SISWA (PENGGANTI KARTU KREDIT/ATM DI DASHBOARD)
+   ========================================================================== */
+.sw-profile-widget {
+    background: #FFFFFF;
+    border: 1px solid var(--sw-border);
+    border-radius: var(--sw-radius-lg);
+    padding: 24px;
+    box-shadow: var(--sw-shadow-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sw-profile-widget:hover {
+    transform: translateY(-2px);
+    border-color: var(--sw-border-hover);
+    box-shadow: var(--sw-shadow-md);
+}
+
+.sw-profile-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--sw-border);
+}
+
+.sw-profile-av {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #157A50 0%, #23A06B 100%);
+    color: #FFFFFF;
+    font-size: 22px;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    box-shadow: 0 6px 14px rgba(21, 122, 80, 0.25);
+    position: relative;
+}
+
+.sw-profile-av .sw-online-dot {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #22C55E;
+    border: 2.5px solid #FFFFFF;
+}
+
+.sw-profile-meta {
+    min-width: 0;
+    flex: 1;
+}
+
+.sw-profile-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--sw-text);
+    margin: 0 0 3px;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sw-profile-role {
+    font-size: 12.5px;
+    color: var(--sw-text-muted);
+}
+
+.sw-profile-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.sw-profile-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.sw-profile-info-lbl {
+    color: var(--sw-text-muted);
+}
+
+.sw-profile-info-val {
+    font-weight: 600;
+    color: var(--sw-text);
+}
+
+.sw-profile-info-val code {
+    font-family: var(--sw-mono);
+    color: var(--sw-primary-dark);
+    background: var(--sw-primary-soft);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.sw-profile-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--sw-primary-soft);
+    border: 1px solid #BFE3D0;
+    color: var(--sw-primary-dark);
+    font-size: 13.5px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.sw-profile-btn:hover {
+    background: var(--sw-primary);
+    border-color: var(--sw-primary);
+    color: #FFFFFF;
+}
+
+/* Kursor pointer untuk kartu buku agar jelas bisa diklik */
+.sw-book-card {
+    cursor: pointer;
+}

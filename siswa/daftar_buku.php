@@ -191,7 +191,7 @@ require 'includes/header.php';
                 'total_fisik'   => $totalFisik,
             ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
         ?>
-            <div class="sw-book-card">
+            <div class="sw-book-card js-buka-modal-buku" data-buku='<?= htmlspecialchars($payloadJson, ENT_QUOTES, 'UTF-8') ?>' title="Klik untuk melihat detail buku">
                 <div class="sw-book-card-main">
                     <!-- Efek Visual Cover Buku 3D -->
                     <div class="sw-book-cover">

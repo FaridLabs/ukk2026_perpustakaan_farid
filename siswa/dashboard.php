@@ -148,76 +148,57 @@ require 'includes/header.php';
         </div>
     </div>
 
-    <!-- Kolom Kanan: Kartu Pelajar RFID Digital Interaktif -->
-    <div class="sw-card-container">
-        <div class="sw-digital-card">
-            <!-- Pola background & watermark buku -->
-            <div class="sw-card-pattern" aria-hidden="true"></div>
-            <svg class="sw-card-watermark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-            </svg>
-
-            <!-- Bagian Atas Kartu: Logo & Chip EMV + Gelombang RFID -->
-            <div class="sw-card-head">
-                <div class="sw-card-brand">
-                    <div class="sw-card-logo">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-                        </svg>
-                    </div>
-                    <div class="sw-card-title">
-                        Pinjam.In
-                        <small>SMKN 1 PANYINGKIRAN</small>
-                    </div>
+    <!-- Kolom Kanan: Widget Profil Siswa -->
+    <div class="sw-profile-widget">
+        <div>
+            <div class="sw-profile-top">
+                <div class="sw-profile-av">
+                    <?= strtoupper(substr(trim($namaSiswa), 0, 1)) ?: 'S' ?>
+                    <span class="sw-online-dot" title="Akun Aktif"></span>
                 </div>
-
-                <div class="sw-card-chip">
-                    <!-- Chip EMV Emas -->
-                    <div class="sw-emv-chip" title="Smart Chip Kartu"></div>
-                    <!-- Simbol NFC / RFID Contactless Wave -->
-                    <svg class="sw-rfid-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" title="Kartu Mendukung Tap RFID">
-                        <path d="M8.5 16.5a5 5 0 0 1 0-9"/>
-                        <path d="M12 19a8.5 8.5 0 0 0 0-14"/>
-                        <path d="M15.5 21.5a12 12 0 0 0 0-19"/>
-                    </svg>
+                <div class="sw-profile-meta">
+                    <h3 class="sw-profile-name" title="<?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?>">
+                        <?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?>
+                    </h3>
+                    <div class="sw-profile-role">
+                        Siswa &bull; Kelas <?= htmlspecialchars($kelasSiswa, ENT_QUOTES, 'UTF-8') ?>
+                    </div>
                 </div>
             </div>
 
-            <!-- Bagian Tengah Kartu: Identitas Siswa -->
-            <div class="sw-card-body">
-                <div class="sw-card-name" title="<?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?>">
-                    <?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?>
+            <div class="sw-profile-info-list">
+                <div class="sw-profile-info-row">
+                    <span class="sw-profile-info-lbl">Nomor Induk (NIS)</span>
+                    <span class="sw-profile-info-val"><code><?= htmlspecialchars($nisSiswa, ENT_QUOTES, 'UTF-8') ?></code></span>
                 </div>
-                <div class="sw-card-meta">
-                    <span>NIS: <strong><?= htmlspecialchars($nisSiswa, ENT_QUOTES, 'UTF-8') ?></strong></span>
-                    <span>&bull;</span>
-                    <span>Kelas: <strong><?= htmlspecialchars($kelasSiswa, ENT_QUOTES, 'UTF-8') ?></strong></span>
+                <div class="sw-profile-info-row">
+                    <span class="sw-profile-info-lbl">Kartu RFID Siswa</span>
+                    <span class="sw-profile-info-val">
+                        <?php if (!empty($kodeRfid)): ?>
+                            <code><?= htmlspecialchars($kodeRfid, ENT_QUOTES, 'UTF-8') ?></code>
+                        <?php else: ?>
+                            <span style="color:#C23B3B; font-size:12px;">Belum Tertaut</span>
+                        <?php endif; ?>
+                    </span>
                 </div>
-            </div>
-
-            <!-- Bagian Bawah Kartu: Status UID RFID & Tombol Aksi -->
-            <div class="sw-card-foot">
-                <div class="sw-card-rfid-uid">
-                    <?php if (!empty($kodeRfid)): ?>
-                        RFID: <strong><?= htmlspecialchars($kodeRfid, ENT_QUOTES, 'UTF-8') ?></strong>
-                    <?php else: ?>
-                        RFID: <span style="color:#F9A8A8;">Belum Tertaut</span>
-                    <?php endif; ?>
+                <div class="sw-profile-info-row">
+                    <span class="sw-profile-info-lbl">No. WhatsApp / HP</span>
+                    <span class="sw-profile-info-val"><?= htmlspecialchars($profil['no_hp'] ?: '-', ENT_QUOTES, 'UTF-8') ?></span>
                 </div>
-
-                <div class="sw-card-actions">
-                    <button type="button" class="sw-card-btn" id="btnBukaKartu">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="15 3 21 3 21 9"/>
-                            <polyline points="9 21 3 21 3 15"/>
-                            <line x1="21" y1="3" x2="14" y2="10"/>
-                            <line x1="3" y1="21" x2="10" y2="14"/>
-                        </svg>
-                        <span>Perbesar Kartu</span>
-                    </button>
+                <div class="sw-profile-info-row">
+                    <span class="sw-profile-info-lbl">Status Akun</span>
+                    <span class="sw-profile-info-val" style="color:#1B7A55;">Aktif Terdaftar</span>
                 </div>
             </div>
         </div>
+
+        <a href="profil.php" class="sw-profile-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20.500c0-4 3.600-6.500 8-6.500s8 2.500 8 6.500"/>
+            </svg>
+            <span>Buka Profil Lengkap</span> &rarr;
+        </a>
     </div>
 </div>
 
@@ -399,7 +380,7 @@ require 'includes/header.php';
                 'total_fisik'   => $totalAda,
             ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
         ?>
-            <div class="sw-book-card">
+            <div class="sw-book-card js-lihat-buku" data-buku='<?= htmlspecialchars($bukuJson, ENT_QUOTES, 'UTF-8') ?>' title="Klik untuk melihat detail buku">
                 <div class="sw-book-card-main">
                     <div class="sw-book-cover">
                         <?php if ($cvUrl): ?>
@@ -429,8 +410,8 @@ require 'includes/header.php';
                         <span><?= $tersedia ? "{$stokAda} Tersedia di Rak" : 'Sedang Dipinjam' ?></span>
                     </div>
 
-                    <button type="button" class="sw-btn-detail js-lihat-buku" data-buku='<?= htmlspecialchars($bukuJson, ENT_QUOTES, 'UTF-8') ?>'>
-                        <span>Detail</span>
+                    <button type="button" class="sw-btn-detail">
+                        <span>Detail Buku</span>
                     </button>
                 </div>
             </div>
@@ -499,82 +480,13 @@ require 'includes/header.php';
     </div>
 </div>
 
-<!-- =========================================================================
-     6. MODAL DIALOG: KARTU IDENTITAS PELAJAR DIGITAL (UKURAN BESAR)
-     ========================================================================= -->
-<div class="sw-modal-backdrop" id="modalKartuDigital" hidden role="dialog" aria-modal="true" aria-labelledby="modalKartuTitle">
-    <div class="sw-modal-dialog" style="max-width: 540px;">
-        <div class="sw-modal-head">
-            <h3 id="modalKartuTitle">Kartu Pelajar Perpustakaan</h3>
-            <button type="button" class="sw-modal-close" data-sw-close="modalKartuDigital" aria-label="Tutup Dialog">&times;</button>
-        </div>
-
-        <div class="sw-modal-body" style="padding: 24px; text-align: center;">
-            <!-- Kartu Siswa Versi Jelas & Tajam -->
-            <div class="sw-digital-card" style="box-shadow: 0 16px 36px rgba(10, 48, 33, 0.35); text-align: left; margin-bottom: 20px;">
-                <div class="sw-card-pattern" aria-hidden="true"></div>
-                <div class="sw-card-head">
-                    <div class="sw-card-brand">
-                        <div class="sw-card-logo">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
-                            </svg>
-                        </div>
-                        <div class="sw-card-title">
-                            Pinjam.In
-                            <small>SMKN 1 PANYINGKIRAN</small>
-                        </div>
-                    </div>
-                    <div class="sw-card-chip">
-                        <div class="sw-emv-chip"></div>
-                        <svg class="sw-rfid-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M8.5 16.5a5 5 0 0 1 0-9"/>
-                            <path d="M12 19a8.5 8.5 0 0 0 0-14"/>
-                            <path d="M15.5 21.5a12 12 0 0 0 0-19"/>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="sw-card-body" style="margin: 24px 0 16px;">
-                    <div class="sw-card-name" style="font-size: 19px;">
-                        <?= htmlspecialchars($namaSiswa, ENT_QUOTES, 'UTF-8') ?>
-                    </div>
-                    <div class="sw-card-meta">
-                        <span>NIS: <strong><?= htmlspecialchars($nisSiswa, ENT_QUOTES, 'UTF-8') ?></strong></span>
-                        <span>&bull;</span>
-                        <span>Kelas: <strong><?= htmlspecialchars($kelasSiswa, ENT_QUOTES, 'UTF-8') ?></strong></span>
-                    </div>
-                </div>
-
-                <div class="sw-card-foot">
-                    <div class="sw-card-rfid-uid">
-                        UID RFID: <strong><?= !empty($kodeRfid) ? htmlspecialchars($kodeRfid, ENT_QUOTES, 'UTF-8') : 'Belum Terdaftar' ?></strong>
-                    </div>
-                    <span style="font-size: 11px; color: #4AE3A1; font-weight: 700; background: rgba(74, 227, 161, 0.15); padding: 3px 8px; border-radius: 99px;">
-                        Anggota Resmi
-                    </span>
-                </div>
-            </div>
-
-            <p style="font-size: 13.5px; color: var(--sw-text-muted); margin: 0; line-height: 1.5;">
-                Tunjukkan kartu digital ini kepada petugas perpustakaan jika kamu lupa membawa kartu fisik saat meminjam atau mengembalikan buku.
-            </p>
-        </div>
-
-        <div class="sw-modal-foot">
-            <button type="button" class="sw-btn-modal-close" data-sw-close="modalKartuDigital">Tutup</button>
-        </div>
-    </div>
-</div>
-
 <?php
-// Script JavaScript interaktif untuk membuka modal kartu dan detail buku
+// Script JavaScript interaktif untuk membuka modal detail buku
 $extraScripts = <<<'HTML'
 <script>
 (function () {
     // 1. Selector elemen modal
     const modalDetailBuku = document.getElementById('modalDetailBuku');
-    const modalKartuDigital = document.getElementById('modalKartuDigital');
 
     const modalJudulTxt     = document.getElementById('modalJudulTxt');
     const modalBukuJudul    = document.getElementById('modalBukuJudul');
@@ -616,20 +528,14 @@ $extraScripts = <<<'HTML'
         if (modalDetailBuku) modalDetailBuku.hidden = false;
     }
 
-    // 3. Pasang event listener pada tombol "Detail" buku
+    // 3. Pasang event listener pada kartu buku (klik kartu atau tombol membuka modal)
     document.addEventListener('click', function (e) {
-        const btnBuku = e.target.closest('.js-lihat-buku');
-        if (btnBuku) {
+        const cardBuku = e.target.closest('.js-lihat-buku');
+        if (cardBuku) {
             try {
-                const data = JSON.parse(btnBuku.dataset.buku || '{}');
+                const data = JSON.parse(cardBuku.dataset.buku || '{}');
                 openBukuDetail(data);
             } catch (err) {}
-            return;
-        }
-
-        // Buka modal kartu pelajar
-        if (e.target.closest('#btnBukaKartu')) {
-            if (modalKartuDigital) modalKartuDigital.hidden = false;
         }
     });
 
@@ -641,18 +547,16 @@ $extraScripts = <<<'HTML'
         });
     });
 
-    [modalDetailBuku, modalKartuDigital].forEach(bd => {
-        if (!bd) return;
-        bd.addEventListener('click', function (e) {
-            if (e.target === bd) bd.hidden = true;
+    if (modalDetailBuku) {
+        modalDetailBuku.addEventListener('click', function (e) {
+            if (e.target === modalDetailBuku) modalDetailBuku.hidden = true;
         });
-    });
+    }
 
     // 5. Tutup modal dengan tombol Escape keyboard
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            if (modalDetailBuku && !modalDetailBuku.hidden) modalDetailBuku.hidden = true;
-            if (modalKartuDigital && !modalKartuDigital.hidden) modalKartuDigital.hidden = true;
+        if (e.key === 'Escape' && modalDetailBuku && !modalDetailBuku.hidden) {
+            modalDetailBuku.hidden = true;
         }
     });
 })();

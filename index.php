@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (isset($_SESSION['admin_id'])) {
     header('Location: admin/dashboard.php');
@@ -236,6 +238,27 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
 @media(max-width:560px){.wrap{width:min(var(--wrap),100% - 32px)}.header-actions .btn-line{display:none}.hero{padding-top:36px}
 .board{grid-template-columns:1fr 1fr;grid-template-areas:"r s" "c b" "p p" "n n"}.t-print{height:150px}.meter-bar{width:140px}.cta-box{padding:28px 22px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.desk[data-step="2"] .stamp{transform:rotate(-9deg);opacity:.92}}
+
+/* Pop-up Modal Detail Buku Landing Page */
+.lp-modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(10,35,30,.65);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
+.lp-modal-backdrop[hidden]{display:none!important}
+.lp-modal-dialog{background:#fff;border-radius:20px;width:min(100%,600px);max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px -12px rgba(10,55,48,.4);border:1px solid var(--line);animation:lpModalIn .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes lpModalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.lp-modal-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.lp-modal-head h3{font:700 18px var(--serif);margin:0;color:var(--ink)}
+.lp-modal-close{width:32px;height:32px;border-radius:50%;border:0;background:var(--paper);color:var(--muted);display:grid;place-items:center;cursor:pointer;font-size:18px;transition:all .15s}
+.lp-modal-close:hover{background:#FDE8E8;color:var(--bad)}
+.lp-modal-body{padding:22px}
+.lp-modal-grid{display:grid;grid-template-columns:140px 1fr;gap:20px}
+.lp-modal-cover{width:100%;aspect-ratio:3/4;border-radius:8px;overflow:hidden;box-shadow:0 10px 20px rgba(0,0,0,.18);background:var(--paper);display:grid;place-items:center;color:var(--baize)}
+.lp-modal-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.lp-modal-info h2{font:700 20px/1.25 var(--serif);margin:0 0 8px;color:var(--ink)}
+.lp-modal-badge{display:inline-block;font-size:12px;font-weight:600;color:var(--baize);background:var(--paper);padding:3px 10px;border-radius:99px;margin-bottom:8px}
+.lp-modal-meta{display:grid;grid-template-columns:95px 1fr;gap:6px 12px;font-size:13.5px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.lp-modal-meta dt{color:var(--muted)}
+.lp-modal-meta dd{font-weight:600;margin:0;color:var(--ink)}
+.lp-modal-foot{padding:16px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;align-items:center}
+@media(max-width:600px){.lp-modal-grid{grid-template-columns:1fr}.lp-modal-cover{max-width:120px;margin:0 auto}}
 </style>
 </head>
 <body>
@@ -392,7 +415,8 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
           <dl><dt>Penerbit</dt><dd id="pPub"></dd><dt>Tahun terbit</dt><dd id="pYear"></dd></dl>
           <div class="dots" id="pDots"></div>
           <div class="copies" id="pCopies"></div>
-          <a href="login.php" class="btn btn-solid">Masuk untuk meminjam</a>
+          <button type="button" class="btn btn-line" style="margin-top:16px;width:100%;font-size:14px;" id="btnLihatDetailPanel">Buka Pop-up Detail Buku</button>
+          <a href="login.php" class="btn btn-solid" style="margin-top:8px;">Masuk untuk meminjam</a>
           <p class="panel-hint">Belum punya akun? <a href="daftar.php">Daftar dulu</a></p>
         </aside>
       </div>
@@ -649,7 +673,12 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
       count.textContent = 'Menampilkan ' + shown + ' dari ' + spines.length + ' buku';
     }
 
-    spines.forEach(function (s) { s.addEventListener('click', function () { select(s); }); });
+    spines.forEach(function (s) {
+      s.addEventListener('click', function () {
+        select(s);
+        openLandingModal(s.dataset);
+      });
+    });
     search.addEventListener('input', apply);
     catChips.forEach(function (c) {
       c.addEventListener('click', function () {
@@ -662,6 +691,69 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
       onlyAvail = !onlyAvail; avail.setAttribute('aria-pressed', onlyAvail ? 'true' : 'false'); apply();
     });
     select(spines[0]); apply();
+  }
+
+  /* ---------- Pop-up Modal Detail Buku (Landing Page) ---------- */
+  var lpModal       = $('modalLandingBuku');
+  var lpTitle       = $('lpJudul');
+  var lpBadgeKat    = $('lpBadgeKat');
+  var lpPenulis     = $('lpPenulis');
+  var lpPenerbit    = $('lpPenerbit');
+  var lpTahun       = $('lpTahun');
+  var lpStok        = $('lpStok');
+  var lpCoverImg    = $('lpCoverImg');
+  var lpCoverHolder = $('lpCoverHolder');
+
+  function openLandingModal(d) {
+    if (!lpModal || !d) return;
+    lpTitle.textContent = d.judul || '-';
+    lpBadgeKat.textContent = d.kategori || 'Umum';
+    lpPenulis.textContent = d.pengarang || '-';
+    lpPenerbit.textContent = d.penerbit || '-';
+    lpTahun.textContent = d.tahun || '-';
+    var ada = parseInt(d.tersedia, 10) || 0;
+    var tot = parseInt(d.total, 10) || 0;
+    lpStok.innerHTML = ada > 0
+      ? '<span style="color:var(--ok)">' + ada + ' dari ' + tot + ' eksemplar tersedia</span>'
+      : '<span style="color:var(--bad)">Semua eksemplar sedang dipinjam</span>';
+
+    if (d.cover) {
+      lpCoverImg.src = d.cover;
+      lpCoverImg.hidden = false;
+      if (lpCoverHolder) lpCoverHolder.hidden = true;
+    } else {
+      lpCoverImg.hidden = true;
+      if (lpCoverHolder) {
+        lpCoverHolder.textContent = d.judul;
+        lpCoverHolder.hidden = false;
+      }
+    }
+    lpModal.hidden = false;
+  }
+
+  function closeLandingModal() {
+    if (lpModal) lpModal.hidden = true;
+  }
+
+  var btnCloseLp = $('btnCloseLpModal');
+  var btnCancelLp = $('btnCancelLpModal');
+  if (btnCloseLp) btnCloseLp.addEventListener('click', closeLandingModal);
+  if (btnCancelLp) btnCancelLp.addEventListener('click', closeLandingModal);
+  if (lpModal) {
+    lpModal.addEventListener('click', function (e) {
+      if (e.target === lpModal) closeLandingModal();
+    });
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && lpModal && !lpModal.hidden) closeLandingModal();
+  });
+
+  var btnDetailPanel = $('btnLihatDetailPanel');
+  if (btnDetailPanel) {
+    btnDetailPanel.addEventListener('click', function () {
+      var activeSpine = document.querySelector('.spine[aria-pressed="true"]');
+      if (activeSpine) openLandingModal(activeSpine.dataset);
+    });
   }
 
   /* ---------- Tab peran ---------- */
@@ -681,5 +773,37 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
   });
 })();
 </script>
+
+<!-- MODAL POPUP DETAIL BUKU (LANDING PAGE) -->
+<div class="lp-modal-backdrop" id="modalLandingBuku" hidden role="dialog" aria-modal="true" aria-labelledby="lpModalTitle">
+  <div class="lp-modal-dialog">
+    <div class="lp-modal-head">
+      <h3 id="lpModalTitle">Detail Koleksi Buku Perpustakaan</h3>
+      <button type="button" class="lp-modal-close" id="btnCloseLpModal" aria-label="Tutup Dialog">&times;</button>
+    </div>
+    <div class="lp-modal-body">
+      <div class="lp-modal-grid">
+        <div class="lp-modal-cover" id="lpCoverWrap">
+          <img id="lpCoverImg" alt="Cover Buku" hidden>
+          <span id="lpCoverHolder" style="font-weight:700;font-size:13px;padding:8px;text-align:center;">Cover</span>
+        </div>
+        <div class="lp-modal-info">
+          <span class="lp-modal-badge" id="lpBadgeKat">Kategori</span>
+          <h2 id="lpJudul">-</h2>
+          <dl class="lp-modal-meta">
+            <dt>Penulis</dt><dd id="lpPenulis">-</dd>
+            <dt>Penerbit</dt><dd id="lpPenerbit">-</dd>
+            <dt>Tahun</dt><dd id="lpTahun">-</dd>
+            <dt>Stok Rak</dt><dd id="lpStok">-</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="lp-modal-foot">
+      <button type="button" class="btn btn-line" id="btnCancelLpModal" style="padding:9px 18px;font-size:14px;">Tutup</button>
+      <a href="login.php" class="btn btn-solid" style="padding:9px 20px;font-size:14px;">Masuk untuk Meminjam</a>
+    </div>
+  </div>
+</div>
 </body>
 </html>

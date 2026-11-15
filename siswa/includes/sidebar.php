@@ -46,7 +46,7 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
     </a>
 
     <!-- 2. KARTU PROFIL RINGKAS SISWA -->
-    <div class="sb-user">
+    <a href="profil.php" class="sb-user" style="text-decoration:none;" title="Kelola Profil Saya">
         <div class="sb-user-avatar"><?= $initial ?></div>
         <div class="sb-user-meta">
             <div class="sb-user-top">
@@ -55,7 +55,7 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
             </div>
             <span>Kelas <?= htmlspecialchars($kelasSiswa, ENT_QUOTES, 'UTF-8') ?></span>
         </div>
-    </div>
+    </a>
 
     <!-- 3. DAFTAR MENU NAVIGASI SISWA -->
     <div class="sidebar-nav">
@@ -107,6 +107,17 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
                             <polyline points="12 6 12 12 16 14"/>
                         </svg>
                         <span>Riwayat Pinjam</span>
+                    </a>
+                </li>
+
+                <!-- Menu Profil Siswa -->
+                <li>
+                    <a href="profil.php" class="nav-link <?= $currentPage === 'profil' ? 'active' : '' ?>">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M4 20.500c0-4 3.600-6.500 8-6.500s8 2.500 8 6.500"/>
+                        </svg>
+                        <span>Profil Saya</span>
                     </a>
                 </li>
             </ul>

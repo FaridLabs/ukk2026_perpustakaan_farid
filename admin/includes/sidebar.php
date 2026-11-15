@@ -16,6 +16,7 @@ $sbMenu = [
     ],
     'SISTEM' => [
         ['log_aktivitas', 'log_aktivitas.php', 'activity', 'Log Aktivitas'],
+        ['profil',        'profil.php',        'user',     'Profil Admin'],
     ],
 ];
 // Halaman turunan yang tetap menandai menu induknya
@@ -32,13 +33,13 @@ $sbAktif = $sbAlias[$currentPage] ?? $currentPage;
         <span><b>Pinjam.In</b><small>Perpustakaan Digital Sekolah</small></span>
     </a>
 
-    <div class="side-user">
+    <a href="profil.php" class="side-user" style="text-decoration:none;" title="Kelola Profil Administrator">
         <div class="side-ava"><?= ic('user', 24) ?></div>
         <div class="side-who">
             <b><?= htmlspecialchars($sbNamaAdmin) ?></b>
             <div class="side-role"><small>Administrator</small><span class="pill-on">Online</span></div>
         </div>
-    </div>
+    </a>
 
     <nav class="side-nav">
         <?php foreach ($sbMenu as $sbJudul => $sbGrup): ?>
