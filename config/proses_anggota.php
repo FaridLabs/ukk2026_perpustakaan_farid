@@ -1,8 +1,11 @@
 <?php
 require 'cek_session_admin.php';
 require 'koneksi.php';
+require_once __DIR__ . '/log_helper.php';
 
-$action = $_POST['action'] ?? $_GET['action'] ?? '';
+$action     = $_POST['action'] ?? $_GET['action'] ?? '';
+$adminId    = isset($_SESSION['admin_id']) ? (int)$_SESSION['admin_id'] : null;
+$adminNama  = $_SESSION['admin_nama'] ?? 'Administrator';
 
 if ($action === 'tambah') {
 
@@ -10,6 +13,7 @@ if ($action === 'tambah') {
     $nama_lengkap = trim($_POST['nama_lengkap'] ?? '');
     $kelas        = trim($_POST['kelas'] ?? '');
     $no_hp        = trim($_POST['no_hp'] ?? '');
+    $alamat       = trim($_POST['alamat'] ?? '');
     $username     = trim($_POST['username'] ?? '');
     $password     = $_POST['password'] ?? '';
 
@@ -37,16 +41,27 @@ if ($action === 'tambah') {
     $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
     $stmt = $koneksi->prepare("
-        INSERT INTO anggota (nis, nama_lengkap, kelas, no_hp, username, password)
-        VALUES (:nis, :nama_lengkap, :kelas, :no_hp, :username, :password)
+        INSERT INTO anggota (nis, nama_lengkap, kelas, no_hp, alamat, username, password)
+        VALUES (:nis, :nama_lengkap, :kelas, :no_hp, :alamat, :username, :password)
     ");
     $stmt->bindParam(':nis', $nis);
     $stmt->bindParam(':nama_lengkap', $nama_lengkap);
     $stmt->bindParam(':kelas', $kelas);
     $stmt->bindParam(':no_hp', $no_hp);
+    $stmt->bindValue(':alamat', $alamat !== '' ? $alamat : null, $alamat !== '' ? PDO::PARAM_STR : PDO::PARAM_NULL);
     $stmt->bindParam(':username', $username);
     $stmt->bindParam(':password', $passwordHash);
     $stmt->execute();
+
+    catatLog(
+        $koneksi,
+        'admin',
+        $adminId,
+        $adminNama,
+        'Tambah',
+        'Anggota',
+        "Menambahkan anggota baru: {$nama_lengkap} (NIS: {$nis}, Kelas: {$kelas})."
+    );
 
     header('Location: ../admin/anggota.php?success=1');
     exit;
@@ -58,6 +73,7 @@ if ($action === 'tambah') {
     $nama_lengkap = trim($_POST['nama_lengkap'] ?? '');
     $kelas        = trim($_POST['kelas'] ?? '');
     $no_hp        = trim($_POST['no_hp'] ?? '');
+    $alamat       = trim($_POST['alamat'] ?? '');
     $username     = trim($_POST['username'] ?? '');
     $password     = $_POST['password'] ?? '';
 
@@ -89,7 +105,7 @@ if ($action === 'tambah') {
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
         $stmt = $koneksi->prepare("
             UPDATE anggota SET nis = :nis, nama_lengkap = :nama_lengkap, kelas = :kelas,
-                no_hp = :no_hp, username = :username, password = :password
+                no_hp = :no_hp, alamat = :alamat, username = :username, password = :password
             WHERE id = :id
         ");
         $stmt->bindParam(':password', $passwordHash);
@@ -97,7 +113,7 @@ if ($action === 'tambah') {
         // Password tidak diubah
         $stmt = $koneksi->prepare("
             UPDATE anggota SET nis = :nis, nama_lengkap = :nama_lengkap, kelas = :kelas,
-                no_hp = :no_hp, username = :username
+                no_hp = :no_hp, alamat = :alamat, username = :username
             WHERE id = :id
         ");
     }
@@ -105,9 +121,20 @@ if ($action === 'tambah') {
     $stmt->bindParam(':nama_lengkap', $nama_lengkap);
     $stmt->bindParam(':kelas', $kelas);
     $stmt->bindParam(':no_hp', $no_hp);
+    $stmt->bindValue(':alamat', $alamat !== '' ? $alamat : null, $alamat !== '' ? PDO::PARAM_STR : PDO::PARAM_NULL);
     $stmt->bindParam(':username', $username);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+
+    catatLog(
+        $koneksi,
+        'admin',
+        $adminId,
+        $adminNama,
+        'Edit',
+        'Anggota',
+        "Memperbarui data anggota: {$nama_lengkap} (NIS: {$nis}, Kelas: {$kelas})."
+    );
 
     header('Location: ../admin/anggota.php?success=1');
     exit;
@@ -132,10 +159,26 @@ if ($action === 'tambah') {
         exit;
     }
 
+    $stmtInfo = $koneksi->prepare("SELECT nama_lengkap, nis FROM anggota WHERE id = :id LIMIT 1");
+    $stmtInfo->bindParam(':id', $id);
+    $stmtInfo->execute();
+    $infoAnggota = $stmtInfo->fetch();
+
     $stmt = $koneksi->prepare("UPDATE anggota SET kode_rfid = :kode_rfid WHERE id = :id");
     $stmt->bindParam(':kode_rfid', $kode_rfid);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+
+    $labelAnggota = $infoAnggota ? "{$infoAnggota['nama_lengkap']} (NIS: {$infoAnggota['nis']})" : "ID #{$id}";
+    catatLog(
+        $koneksi,
+        'admin',
+        $adminId,
+        $adminNama,
+        'Set RFID',
+        'Anggota',
+        "Menghubungkan kartu RFID ({$kode_rfid}) untuk anggota {$labelAnggota}."
+    );
 
     header('Location: ../admin/anggota.php?success=1');
     exit;
@@ -155,9 +198,26 @@ if ($action === 'tambah') {
         exit;
     }
 
+    $stmtInfo = $koneksi->prepare("SELECT nama_lengkap, nis FROM anggota WHERE id = :id LIMIT 1");
+    $stmtInfo->bindParam(':id', $id);
+    $stmtInfo->execute();
+    $infoAnggota = $stmtInfo->fetch();
+
     $stmt = $koneksi->prepare("DELETE FROM anggota WHERE id = :id");
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+
+    if ($infoAnggota) {
+        catatLog(
+            $koneksi,
+            'admin',
+            $adminId,
+            $adminNama,
+            'Hapus',
+            'Anggota',
+            "Menghapus anggota {$infoAnggota['nama_lengkap']} (NIS: {$infoAnggota['nis']})."
+        );
+    }
 
     header('Location: ../admin/anggota.php?success=hapus');
     exit;

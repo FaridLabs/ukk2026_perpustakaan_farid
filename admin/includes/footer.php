@@ -18,6 +18,16 @@
     if (scrim) scrim.addEventListener('click', tutup);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') tutup(); });
 })();
+
+function cetakLaporan(namaFile) {
+    var judulAsli = document.title;
+    if (namaFile) document.title = namaFile;
+    window.addEventListener('afterprint', function restore() {
+        document.title = judulAsli;
+        window.removeEventListener('afterprint', restore);
+    });
+    window.print();
+}
 </script>
 <?php if (!empty($extraScripts)) echo $extraScripts; ?>
 </body>

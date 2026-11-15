@@ -9,14 +9,16 @@ if (isset($_SESSION['anggota_id'])) {
     exit;
 }
 
-// Jika ada foto sendiri (mis. foto rak buku perpustakaan sekolah), taruh di sini dan otomatis dipakai.
+// ====================================================================
+// Pengaturan dekorasi ilustrasi buku di panel kiri (hanya untuk tampilan visual)
+// ====================================================================
 $fotoHero = 'assets/img/login-hero.jpg';
 $pakaiFoto = file_exists(__DIR__ . '/' . $fotoHero);
 
-// Rak buku buram untuk ilustrasi (deterministik, tidak berubah tiap refresh)
-mt_srand(7);
+// Warna dan tumpukan buku untuk gambar ilustrasi
 $warnaBuku = ['#3E7D5A', '#2C5C86', '#C8742C', '#B9503F', '#E6D3A8', '#6B8F71', '#8A5A3C', '#D8B24A', '#4C6A92'];
 $rakSvg = '';
+mt_srand(7);
 foreach ([128, 222, 316] as $dasar) {
     $x = 72;
     while ($x < 520) {

@@ -8,7 +8,7 @@
 date_default_timezone_set('Asia/Jakarta');
 
 $host   = 'localhost';
-$dbname = 'pinjam_in';
+$dbname = 'ukk2026_perpustakaan_farid';
 $user   = 'root';
 $pass   = ''; // sesuaikan jika password MySQL XAMPP kamu diisi
 

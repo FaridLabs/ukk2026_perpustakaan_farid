@@ -1,9 +1,12 @@
 <?php
 require 'cek_session_admin.php';
 require 'koneksi.php';
+require_once __DIR__ . '/log_helper.php';
 
-$action = $_POST['action'] ?? $_GET['action'] ?? '';
-$bukuId = $_POST['buku_id'] ?? $_GET['buku_id'] ?? '';
+$action    = $_POST['action'] ?? $_GET['action'] ?? '';
+$bukuId    = $_POST['buku_id'] ?? $_GET['buku_id'] ?? '';
+$adminId   = isset($_SESSION['admin_id']) ? (int)$_SESSION['admin_id'] : null;
+$adminNama = $_SESSION['admin_nama'] ?? 'Administrator';
 
 if (empty($bukuId)) {
     header('Location: ../admin/buku.php');
@@ -76,6 +79,15 @@ if ($action === 'generate_qr' || $action === 'generate_baru') {
         }
 
         $koneksi->commit();
+        catatLog(
+            $koneksi,
+            'admin',
+            $adminId,
+            $adminNama,
+            'Generate QR',
+            'Eksemplar',
+            "Membuat {$jumlah} eksemplar QR baru untuk buku '{$buku['judul']}'."
+        );
         header("Location: ../admin/buku_item.php?buku_id={$bukuId}&success=generate&jumlah={$jumlah}");
         exit;
 
@@ -119,6 +131,16 @@ if ($action === 'generate_qr' || $action === 'generate_baru') {
     $stmt->bindParam(':buku_id',   $bukuId);
     $stmt->execute();
 
+    catatLog(
+        $koneksi,
+        'admin',
+        $adminId,
+        $adminNama,
+        'Tambah',
+        'Eksemplar',
+        "Menambahkan eksemplar manual dengan kode '{$kode_item}' pada buku ID #{$bukuId}."
+    );
+
     header("Location: ../admin/buku_item.php?buku_id=$bukuId&success=manual&kode=" . urlencode($kode_item));
     exit;
 
@@ -135,10 +157,26 @@ if ($action === 'generate_qr' || $action === 'generate_baru') {
         exit;
     }
 
+    $stmtInfo = $koneksi->prepare("SELECT kode_item FROM buku_item WHERE id = :id LIMIT 1");
+    $stmtInfo->bindParam(':id', $id);
+    $stmtInfo->execute();
+    $itemInfo = $stmtInfo->fetch();
+
     $stmt = $koneksi->prepare("UPDATE buku_item SET status = :status WHERE id = :id");
     $stmt->bindParam(':status', $status);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+
+    $kodeInfo = $itemInfo['kode_item'] ?? "ID #{$id}";
+    catatLog(
+        $koneksi,
+        'admin',
+        $adminId,
+        $adminNama,
+        'Ubah Status',
+        'Eksemplar',
+        "Mengubah status eksemplar '{$kodeInfo}' menjadi '{$status}'."
+    );
 
     header("Location: ../admin/buku_item.php?buku_id=$bukuId&success=status");
     exit;
@@ -154,7 +192,7 @@ if ($action === 'generate_qr' || $action === 'generate_baru') {
         exit;
     }
 
-    $cek = $koneksi->prepare("SELECT status FROM buku_item WHERE id = :id");
+    $cek = $koneksi->prepare("SELECT kode_item, status FROM buku_item WHERE id = :id");
     $cek->bindParam(':id', $id);
     $cek->execute();
     $itemData = $cek->fetch();
@@ -167,6 +205,18 @@ if ($action === 'generate_qr' || $action === 'generate_baru') {
     $stmt = $koneksi->prepare("DELETE FROM buku_item WHERE id = :id");
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+
+    if ($itemData) {
+        catatLog(
+            $koneksi,
+            'admin',
+            $adminId,
+            $adminNama,
+            'Hapus',
+            'Eksemplar',
+            "Menghapus eksemplar fisik '{$itemData['kode_item']}'."
+        );
+    }
 
     header("Location: ../admin/buku_item.php?buku_id=$bukuId&success=hapus");
     exit;

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 08, 2026 at 05:19 AM
--- Server version: 10.4.27-MariaDB
--- PHP Version: 7.4.33
+-- Generation Time: Nov 15, 2026 at 05:30 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `pinjam_in`
+-- Database: `ukk2026_perpustakaan_farid`
 --
 
 -- --------------------------------------------------------
@@ -55,6 +55,7 @@ CREATE TABLE `anggota` (
   `nama_lengkap` varchar(100) NOT NULL,
   `kelas` varchar(20) NOT NULL,
   `no_hp` varchar(20) DEFAULT NULL,
+  `alamat` text DEFAULT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -64,12 +65,12 @@ CREATE TABLE `anggota` (
 -- Dumping data for table `anggota`
 --
 
-INSERT INTO `anggota` (`id`, `nis`, `kode_rfid`, `nama_lengkap`, `kelas`, `no_hp`, `username`, `password`, `created_at`) VALUES
-(16, '24250223', '1705319278', 'BAGAS NATASAPUTRA', 'XII RPL 2', '085', 'bagas', '$2y$10$Oddy9NtoSApmKhOn.O.iv.DFAbT.kByXzDnAJCP3R0D/pCSHG1KpG', '2026-09-10 07:49:16'),
-(17, '5252536', '1709911214', 'Yaya Dadan Jaya', 'XII RPL 2', '085', 'yaya', '$2y$10$y7AmlbS8f5urqQjB9olbl.HRXwM0eyHbV7mnNWmsMUA0h.bGglkpe', '2026-09-10 07:49:33'),
-(18, '123242', '1705876302', 'farel', 'kuliah', '213314', 'buku pinjam', '$2y$10$bQMr39Kda.J0El4ucbTgaO.RbC7aONJ1jq4qODPa256pWfqg3Uy.q', '2026-10-08 04:34:12'),
-(21, '2425123', NULL, 'Muhammad Farid Malik', 'XII RPL 2', '085798231433', 'fariddd', '$2y$10$yYiJ5mFk8rqm4iZVkYbQduGIlyDZQlWn8ypSJpYT58XEUTRlYWFfq', '2026-10-19 03:46:13'),
-(22, '2425888', NULL, 'Budi Santoso', 'XII RPL 1', '08123456789', 'budisantoso', '$2y$10$OvFTpZHl2GgIDHVd9XTEm.00TViHhAbNqmj1azCbSPvLvWO9dBpTm', '2026-10-19 03:57:27');
+INSERT INTO `anggota` (`id`, `nis`, `kode_rfid`, `nama_lengkap`, `kelas`, `no_hp`, `alamat`, `username`, `password`, `created_at`) VALUES
+(16, '24250223', '1705319278', 'BAGAS NATASAPUTRA', 'XII RPL 2', '085', NULL, 'bagas', '$2y$10$Oddy9NtoSApmKhOn.O.iv.DFAbT.kByXzDnAJCP3R0D/pCSHG1KpG', '2026-09-10 07:49:16'),
+(17, '5252536', '1709911214', 'Yaya Dadan Jaya', 'XII RPL 2', '085', NULL, 'yaya', '$2y$10$y7AmlbS8f5urqQjB9olbl.HRXwM0eyHbV7mnNWmsMUA0h.bGglkpe', '2026-09-10 07:49:33'),
+(18, '123242', '1705876302', 'farel', 'kuliah', '213314', NULL, 'buku pinjam', '$2y$10$bQMr39Kda.J0El4ucbTgaO.RbC7aONJ1jq4qODPa256pWfqg3Uy.q', '2026-10-08 04:34:12'),
+(21, '2425123', '0493428243', 'Muhammad Farid Malik', 'XII RPL 2', '085798231433', NULL, 'fariddd', '$2y$10$yYiJ5mFk8rqm4iZVkYbQduGIlyDZQlWn8ypSJpYT58XEUTRlYWFfq', '2026-10-19 03:46:13'),
+(22, '2425888', NULL, 'Budi Santoso', 'XII RPL 1', '08123456789', NULL, 'budisantoso', '$2y$10$OvFTpZHl2GgIDHVd9XTEm.00TViHhAbNqmj1azCbSPvLvWO9dBpTm', '2026-10-19 03:57:27');
 
 -- --------------------------------------------------------
 
@@ -94,11 +95,11 @@ CREATE TABLE `buku` (
 --
 
 INSERT INTO `buku` (`id`, `kode_buku`, `judul`, `pengarang`, `penerbit`, `tahun_terbit`, `kategori_id`, `created_at`, `cover`) VALUES
-(13, 'BK-2026091009395020', '3756', 'Pidi Baiq', 'google', 2020, 1, '2026-09-10 07:39:50', NULL),
-(14, 'BK-2026092103453597', 'Rekayasa Perangkat Lunak', 'Abijar', 'goggle', 2020, 3, '2026-09-21 01:45:35', NULL),
-(15, 'BK-2026100806312225', 'rekayasa perangkat lunak', 'tok dalang', 'bagas', 0000, 1, '2026-10-08 04:31:22', NULL),
-(16, 'BK-2026100806330530', '3786mdpl', 'afgan', 'farel', 2026, 1, '2026-10-08 04:33:05', NULL),
-(17, 'BK-2026100806373110', '3756', 'afgan', 'farel', 2030, 4, '2026-10-08 04:37:31', 'cover_d18a73a134538c9c.jpg');
+(13, 'BK-2026091009395020', '3756', 'Pidi Baiq', 'google', '2020', 1, '2026-09-10 07:39:50', NULL),
+(14, 'BK-2026092103453597', 'Rekayasa Perangkat Lunak', 'Abijar', 'goggle', '2020', 3, '2026-09-21 01:45:35', NULL),
+(15, 'BK-2026100806312225', 'rekayasa perangkat lunak', 'tok dalang', 'bagas', '0000', 1, '2026-10-08 04:31:22', NULL),
+(16, 'BK-2026100806330530', '3786mdpl', 'afgan', 'farel', '2026', 1, '2026-10-08 04:33:05', NULL),
+(17, 'BK-2026100806373110', '3756', 'afgan', 'farel', '2030', 4, '2026-10-08 04:37:31', 'cover_d18a73a134538c9c.jpg');
 
 -- --------------------------------------------------------
 
@@ -173,6 +174,32 @@ INSERT INTO `kategori` (`id`, `nama_kategori`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `log_aktivitas`
+--
+
+CREATE TABLE `log_aktivitas` (
+  `id` int(11) NOT NULL,
+  `role` enum('admin','siswa','sistem') NOT NULL DEFAULT 'sistem',
+  `user_id` int(11) DEFAULT NULL,
+  `nama_pelaku` varchar(100) NOT NULL,
+  `aksi` varchar(50) NOT NULL,
+  `modul` varchar(50) NOT NULL,
+  `keterangan` text NOT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `log_aktivitas`
+--
+
+INSERT INTO `log_aktivitas` (`id`, `role`, `user_id`, `nama_pelaku`, `aksi`, `modul`, `keterangan`, `ip_address`, `created_at`) VALUES
+(1, 'admin', 1, 'Administrator Perpustakaan', 'Login', 'Autentikasi', 'Admin Administrator Perpustakaan (@admin) login ke sistem.', '::1', '2026-11-12 00:49:54'),
+(2, 'admin', 1, 'Administrator Perpustakaan', 'Login', 'Autentikasi', 'Admin Administrator Perpustakaan (@admin) login ke sistem.', '::1', '2026-11-12 08:46:04');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `transaksi`
 --
 
@@ -187,6 +214,13 @@ CREATE TABLE `transaksi` (
   `status` enum('dipinjam','dikembalikan','terlambat') NOT NULL DEFAULT 'dipinjam',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `transaksi`
+--
+
+INSERT INTO `transaksi` (`id`, `kode_transaksi`, `anggota_id`, `buku_item_id`, `tgl_pinjam`, `tgl_kembali_rencana`, `tgl_kembali_aktual`, `status`, `created_at`) VALUES
+(3, 'TRX-20261109100433-21-154', 21, 62, '2026-11-09', '2026-11-16', '2026-11-09', 'dikembalikan', '2026-11-09 03:04:33');
 
 --
 -- Indexes for dumped tables
@@ -229,6 +263,15 @@ ALTER TABLE `buku_item`
 --
 ALTER TABLE `kategori`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `log_aktivitas`
+--
+ALTER TABLE `log_aktivitas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_log_role` (`role`),
+  ADD KEY `idx_log_modul` (`modul`),
+  ADD KEY `idx_log_created` (`created_at`);
 
 --
 -- Indexes for table `transaksi`
@@ -274,10 +317,16 @@ ALTER TABLE `kategori`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
+-- AUTO_INCREMENT for table `log_aktivitas`
+--
+ALTER TABLE `log_aktivitas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `transaksi`
 --
 ALTER TABLE `transaksi`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables

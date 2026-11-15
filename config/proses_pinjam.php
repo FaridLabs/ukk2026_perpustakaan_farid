@@ -1,6 +1,7 @@
 <?php
 require 'cek_session_siswa.php';
 require 'koneksi.php';
+require_once __DIR__ . '/log_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../siswa/pinjam.php');
@@ -68,7 +69,8 @@ try {
 
     $tglPinjam     = date('Y-m-d');
     $tglRencana    = date('Y-m-d', strtotime("+{$lamaPinjamHari} days"));
-    $kodeTransaksi = 'TRX-' . date('YmdHis') . '-' . $anggotaId;
+    // Format kode unik: TRX-TahunBulanTanggalJamMenitDetik-IDAnggota-Random
+    $kodeTransaksi = 'TRX-' . date('YmdHis') . '-' . $anggotaId . '-' . rand(100, 999);
 
     $stmtInsert = $koneksi->prepare("
         INSERT INTO transaksi (kode_transaksi, anggota_id, buku_item_id, tgl_pinjam, tgl_kembali_rencana, status)
@@ -86,6 +88,16 @@ try {
     $stmtUpdate->execute();
 
     $koneksi->commit();
+
+    catatLog(
+        $koneksi,
+        'siswa',
+        (int)$anggotaId,
+        $_SESSION['anggota_nama'] ?? 'Siswa',
+        'Pinjam',
+        'Transaksi',
+        "Meminjam buku '{$item['judul']}' ({$kode_item}) dengan kode transaksi {$kodeTransaksi}."
+    );
 
     header('Location: ../siswa/pinjam.php?success=' . urlencode($item['judul']));
     exit;

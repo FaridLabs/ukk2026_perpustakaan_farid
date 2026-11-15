@@ -65,7 +65,7 @@ $data = $stmt->fetchAll();
 
 $pageTitle   = 'Riwayat Transaksi';
 $currentPage = 'transaksi';
-$extraHead   = '<link rel="stylesheet" href="../assets/css/tabel.css?v=1">';
+$extraHead   = '<link rel="stylesheet" href="../assets/css/tabel.css?v=3">';
 
 $blnId = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 function tglId(?string $t, array $b): string {
@@ -73,6 +73,8 @@ function tglId(?string $t, array $b): string {
     $ts = strtotime($t);
     return date('j', $ts) . ' ' . $b[(int) date('n', $ts) - 1] . ' ' . date('Y', $ts);
 }
+require_once 'includes/print_report.php';
+$infoCetak = infoCetakWib();
 
 $adaFilter = $keyword !== '' || $filterStatus !== '' || $tglDari !== '' || $tglSampai !== '';
 $labelStatus = ['dipinjam' => 'Sedang dipinjam', 'dikembalikan' => 'Sudah dikembalikan', 'terlambat' => 'Terlambat'];
@@ -94,7 +96,7 @@ require 'includes/header.php';
         <p>Arsip seluruh aktivitas sirkulasi peminjaman dan pengembalian buku siswa.</p>
     </div>
     <div class="d-btn-row">
-        <button type="button" onclick="window.print()" class="btn-d main"><?= ic('history') ?>Cetak Laporan</button>
+        <button type="button" onclick="cetakLaporan('Laporan_Transaksi_PinjamIn_<?= date('Y-m-d') ?>')" class="btn-d main" title="Cetak laporan atau pilih Simpan sebagai PDF"><?= ic('printer') ?>Cetak / Export PDF</button>
     </div>
 </div>
 
@@ -155,17 +157,13 @@ require 'includes/header.php';
         </div>
         <span class="tr-count">Ditemukan <b><?= count($data) ?></b> transaksi</span>
     </div>
-    <div class="print-head">
-        <div class="ph-top"><span><b>Pinjam.In</b> &nbsp;Perpustakaan Digital Sekolah</span><span>Dicetak <?= tglId($today, $blnId) ?>, <?= (new DateTime('now', new DateTimeZone('Asia/Jakarta')))->format('H:i') ?> WIB</span></div>
-        <h1>Laporan Transaksi Sirkulasi Buku</h1>
-        <p><?= $ringkas ? htmlspecialchars(implode('  |  ', $ringkas)) : 'Semua transaksi' ?> &mdash; <?= count($data) ?> data ditampilkan</p>
-        <div class="ph-sum">
-            <div><b><?= (int) $totalSemua ?></b>Total transaksi</div>
-            <div><b><?= (int) $totalDipinjam ?></b>Sedang dipinjam</div>
-            <div><b><?= (int) $totalKembali ?></b>Sudah dikembalikan</div>
-            <div><b><?= (int) $totalTerlambat ?></b>Terlambat</div>
-        </div>
-    </div>
+    <?php renderPrintHead($infoCetak + [
+        'subUnit'    => 'Sistem Informasi Sirkulasi Buku & Manajemen Koleksi Perpustakaan',
+        'docBadge'   => 'Dokumen Laporan Resmi',
+        'judul'      => 'Laporan Transaksi Sirkulasi Buku',
+        'filterText' => $ringkas ? implode('  |  ', $ringkas) : 'Semua transaksi (tanpa filter)',
+        'countText'  => 'Total: ' . count($data) . ' transaksi',
+    ]); ?>
 
     <div class="tbl wide">
         <?php if (empty($data)): ?>
@@ -181,10 +179,10 @@ require 'includes/header.php';
         <?php else: ?>
         <table>
             <thead>
-                <tr><th>Kode Transaksi</th><th>Siswa Peminjam</th><th>Buku</th><th>Tgl Pinjam</th><th>Batas Waktu</th><th>Tgl Kembali</th><th>Keterangan</th><th>Status</th></tr>
+                <tr><th style="width:38px;text-align:center">No</th><th>Kode Transaksi</th><th>Siswa Peminjam</th><th>Buku</th><th>Tgl Pinjam</th><th>Batas Waktu</th><th>Tgl Kembali</th><th>Keterangan</th><th>Status</th></tr>
             </thead>
             <tbody>
-            <?php foreach ($data as $row):
+            <?php foreach ($data as $i => $row):
                 $isAktifDipinjam = $row['status'] === 'dipinjam';
                 $isTerlambat = ($isAktifDipinjam && $row['tgl_kembali_rencana'] < $today) || $row['status'] === 'terlambat';
 
@@ -211,6 +209,7 @@ require 'includes/header.php';
                 else                                    { $bd = 'run';  $lb = 'Dipinjam'; }
             ?>
                 <tr>
+                    <td style="text-align:center"><?= $i + 1 ?></td>
                     <td><code><?= htmlspecialchars($row['kode_transaksi']) ?></code></td>
                     <td>
                         <?php if ($row['nama_lengkap']): ?>
@@ -235,6 +234,6 @@ require 'includes/header.php';
         </table>
         <?php endif; ?>
     </div>
-    <div class="print-foot"><div>Petugas Perpustakaan<i></i><b><?= htmlspecialchars($_SESSION['admin_nama'] ?? 'Administrator') ?></b></div></div>
+    <?php renderPrintFoot(count($data), $infoCetak['tglCetak'], $infoCetak['jamCetak'], $infoCetak['namaPetugas']); ?>
 </section>
 <?php require 'includes/footer.php'; ?>

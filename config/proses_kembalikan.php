@@ -1,6 +1,7 @@
 <?php
 require 'cek_session_siswa.php';
 require 'koneksi.php';
+require_once __DIR__ . '/log_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../siswa/riwayat.php');
@@ -74,6 +75,17 @@ try {
     $stmtUpdateItem->execute();
 
     $koneksi->commit();
+
+    $ketTelat = $isTerlambat ? 'terlambat' : 'tepat waktu';
+    catatLog(
+        $koneksi,
+        'siswa',
+        (int)$anggotaId,
+        $_SESSION['anggota_nama'] ?? 'Siswa',
+        'Kembali',
+        'Transaksi',
+        "Mengembalikan buku '{$item['judul']}' ({$kode_item}) secara {$ketTelat} (Kode: {$transaksi['kode_transaksi']})."
+    );
 
     $redirect = '../siswa/riwayat.php?success=' . urlencode($item['judul']);
     if ($isTerlambat) {

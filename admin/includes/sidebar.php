@@ -14,6 +14,9 @@ $sbMenu = [
         ['kategori', 'kategori.php', 'tag',   'Kategori Buku'],
         ['anggota',  'anggota.php',  'users', 'Kelola Anggota'],
     ],
+    'SISTEM' => [
+        ['log_aktivitas', 'log_aktivitas.php', 'activity', 'Log Aktivitas'],
+    ],
 ];
 // Halaman turunan yang tetap menandai menu induknya
 $sbAlias = ['buku_item' => 'buku'];

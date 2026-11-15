@@ -13,7 +13,7 @@ $sql = "
 $params = [];
 
 if (!empty($keyword)) {
-    $sql .= " AND (nama_lengkap LIKE :kw OR nis LIKE :kw OR kelas LIKE :kw)";
+    $sql .= " AND (nama_lengkap LIKE :kw OR nis LIKE :kw OR kelas LIKE :kw OR alamat LIKE :kw)";
     $params[':kw'] = "%$keyword%";
 }
 
@@ -151,6 +151,11 @@ require 'includes/header.php';
                     </div>
                 </div>
 
+                <div class="form-group" style="margin-top: 14px;">
+                    <label for="alamat">Alamat Lengkap</label>
+                    <textarea id="alamat" name="alamat" rows="2" placeholder="Masukkan alamat lengkap siswa (jalan, RT/RW, desa/kecamatan)..." autocomplete="off"><?= $editData ? htmlspecialchars($editData['alamat'] ?? '') : '' ?></textarea>
+                </div>
+
                 <div style="margin-top: 20px;">
                     <button type="submit" class="btn btn-primary"><?= $editData ? 'Simpan Perubahan' : '+ Tambah Anggota' ?></button>
                     <?php if ($editData): ?>
@@ -162,7 +167,7 @@ require 'includes/header.php';
 
         <!-- SEARCH BAR -->
         <form action="anggota.php" method="GET" class="search-box" autocomplete="off">
-            <input type="text" name="keyword" placeholder="Cari nama siswa, NIS, atau kelas..." value="<?= htmlspecialchars($keyword) ?>" autocomplete="off">
+            <input type="text" name="keyword" placeholder="Cari nama siswa, NIS, kelas, atau alamat..." value="<?= htmlspecialchars($keyword) ?>" autocomplete="off">
             <button type="submit" class="btn btn-primary">Cari Anggota</button>
             <?php if (!empty($keyword)): ?>
                 <a href="anggota.php" class="btn-cancel">Reset</a>
@@ -178,6 +183,7 @@ require 'includes/header.php';
                         <th>NIS</th>
                         <th>Nama Anggota</th>
                         <th>Kelas</th>
+                        <th>Alamat</th>
                         <th>Username</th>
                         <th>Kartu RFID Fisik</th>
                         <th>Status Pinjaman</th>
@@ -186,7 +192,7 @@ require 'includes/header.php';
                 </thead>
                 <tbody>
                     <?php if (empty($data)): ?>
-                        <tr><td colspan="8">Tidak ada data anggota ditemukan.</td></tr>
+                        <tr><td colspan="9">Tidak ada data anggota ditemukan.</td></tr>
                     <?php else: ?>
                         <?php foreach ($data as $i => $row): ?>
                             <tr>
@@ -194,6 +200,9 @@ require 'includes/header.php';
                                 <td><code><?= htmlspecialchars($row['nis']) ?></code></td>
                                 <td><strong style="color: var(--slate-900);"><?= htmlspecialchars($row['nama_lengkap']) ?></strong></td>
                                 <td><?= htmlspecialchars($row['kelas']) ?></td>
+                                <td style="max-width: 220px; color: var(--slate-600);">
+                                    <?= !empty($row['alamat']) ? nl2br(htmlspecialchars($row['alamat'])) : '<span style="color: var(--slate-400);">-</span>' ?>
+                                </td>
                                 <td><span style="color: var(--slate-600);"><?= htmlspecialchars($row['username']) ?></span></td>
                                 <td>
                                     <?php if ($row['kode_rfid']): ?>

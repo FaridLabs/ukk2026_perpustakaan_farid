@@ -2,6 +2,10 @@
 require 'cek_session_admin.php';
 require 'koneksi.php';
 require_once __DIR__ . '/upload_cover.php';
+require_once __DIR__ . '/log_helper.php';
+
+$adminId   = isset($_SESSION['admin_id']) ? (int)$_SESSION['admin_id'] : null;
+$adminNama = $_SESSION['admin_nama'] ?? 'Administrator';
 
 // Jika file yang diunggah melebihi post_max_size, PHP mengosongkan $_POST sepenuhnya
 if (empty($_POST) && !empty($_SERVER['CONTENT_LENGTH'])) {
@@ -74,6 +78,15 @@ if ($action === 'tambah') {
         }
 
         $koneksi->commit();
+        catatLog(
+            $koneksi,
+            'admin',
+            $adminId,
+            $adminNama,
+            'Tambah',
+            'Buku',
+            "Menambahkan buku '{$judul}' ({$kode_buku}) beserta {$jumlah_eksemplar} eksemplar."
+        );
         header('Location: ../admin/buku.php?success=tambah&id=' . $bukuId . '&jumlah=' . $jumlah_eksemplar);
         exit;
 
@@ -154,6 +167,8 @@ if ($action === 'tambah') {
         hapusCover($coverLama);
     }
 
+    catatLog($koneksi, 'admin', $adminId, $adminNama, 'Edit', 'Buku', "Memperbarui data buku '{$judul}' (ID #{$id}).");
+
     header('Location: ../admin/buku.php?success=edit');
     exit;
 
@@ -172,17 +187,30 @@ if ($action === 'tambah') {
         exit;
     }
 
-    // Simpan nama cover dulu supaya file bisa dihapus setelah barisnya terhapus
-    $stmtCover = $koneksi->prepare("SELECT cover FROM buku WHERE id = :id");
+    // Simpan nama cover & info buku dulu supaya file & log bisa dicatat setelah barisnya terhapus
+    $stmtCover = $koneksi->prepare("SELECT judul, kode_buku, cover FROM buku WHERE id = :id");
     $stmtCover->bindParam(':id', $id);
     $stmtCover->execute();
-    $coverHapus = $stmtCover->fetch()['cover'] ?? null;
+    $bukuHapus  = $stmtCover->fetch();
+    $coverHapus = $bukuHapus['cover'] ?? null;
 
     $stmt = $koneksi->prepare("DELETE FROM buku WHERE id = :id");
     $stmt->bindParam(':id', $id);
     $stmt->execute();
 
     hapusCover($coverHapus);
+
+    if ($bukuHapus) {
+        catatLog(
+            $koneksi,
+            'admin',
+            $adminId,
+            $adminNama,
+            'Hapus',
+            'Buku',
+            "Menghapus buku '{$bukuHapus['judul']}' ({$bukuHapus['kode_buku']})."
+        );
+    }
 
     header('Location: ../admin/buku.php?success=hapus');
     exit;

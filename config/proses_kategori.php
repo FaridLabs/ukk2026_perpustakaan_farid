@@ -1,9 +1,12 @@
 <?php
 require 'cek_session_admin.php';
 require 'koneksi.php';
+require_once __DIR__ . '/log_helper.php';
 
 // Ambil action dari POST (form) atau GET (link hapus)
-$action = $_POST['action'] ?? $_GET['action'] ?? '';
+$action    = $_POST['action'] ?? $_GET['action'] ?? '';
+$adminId   = isset($_SESSION['admin_id']) ? (int)$_SESSION['admin_id'] : null;
+$adminNama = $_SESSION['admin_nama'] ?? 'Administrator';
 
 if ($action === 'tambah') {
 
@@ -17,6 +20,8 @@ if ($action === 'tambah') {
     $stmt = $koneksi->prepare("INSERT INTO kategori (nama_kategori) VALUES (:nama)");
     $stmt->bindParam(':nama', $nama_kategori);
     $stmt->execute();
+
+    catatLog($koneksi, 'admin', $adminId, $adminNama, 'Tambah', 'Kategori', "Menambahkan kategori baru: {$nama_kategori}.");
 
     header('Location: ../admin/kategori.php?success=1');
     exit;
@@ -35,6 +40,8 @@ if ($action === 'tambah') {
     $stmt->bindParam(':nama', $nama_kategori);
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+
+    catatLog($koneksi, 'admin', $adminId, $adminNama, 'Edit', 'Kategori', "Mengubah nama kategori (ID #{$id}) menjadi '{$nama_kategori}'.");
 
     header('Location: ../admin/kategori.php?success=1');
     exit;
@@ -58,9 +65,18 @@ if ($action === 'tambah') {
         exit;
     }
 
+    $stmtInfo = $koneksi->prepare("SELECT nama_kategori FROM kategori WHERE id = :id LIMIT 1");
+    $stmtInfo->bindParam(':id', $id);
+    $stmtInfo->execute();
+    $katInfo = $stmtInfo->fetch();
+
     $stmt = $koneksi->prepare("DELETE FROM kategori WHERE id = :id");
     $stmt->bindParam(':id', $id);
     $stmt->execute();
+
+    if ($katInfo) {
+        catatLog($koneksi, 'admin', $adminId, $adminNama, 'Hapus', 'Kategori', "Menghapus kategori '{$katInfo['nama_kategori']}'.");
+    }
 
     header('Location: ../admin/kategori.php?success=1');
     exit;

@@ -1,6 +1,7 @@
 <?php
 require 'cek_session_admin.php';
 require 'koneksi.php';
+require_once __DIR__ . '/log_helper.php';
 
 // Mendukung POST (dari form scan) maupun GET (dari tombol aksi kembali di daftar)
 $kode_item    = trim($_POST['kode_item'] ?? $_GET['kode_item'] ?? '');
@@ -137,6 +138,17 @@ try {
     $stmtUpdateItem->execute();
 
     $koneksi->commit();
+
+    $ketTelat = $isTerlambat ? "terlambat {$hariTerlambat} hari" : 'tepat waktu';
+    catatLog(
+        $koneksi,
+        'admin',
+        isset($_SESSION['admin_id']) ? (int)$_SESSION['admin_id'] : null,
+        $_SESSION['admin_nama'] ?? 'Administrator',
+        'Kembali',
+        'Transaksi',
+        "Mencatat pengembalian buku '{$transaksi['judul']}' ({$transaksi['kode_item']}) oleh {$transaksi['nama_lengkap']} ({$ketTelat})."
+    );
 
     $redirect = '../admin/pengembalian.php?success=kembali'
               . '&judul=' . urlencode($transaksi['judul'])

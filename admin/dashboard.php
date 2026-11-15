@@ -7,15 +7,18 @@ $currentPage = 'dashboard';
 
 $bln = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-/* ---------- 1. Statistik kartu ---------- */
-$hitung = fn(string $sql) => (int) ($koneksi->query($sql)->fetchColumn() ?: 0);
+/* ---------- 1. Statistik kartu utama ---------- */
+// Fungsi helper sederhana untuk menghitung total data di database
+function hitungTotal($koneksi, string $sql): int {
+    return (int) ($koneksi->query($sql)->fetchColumn() ?: 0);
+}
 
-$totalJudul     = $hitung("SELECT COUNT(*) FROM buku");
-$totalEksemplar = $hitung("SELECT COUNT(*) FROM buku_item");
-$totalTersedia  = $hitung("SELECT COUNT(*) FROM buku_item WHERE status = 'tersedia'");
-$totalAnggota   = $hitung("SELECT COUNT(*) FROM anggota");
-$totalDipinjam  = $hitung("SELECT COUNT(*) FROM transaksi WHERE status = 'dipinjam'");
-$totalTerlambat = $hitung("SELECT COUNT(*) FROM transaksi WHERE status = 'dipinjam' AND tgl_kembali_rencana < CURDATE()");
+$totalJudul     = hitungTotal($koneksi, "SELECT COUNT(*) FROM buku");
+$totalEksemplar = hitungTotal($koneksi, "SELECT COUNT(*) FROM buku_item");
+$totalTersedia  = hitungTotal($koneksi, "SELECT COUNT(*) FROM buku_item WHERE status = 'tersedia'");
+$totalAnggota   = hitungTotal($koneksi, "SELECT COUNT(*) FROM anggota");
+$totalDipinjam  = hitungTotal($koneksi, "SELECT COUNT(*) FROM transaksi WHERE status = 'dipinjam'");
+$totalTerlambat = hitungTotal($koneksi, "SELECT COUNT(*) FROM transaksi WHERE status = 'dipinjam' AND tgl_kembali_rencana < CURDATE()");
 $persenTersedia = $totalEksemplar > 0 ? (int) round($totalTersedia / $totalEksemplar * 100) : 0;
 
 $kartu = [

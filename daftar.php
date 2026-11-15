@@ -18,6 +18,7 @@ $ikon = [
     'kelas' => '<path d="M2 9l10-5 10 5-10 5L2 9Z"/><path d="M6 11.500V16c0 1.500 2.700 3 6 3s6-1.500 6-3v-4.500"/>',
     'user'  => '<circle cx="12" cy="8" r="4"/><path d="M4 20.500c0-4 3.600-6.500 8-6.500s8 2.500 8 6.500"/>',
     'phone' => '<path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/>',
+    'pin'   => '<path d="M12 21s-6-5.3-6-10a6 6 0 1 1 12 0c0 4.7-6 10-6 10Z"/><circle cx="12" cy="11" r="2.2"/>',
     'at'    => '<circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/>',
     'lock'  => '<rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7.500a4 4 0 0 1 8 0V10"/>',
     'check' => '<rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7.500a4 4 0 0 1 8 0V10M9 15.500l2 2 4-4"/>',
@@ -29,6 +30,7 @@ $baris = [
     [['nama_lengkap', 'Nama Lengkap', 'Masukkan nama lengkap siswa...', 'user', 'text', true, '']],
     [['no_hp', 'No. WhatsApp / HP', 'Contoh: 08123456789', 'phone', 'text', false, 'inputmode="tel"'],
      ['username', 'Username', 'Pilih username unik...', 'at', 'text', true, '']],
+    [['alamat', 'Alamat Lengkap', 'Contoh: Jl. Merdeka No. 10, Kec. Panyingkiran', 'pin', 'text', false, '']],
     [['password', 'Password', 'Minimal 6 karakter', 'lock', 'password', true, 'minlength="6"'],
      ['konfirmasi_password', 'Konfirmasi Password', 'Ulangi password...', 'check', 'password', true, '']],
 ];

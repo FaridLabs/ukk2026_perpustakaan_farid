@@ -1,6 +1,7 @@
 <?php
 require 'cek_session_admin.php';
 require 'koneksi.php';
+require_once __DIR__ . '/log_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../admin/peminjaman.php');
@@ -25,6 +26,7 @@ $stmtItem = $koneksi->prepare("
     FROM buku_item 
     JOIN buku ON buku_item.buku_id = buku.id
     WHERE buku_item.kode_item = :kode_item
+    ORDER BY (buku_item.status = 'tersedia') DESC, buku_item.id ASC
     LIMIT 1
 ");
 $stmtItem->bindParam(':kode_item', $kode_item);
@@ -87,7 +89,8 @@ try {
 
     $tglPinjam     = date('Y-m-d');
     $tglRencana    = date('Y-m-d', strtotime("+{$lamaPinjamHari} days"));
-    $kodeTransaksi = 'TRX-' . date('YmdHis') . '-' . $anggotaId;
+    // Format kode unik: TRX-TahunBulanTanggalJamMenitDetik-IDAnggota-Random
+    $kodeTransaksi = 'TRX-' . date('YmdHis') . '-' . $anggotaId . '-' . rand(100, 999);
 
     $stmtInsert = $koneksi->prepare("
         INSERT INTO transaksi (kode_transaksi, anggota_id, buku_item_id, tgl_pinjam, tgl_kembali_rencana, status)
@@ -105,6 +108,23 @@ try {
     $stmtUpdate->execute();
 
     $koneksi->commit();
+
+    $stmtA = $koneksi->prepare("SELECT nama_lengkap, nis FROM anggota WHERE id = :id LIMIT 1");
+    $stmtA->bindParam(':id', $anggotaId);
+    $stmtA->execute();
+    $peminjam = $stmtA->fetch();
+    $labelPeminjam = $peminjam ? "{$peminjam['nama_lengkap']} (NIS: {$peminjam['nis']})" : "Anggota #{$anggotaId}";
+
+    catatLog(
+        $koneksi,
+        'admin',
+        isset($_SESSION['admin_id']) ? (int)$_SESSION['admin_id'] : null,
+        $_SESSION['admin_nama'] ?? 'Administrator',
+        'Pinjam',
+        'Transaksi',
+        "Mencatat peminjaman buku '{$item['judul']}' ({$kode_item}) untuk {$labelPeminjam} dengan kode {$kodeTransaksi}."
+    );
+
     header('Location: ../admin/peminjaman.php?success=pinjam&judul=' . urlencode($item['judul']));
     exit;
 
