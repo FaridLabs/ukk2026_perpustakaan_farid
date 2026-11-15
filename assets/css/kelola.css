@@ -490,6 +490,9 @@ body.bm-lock {
 .bm-dialog.bm-sm {
   max-width: 410px;
 }
+.bm-dialog.bm-md {
+  max-width: 620px;
+}
 
 @keyframes bmIn {
   from {
@@ -953,6 +956,113 @@ body.bm-lock {
   border-color: var(--g) !important;
   background-color: #fff !important;
   box-shadow: 0 0 0 4px rgba(33, 115, 80, 0.12) !important;
+}
+
+.bm-field textarea {
+  width: 100% !important;
+  min-height: 72px;
+  padding: 10px 13px !important;
+  border: 1.5px solid #cbd6d0 !important;
+  border-radius: 10px !important;
+  background: #fafcfb !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  color: var(--ink) !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  resize: vertical;
+  line-height: 1.5;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.bm-field textarea:focus {
+  outline: none;
+  border-color: var(--g) !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 4px rgba(33, 115, 80, 0.12) !important;
+}
+
+/* RFID pairing terminal dialog */
+.bm-rfid-box {
+  background: #f6faf8;
+  border: 1px solid #d4e5db;
+  border-radius: 12px;
+  padding: 18px 20px;
+  text-align: center;
+}
+.bm-rfid-target {
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.bm-rfid-target strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+.bm-rfid-input {
+  width: 100% !important;
+  height: 48px !important;
+  text-align: center;
+  font-family: "JetBrains Mono", ui-monospace, Consolas, monospace !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em;
+  border: 2px solid var(--g) !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  color: var(--ink) !important;
+  margin: 0 !important;
+  box-shadow: 0 0 0 4px rgba(33, 115, 80, 0.14) !important;
+}
+.bm-rfid-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Student row card styles */
+.usr-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.usr-av {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #eaf3ee;
+  color: var(--g);
+  font-weight: 700;
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d4e4dc;
+  letter-spacing: -0.02em;
+}
+.usr-info {
+  min-width: 0;
+}
+.usr-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.usr-name strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.usr-sub {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 /* Blok eksemplar awal (Mode Tambah) */
