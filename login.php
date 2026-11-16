@@ -9,6 +9,14 @@ if (isset($_SESSION['anggota_id'])) {
     exit;
 }
 
+// Memuat koneksi dan konfigurasi identitas aplikasi secara dinamis
+require_once __DIR__ . '/config/koneksi.php';
+require_once __DIR__ . '/config/pengaturan_helper.php';
+$appConfig  = ambilPengaturan($koneksi);
+$appNama    = $appConfig['nama_aplikasi'] ?? 'Pinjam.In';
+$appSlogan  = $appConfig['slogan_aplikasi'] ?? 'Perpustakaan Digital';
+$appSekolah = $appConfig['nama_sekolah'] ?? 'SMKN 1 Panyingkiran';
+
 // ====================================================================
 // Pengaturan dekorasi ilustrasi buku di panel kiri (hanya untuk tampilan visual)
 // ====================================================================
@@ -39,7 +47,7 @@ $tumpukan = [
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Masuk Sistem - Pinjam.In Perpustakaan</title>
+<title>Masuk Sistem - <?= htmlspecialchars($appNama) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@500&display=swap" rel="stylesheet">
@@ -156,11 +164,11 @@ form{margin-top:clamp(16px,2.8vh,28px)}
   <!-- ===== KIRI ===== -->
   <section class="left" aria-hidden="false">
     <div class="left-content">
-      <a href="index.php" class="brand" aria-label="Pinjam.In, beranda">
+      <a href="index.php" class="brand" aria-label="<?= htmlspecialchars($appNama) ?>, beranda">
         <svg><use href="#logo"/></svg>
         <span>
-          <span class="brand-name">Pinjam<b>.In</b></span>
-          <span class="brand-sub">Perpustakaan Digital Sekolah</span>
+          <span class="brand-name"><?= htmlspecialchars($appNama) ?></span>
+          <span class="brand-sub"><?= htmlspecialchars($appSlogan) ?> &middot; <?= htmlspecialchars($appSekolah) ?></span>
         </span>
       </a>
 
@@ -254,8 +262,8 @@ form{margin-top:clamp(16px,2.8vh,28px)}
       <div class="card">
         <div class="card-head">
           <svg aria-hidden="true"><use href="#logo"/></svg>
-          <h1 class="card-brand">Pinjam<b>.In</b></h1>
-          <p class="card-tag">Sistem Peminjaman Buku Perpustakaan</p>
+          <h1 class="card-brand"><?= htmlspecialchars($appNama) ?></h1>
+          <p class="card-tag"><?= htmlspecialchars($appSlogan) ?> &middot; <?= htmlspecialchars($appSekolah) ?></p>
         </div>
 
         <h2 class="welcome">Selamat Datang!</h2>
@@ -311,7 +319,7 @@ form{margin-top:clamp(16px,2.8vh,28px)}
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Zm-1.2 14L7.5 12.7l1.4-1.4 1.9 1.9 4.3-4.3 1.4 1.4-5.7 5.7Z"/></svg>
         Aman &bull; Cepat &bull; Terpercaya
       </span>
-      <p>&copy; <?= date('Y') ?> Pinjam.In Perpustakaan Sekolah. Hak Cipta Dilindungi.</p>
+      <p>&copy; <?= date('Y') ?> <?= htmlspecialchars($appNama) ?> &middot; <?= htmlspecialchars($appSekolah) ?>. Hak Cipta Dilindungi.</p>
     </div>
   </main>
 </div>

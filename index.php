@@ -18,8 +18,14 @@ if (isset($_GET['error']) || (isset($_GET['success']) && $_GET['success'] === 'd
 
 require_once 'config/koneksi.php';
 require_once 'config/upload_cover.php';
+require_once 'config/pengaturan_helper.php';
 
-$lamaPinjam = 7;
+// Memuat data konfigurasi dinamis (nama aplikasi, sekolah, lama pinjam)
+$appConfig  = ambilPengaturan($koneksi);
+$appNama    = $appConfig['nama_aplikasi'] ?? 'Pinjam.In';
+$appSlogan  = $appConfig['slogan_aplikasi'] ?? 'Perpustakaan Digital';
+$appSekolah = $appConfig['nama_sekolah'] ?? 'SMKN 1 Panyingkiran';
+$lamaPinjam = (int) ($appConfig['lama_pinjam_hari'] ?? 7);
 
 function e($v): string {
     return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
@@ -62,7 +68,7 @@ $contoh2 = $koleksiBuku[1]['judul'] ?? 'Judul buku lain';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pinjam.In - Perpustakaan Sekolah dengan Kartu RFID dan QR Code</title>
+<title><?= e($appNama) ?> - <?= e($appSlogan) ?> <?= e($appSekolah) ?></title>
 <meta name="description" content="Pinjam buku perpustakaan sekolah cukup dengan tap kartu pelajar RFID dan scan QR Code di setiap buku.">
 <style>
 :root{--paper:#F4F5F0;--white:#fff;--ink:#18201D;--muted:#5B6661;--line:#DADFD8;--baize:#0F4A40;--deep:#0A3730;--lamp:#F3B63F;--stamp:#B3342A;--go:#2FBF84;--ok:#1B7A55;--bad:#A8322B;
@@ -265,8 +271,8 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
 
 <header class="site-header" id="header">
   <div class="wrap">
-    <a href="index.php" class="brand" aria-label="Pinjam.In, beranda">
-      Pinjam.In
+    <a href="index.php" class="brand" aria-label="<?= e($appNama) ?>, beranda">
+      <?= e($appNama) ?>
     </a>
     <nav class="nav" aria-label="Navigasi utama">
       <a href="#simulasi">Cara pinjam</a>
@@ -491,7 +497,7 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
 
 <footer class="site-footer">
   <div class="wrap">
-    <div>&copy; <?= date('Y') ?> Pinjam.In, Perpustakaan Sekolah</div>
+    <div>&copy; <?= date('Y') ?> <?= e($appNama) ?> &middot; <?= e($appSekolah) ?></div>
     <nav class="footer-links" aria-label="Tautan footer">
       <a href="#koleksi">Koleksi</a><a href="daftar.php">Daftar</a><a href="login.php">Masuk</a>
     </nav>

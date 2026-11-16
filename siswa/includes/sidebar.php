@@ -27,9 +27,10 @@ if ($fotoSiswa === null && isset($koneksi) && isset($_SESSION['anggota_id'])) {
 }
 $urlFotoSidebar = !empty($fotoSiswa) ? fotoProfilUrl($fotoSiswa, '../uploads/profil/') : null;
 
-// Konfigurasi nama sekolah untuk perpustakaan
-$namaSekolah = 'SMKN 1 Panyingkiran';
-$subSekolah  = 'Perpustakaan Digital Sekolah';
+// Konfigurasi nama identitas dan sekolah perpustakaan
+$brandNama   = $appNama ?? 'Pinjam.In';
+$namaSekolah = $appSekolah ?? 'SMKN 1 Panyingkiran';
+$subSekolah  = $appSlogan ?? 'Perpustakaan Digital';
 
 // Menghitung jumlah buku yang sedang dipinjam oleh siswa saat ini (untuk badge angka merah/hijau di menu)
 $badgeDipinjam = 0;
@@ -52,8 +53,8 @@ if (isset($koneksi) && isset($_SESSION['anggota_id'])) {
             </svg>
         </div>
         <div class="sb-brand-text">
-            <strong>Pinjam.In</strong>
-            <span>Perpustakaan Digital</span>
+            <strong><?= htmlspecialchars($brandNama, ENT_QUOTES, 'UTF-8') ?></strong>
+            <span><?= htmlspecialchars($subSekolah, ENT_QUOTES, 'UTF-8') ?></span>
         </div>
     </a>
 

@@ -27,23 +27,33 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $maksPinjam       = (int) ($_POST['maks_pinjam_buku'] ?? 3);
     $lamaPinjam       = (int) ($_POST['lama_pinjam_hari'] ?? 7);
     $dendaPerHari     = (int) ($_POST['denda_per_hari'] ?? 1000);
+    $namaAplikasi     = trim($_POST['nama_aplikasi'] ?? '');
+    $sloganAplikasi   = trim($_POST['slogan_aplikasi'] ?? '');
+    $namaSekolah      = trim($_POST['nama_sekolah'] ?? '');
     $namaPerpustakaan = trim($_POST['nama_perpustakaan'] ?? '');
 
-    // Validasi sederhana batasan angka yang masuk akal
+    // Validasi sederhana batasan angka dan kelengkapan teks
     if ($maksPinjam < 1 || $maksPinjam > 20) {
         $pesanError = 'Batas kuota peminjaman harus di antara 1 sampai 20 buku.';
     } elseif ($lamaPinjam < 1 || $lamaPinjam > 90) {
         $pesanError = 'Batas durasi pinjam harus di antara 1 sampai 90 hari.';
     } elseif ($dendaPerHari < 0) {
         $pesanError = 'Tarif denda keterlambatan tidak boleh bernilai negatif.';
+    } elseif (empty($namaAplikasi)) {
+        $pesanError = 'Nama aplikasi / brand tidak boleh dibiarkan kosong.';
+    } elseif (empty($namaSekolah)) {
+        $pesanError = 'Nama sekolah / instansi tidak boleh dibiarkan kosong.';
     } elseif (empty($namaPerpustakaan)) {
-        $pesanError = 'Nama perpustakaan / instansi tidak boleh dibiarkan kosong.';
+        $pesanError = 'Nama resmi perpustakaan tidak boleh dibiarkan kosong.';
     } else {
         // Simpan pembaruan ke database
         simpanPengaturan($koneksi, [
             'maks_pinjam_buku'  => $maksPinjam,
             'lama_pinjam_hari'  => $lamaPinjam,
             'denda_per_hari'    => $dendaPerHari,
+            'nama_aplikasi'     => $namaAplikasi,
+            'slogan_aplikasi'   => $sloganAplikasi,
+            'nama_sekolah'      => $namaSekolah,
             'nama_perpustakaan' => $namaPerpustakaan,
         ]);
 
@@ -55,7 +65,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             $adminNama,
             'update_pengaturan',
             'pengaturan',
-            "Memperbarui aturan perpustakaan: kuota {$maksPinjam} buku, durasi {$lamaPinjam} hari, denda " . formatRupiah($dendaPerHari) . "/hari."
+            "Memperbarui pengaturan: App '{$namaAplikasi}', Sekolah '{$namaSekolah}', kuota {$maksPinjam} buku, durasi {$lamaPinjam} hari, denda " . formatRupiah($dendaPerHari) . "/hari."
         );
 
         header('Location: pengaturan.php?success=1');
@@ -118,6 +128,17 @@ require 'includes/header.php';
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 14px;">
+            <!-- Ringkasan Brand & Identitas Sekolah (Live Preview) -->
+            <div style="background: #EBF7F0; border: 1.5px dashed #217350; border-radius: 12px; padding: 14px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <span style="font-size: 11px; font-weight: 700; color: #1B7A55; text-transform: uppercase; letter-spacing: .04em;">Preview Identitas</span>
+                    <span class="pill-on" style="font-size: 10px; padding: 1px 6px;">Aktif</span>
+                </div>
+                <div style="font-size: 17px; font-weight: 800; color: var(--ink); line-height: 1.2;" id="lblPreviewApp"><?= htmlspecialchars($cfg['nama_aplikasi'] ?? 'Pinjam.In') ?></div>
+                <div style="font-size: 12px; color: var(--muted); margin-top: 2px;" id="lblPreviewSlogan"><?= htmlspecialchars($cfg['slogan_aplikasi'] ?? 'Perpustakaan Digital') ?></div>
+                <div style="font-size: 12px; font-weight: 600; color: #1B7A55; margin-top: 8px; padding-top: 6px; border-top: 1px dashed rgba(33,115,80,.25);" id="lblPreviewSekolah"><?= htmlspecialchars($cfg['nama_sekolah'] ?? 'SMKN 1 Panyingkiran') ?></div>
+            </div>
+
             <!-- Ringkasan Kuota Pinjam -->
             <div style="background: #F8FAF9; border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; align-items: center; justify-content: space-between;">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -234,23 +255,72 @@ require 'includes/header.php';
             </div>
 
             <h3 style="font-size: 16.5px; font-weight: 800; color: var(--ink); margin: 0 0 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line);">
-                2. Identitas Perpustakaan &amp; Dokumen
+                2. Identitas Brand &amp; Sekolah
             </h3>
 
-            <!-- Nama Perpustakaan / Sekolah -->
-            <div style="margin-bottom: 26px;">
-                <label for="inpNamaPerpus" style="display: block; font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 6px;">
-                    Nama Resmi Perpustakaan / Unit Sekolah <span style="color:#C23B3B;">*</span>
-                </label>
-                <input type="text" 
-                       id="inpNamaPerpus" 
-                       name="nama_perpustakaan" 
-                       required 
-                       value="<?= htmlspecialchars($cfg['nama_perpustakaan'], ENT_QUOTES, 'UTF-8') ?>" 
-                       style="width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--line); border-radius: 9px; background: #FFFFFF; font-size: 14.5px; color: var(--ink);">
-                <small style="display: block; margin-top: 5px; font-size: 11.5px; color: var(--muted);">
-                    Nama ini tercetak pada bagian kop dokumen saat mencetak atau mengekspor laporan transaksi PDF.
-                </small>
+            <!-- Baris 3: Nama Brand Aplikasi & Slogan -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px;">
+                <div>
+                    <label for="inpNamaApp" style="display: block; font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 6px;">
+                        Nama Aplikasi / Brand <span style="color:#C23B3B;">*</span>
+                    </label>
+                    <input type="text" 
+                           id="inpNamaApp" 
+                           name="nama_aplikasi" 
+                           required 
+                           value="<?= htmlspecialchars($cfg['nama_aplikasi'] ?? 'Pinjam.In', ENT_QUOTES, 'UTF-8') ?>" 
+                           style="width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--line); border-radius: 9px; background: #FFFFFF; font-size: 14.5px; font-weight: 700; color: var(--ink);">
+                    <small style="display: block; margin-top: 5px; font-size: 11.5px; color: var(--muted);">
+                        Muncul pada judul tab browser, sidebar admin &amp; siswa, login, dan landing page.
+                    </small>
+                </div>
+
+                <div>
+                    <label for="inpSloganApp" style="display: block; font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 6px;">
+                        Slogan / Sub-Nama Aplikasi
+                    </label>
+                    <input type="text" 
+                           id="inpSloganApp" 
+                           name="slogan_aplikasi" 
+                           value="<?= htmlspecialchars($cfg['slogan_aplikasi'] ?? 'Perpustakaan Digital', ENT_QUOTES, 'UTF-8') ?>" 
+                           style="width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--line); border-radius: 9px; background: #FFFFFF; font-size: 14.5px; color: var(--ink);">
+                    <small style="display: block; margin-top: 5px; font-size: 11.5px; color: var(--muted);">
+                        Teks pelengkap di bawah nama aplikasi pada header sidebar dan login.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Baris 4: Nama Sekolah & Nama Resmi Perpustakaan -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 26px;">
+                <div>
+                    <label for="inpNamaSekolah" style="display: block; font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 6px;">
+                        Nama Sekolah / Lembaga <span style="color:#C23B3B;">*</span>
+                    </label>
+                    <input type="text" 
+                           id="inpNamaSekolah" 
+                           name="nama_sekolah" 
+                           required 
+                           value="<?= htmlspecialchars($cfg['nama_sekolah'] ?? 'SMKN 1 Panyingkiran', ENT_QUOTES, 'UTF-8') ?>" 
+                           style="width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--line); border-radius: 9px; background: #FFFFFF; font-size: 14.5px; color: var(--ink);">
+                    <small style="display: block; margin-top: 5px; font-size: 11.5px; color: var(--muted);">
+                        Muncul di footer sidebar siswa, landing page, dan kop surat cetak.
+                    </small>
+                </div>
+
+                <div>
+                    <label for="inpNamaPerpus" style="display: block; font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 6px;">
+                        Nama Unit Perpustakaan Dokumen <span style="color:#C23B3B;">*</span>
+                    </label>
+                    <input type="text" 
+                           id="inpNamaPerpus" 
+                           name="nama_perpustakaan" 
+                           required 
+                           value="<?= htmlspecialchars($cfg['nama_perpustakaan'], ENT_QUOTES, 'UTF-8') ?>" 
+                           style="width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--line); border-radius: 9px; background: #FFFFFF; font-size: 14.5px; color: var(--ink);">
+                    <small style="display: block; margin-top: 5px; font-size: 11.5px; color: var(--muted);">
+                        Nama lengkap yang tercetak pada kop dokumen cetak atau ekspor PDF.
+                    </small>
+                </div>
             </div>
 
             <!-- Tombol Aksi Simpan -->
@@ -270,10 +340,16 @@ require 'includes/header.php';
 const inpMaksPinjam    = document.getElementById('inpMaksPinjam');
 const inpLamaPinjam    = document.getElementById('inpLamaPinjam');
 const inpDenda         = document.getElementById('inpDenda');
+const inpNamaApp       = document.getElementById('inpNamaApp');
+const inpSloganApp     = document.getElementById('inpSloganApp');
+const inpNamaSekolah   = document.getElementById('inpNamaSekolah');
 
-const lblPreviewKuota  = document.getElementById('lblPreviewKuota');
-const lblPreviewDurasi = document.getElementById('lblPreviewDurasi');
-const lblPreviewDenda  = document.getElementById('lblPreviewDenda');
+const lblPreviewKuota   = document.getElementById('lblPreviewKuota');
+const lblPreviewDurasi  = document.getElementById('lblPreviewDurasi');
+const lblPreviewDenda   = document.getElementById('lblPreviewDenda');
+const lblPreviewApp     = document.getElementById('lblPreviewApp');
+const lblPreviewSlogan  = document.getElementById('lblPreviewSlogan');
+const lblPreviewSekolah = document.getElementById('lblPreviewSekolah');
 
 function formatRupiahJs(angka) {
     return 'Rp ' + Number(angka || 0).toLocaleString('id-ID');
@@ -294,6 +370,24 @@ if (inpLamaPinjam && lblPreviewDurasi) {
 if (inpDenda && lblPreviewDenda) {
     inpDenda.addEventListener('input', () => {
         lblPreviewDenda.textContent = formatRupiahJs(inpDenda.value);
+    });
+}
+
+if (inpNamaApp && lblPreviewApp) {
+    inpNamaApp.addEventListener('input', () => {
+        lblPreviewApp.textContent = inpNamaApp.value || 'Pinjam.In';
+    });
+}
+
+if (inpSloganApp && lblPreviewSlogan) {
+    inpSloganApp.addEventListener('input', () => {
+        lblPreviewSlogan.textContent = inpSloganApp.value || 'Perpustakaan Digital';
+    });
+}
+
+if (inpNamaSekolah && lblPreviewSekolah) {
+    inpNamaSekolah.addEventListener('input', () => {
+        lblPreviewSekolah.textContent = inpNamaSekolah.value || 'SMKN 1 Panyingkiran';
     });
 }
 </script>

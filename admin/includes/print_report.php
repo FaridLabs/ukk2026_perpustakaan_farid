@@ -14,6 +14,8 @@ function infoCetakWib(): array
 
 function renderPrintHead(array $cfg): void
 {
+    global $appNama, $appSlogan, $appSekolah;
+
     $tglCetak    = $cfg['tglCetak'] ?? '';
     $jamCetak    = $cfg['jamCetak'] ?? '';
     $namaPetugas = $cfg['namaPetugas'] ?? 'Administrator';
@@ -22,6 +24,10 @@ function renderPrintHead(array $cfg): void
     $judul       = $cfg['judul'] ?? 'Laporan Sistem';
     $filterText  = $cfg['filterText'] ?? 'Semua data';
     $countText   = $cfg['countText'] ?? '0 data';
+
+    $namaApp     = $cfg['appNama'] ?? ($appNama ?? 'Pinjam.In');
+    $sloganApp   = $cfg['appSlogan'] ?? ($appSlogan ?? 'Perpustakaan Digital');
+    $sekolahApp  = $cfg['appSekolah'] ?? ($appSekolah ?? 'SMKN 1 Panyingkiran');
     ?>
     <div class="print-head">
         <div class="ph-kop">
@@ -34,8 +40,8 @@ function renderPrintHead(array $cfg): void
                     </svg>
                 </div>
                 <div class="ph-org">
-                    <strong>PINJAM.IN — PERPUSTAKAAN DIGITAL SEKOLAH</strong>
-                    <span>SMKN 1 Panyingkiran</span>
+                    <strong><?= htmlspecialchars(strtoupper($namaApp) . ' — ' . strtoupper($sloganApp)) ?></strong>
+                    <span><?= htmlspecialchars($sekolahApp) ?></span>
                     <small><?= htmlspecialchars($subUnit) ?></small>
                 </div>
             </div>
@@ -56,13 +62,17 @@ function renderPrintHead(array $cfg): void
     <?php
 }
 
-function renderPrintFoot(int $jumlahBaris, string $tglCetak, string $jamCetak, string $namaPetugas): void
+function renderPrintFoot(int $jumlahBaris, string $tglCetak, string $jamCetak, string $namaPetugas, string $namaAplikasi = ''): void
 {
+    global $appNama;
+    if (empty($namaAplikasi)) {
+        $namaAplikasi = $appNama ?? 'Pinjam.In';
+    }
     ?>
     <div class="print-foot">
         <div class="pf-note">
             <strong>Keterangan Dokumen</strong>
-            Dicetak secara otomatis melalui sistem Perpustakaan Digital Pinjam.In.<br>
+            Dicetak secara otomatis melalui sistem Perpustakaan Digital <?= htmlspecialchars($namaAplikasi) ?>.<br>
             Menampilkan <?= $jumlahBaris ?> baris data pada <?= htmlspecialchars($tglCetak) ?>, <?= htmlspecialchars($jamCetak) ?> WIB.
         </div>
         <div class="pf-sign">

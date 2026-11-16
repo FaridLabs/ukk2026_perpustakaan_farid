@@ -504,7 +504,7 @@ require 'includes/header.php';
         </div>
         <div class="bi-modal-b">
             <div class="bi-sticker">
-                <div class="bi-sticker-brand">Pinjam.In &middot; Inventaris Fisik</div>
+                <div class="bi-sticker-brand"><?= htmlspecialchars($appNama ?? 'Pinjam.In') ?> &middot; Inventaris Fisik</div>
                 <div class="bi-sticker-title" id="qrModalBook"><?= htmlspecialchars($buku['judul'], ENT_QUOTES, 'UTF-8') ?></div>
                 <div class="bi-qr-stage" id="qrStage"></div>
                 <div class="bi-sticker-code" id="qrModalCode">-</div>
@@ -539,6 +539,7 @@ require 'includes/header.php';
 
 <?php
 $cfgJson = json_encode([
+    'appName'       => $appNama ?? 'Pinjam.In',
     'prefix'        => $prefix,
     'nextUrutan'    => $nextUrutan,
     'totalSaatIni'  => $totalEksemplar,
@@ -847,7 +848,7 @@ $extraScripts = '<script src="../assets/js/qrcode.min.js"></script>' . "\n" . <<
         ctx.fillStyle = '#217350';
         ctx.font = '700 18px "Plus Jakarta Sans", Arial, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('PINJAM.IN  \u2022  LABEL INVENTARIS', out.width / 2, 54);
+        ctx.fillText((CFG.appName || 'PINJAM.IN').toUpperCase() + '  \u2022  LABEL INVENTARIS', out.width / 2, 54);
 
         const judul = (CFG.bookTitle || '').trim();
         const judulClip = judul.length > 34 ? judul.slice(0, 32) + '...' : judul;

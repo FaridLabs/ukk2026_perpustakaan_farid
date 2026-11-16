@@ -22,10 +22,13 @@ function ambilPengaturan(PDO $koneksi): array
 
     // Nilai standar bawaan sistem jika belum dikonfigurasi di database
     $default = [
+        'nama_aplikasi'     => 'Pinjam.In',
+        'slogan_aplikasi'   => 'Perpustakaan Digital',
+        'nama_sekolah'      => 'SMKN 1 Panyingkiran',
+        'nama_perpustakaan' => 'Perpustakaan Digital SMKN 1 Panyingkiran',
         'maks_pinjam_buku'  => 3,     // Siswa maksimal boleh meminjam 3 buku bersamaan
         'lama_pinjam_hari'  => 7,     // Batas waktu peminjaman standar 7 hari
         'denda_per_hari'    => 1000,  // Denda keterlambatan Rp 1.000 / hari / buku
-        'nama_perpustakaan' => 'Perpustakaan Digital SMKN 1 Panyingkiran',
     ];
 
     try {
@@ -35,10 +38,13 @@ function ambilPengaturan(PDO $koneksi): array
         if (!empty($data)) {
             // Gabungkan default dengan data dari database (konversi angka ke integer)
             $cache = [
+                'nama_aplikasi'     => (string) ($data['nama_aplikasi'] ?? $default['nama_aplikasi']),
+                'slogan_aplikasi'   => (string) ($data['slogan_aplikasi'] ?? $default['slogan_aplikasi']),
+                'nama_sekolah'      => (string) ($data['nama_sekolah'] ?? $default['nama_sekolah']),
+                'nama_perpustakaan' => (string) ($data['nama_perpustakaan'] ?? $default['nama_perpustakaan']),
                 'maks_pinjam_buku'  => isset($data['maks_pinjam_buku']) ? (int) $data['maks_pinjam_buku'] : $default['maks_pinjam_buku'],
                 'lama_pinjam_hari'  => isset($data['lama_pinjam_hari']) ? (int) $data['lama_pinjam_hari'] : $default['lama_pinjam_hari'],
                 'denda_per_hari'    => isset($data['denda_per_hari']) ? (int) $data['denda_per_hari'] : $default['denda_per_hari'],
-                'nama_perpustakaan' => (string) ($data['nama_perpustakaan'] ?? $default['nama_perpustakaan']),
             ];
         } else {
             $cache = $default;

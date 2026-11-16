@@ -29,13 +29,31 @@ if (!function_exists('ic')) {
         return '<svg width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . ($p[$nama] ?? '') . '</svg>';
     }
 }
+
+// Memuat data konfigurasi aplikasi secara dinamis (nama aplikasi, slogan, sekolah)
+require_once __DIR__ . '/../../config/pengaturan_helper.php';
+if (isset($koneksi) && $koneksi instanceof PDO) {
+    $appConfig = ambilPengaturan($koneksi);
+} else {
+    $appConfig = [
+        'nama_aplikasi'     => 'Pinjam.In',
+        'slogan_aplikasi'   => 'Perpustakaan Digital',
+        'nama_sekolah'      => 'SMKN 1 Panyingkiran',
+        'nama_perpustakaan' => 'Perpustakaan Digital SMKN 1 Panyingkiran',
+    ];
+}
+
+$appNama    = $appConfig['nama_aplikasi'] ?? 'Pinjam.In';
+$appSlogan  = $appConfig['slogan_aplikasi'] ?? 'Perpustakaan Digital';
+$appSekolah = $appConfig['nama_sekolah'] ?? 'SMKN 1 Panyingkiran';
+$appPerpus  = $appConfig['nama_perpustakaan'] ?? 'Perpustakaan Digital SMKN 1 Panyingkiran';
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($pageTitle ?? 'Admin') ?> - Pinjam.In</title>
+    <title><?= htmlspecialchars($pageTitle ?? 'Admin') ?> - <?= htmlspecialchars($appNama) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">

@@ -7,8 +7,26 @@
  * stylesheet tema hijau emerald, serta stylesheet khusus siswa (siswa.css).
  */
 
+// Memuat data konfigurasi aplikasi secara dinamis (nama aplikasi, slogan, sekolah)
+require_once __DIR__ . '/../../config/pengaturan_helper.php';
+if (isset($koneksi) && $koneksi instanceof PDO) {
+    $appConfig = ambilPengaturan($koneksi);
+} else {
+    $appConfig = [
+        'nama_aplikasi'     => 'Pinjam.In',
+        'slogan_aplikasi'   => 'Perpustakaan Digital',
+        'nama_sekolah'      => 'SMKN 1 Panyingkiran',
+        'nama_perpustakaan' => 'Perpustakaan Digital SMKN 1 Panyingkiran',
+    ];
+}
+
+$appNama    = $appConfig['nama_aplikasi'] ?? 'Pinjam.In';
+$appSlogan  = $appConfig['slogan_aplikasi'] ?? 'Perpustakaan Digital';
+$appSekolah = $appConfig['nama_sekolah'] ?? 'SMKN 1 Panyingkiran';
+$appPerpus  = $appConfig['nama_perpustakaan'] ?? 'Perpustakaan Digital SMKN 1 Panyingkiran';
+
 if (!isset($pageTitle)) {
-    $pageTitle = 'Portal Siswa - Pinjam.In';
+    $pageTitle = 'Portal Siswa';
 }
 if (!isset($currentPage)) {
     $currentPage = 'dashboard';
@@ -20,7 +38,7 @@ if (!isset($currentPage)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') ?> - Pinjam.In</title>
+    <title><?= htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') ?> - <?= htmlspecialchars($appNama, ENT_QUOTES, 'UTF-8') ?></title>
     
     <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono untuk tampilan modern -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

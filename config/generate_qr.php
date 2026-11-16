@@ -1,6 +1,10 @@
 <?php
 require 'cek_session_admin.php';
 require 'koneksi.php';
+require_once __DIR__ . '/pengaturan_helper.php';
+
+$appConfig = ambilPengaturan($koneksi);
+$appNama   = $appConfig['nama_aplikasi'] ?? 'Pinjam.In';
 
 $bukuId  = $_GET['buku_id'] ?? null;
 $itemId  = $_GET['item_id'] ?? null;
@@ -197,7 +201,7 @@ $currentPage = 'buku';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="../admin/">
-    <title>Cetak Label QR Buku - <?= !empty($bukuInfo) ? htmlspecialchars($bukuInfo['judul']) : 'Pinjam.In' ?></title>
+    <title>Cetak Label QR Buku - <?= !empty($bukuInfo) ? htmlspecialchars($bukuInfo['judul']) : htmlspecialchars($appNama) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -747,7 +751,7 @@ $currentPage = 'buku';
                                 <!-- INFO BUKU SECTION -->
                                 <div class="label-info-section">
                                     <div class="label-lib-brand">
-                                        <span>PINJAM.IN</span>
+                                        <span><?= htmlspecialchars(strtoupper($appNama)) ?></span>
                                         <span class="label-category-pill"><?= htmlspecialchars($lbl['nama_kategori']) ?></span>
                                     </div>
                                     <div class="label-book-code"><?= htmlspecialchars($lbl['kode_item']) ?></div>

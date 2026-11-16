@@ -37,13 +37,13 @@ $sbAlias = ['buku_item' => 'buku'];
 $sbAktif = $sbAlias[$currentPage] ?? $currentPage;
 ?>
 <aside class="side" id="sidebar" aria-label="Menu admin">
-    <a href="dashboard.php" class="side-brand" aria-label="Pinjam.In, dashboard">
+    <a href="dashboard.php" class="side-brand" aria-label="<?= htmlspecialchars($appNama ?? 'Pinjam.In') ?>, dashboard">
         <svg viewBox="0 0 48 40" aria-hidden="true">
             <path d="M24 15C23 6 29 2 37 3C37 11 32 16 24 15Z" fill="#5FD39B"/>
             <path d="M3 13Q3 11 5.2 11.2Q14 12 24 17.5V36Q14 31 5.2 31Q3 31 3 29Z" fill="#E3F2EA"/>
             <path d="M45 13Q45 11 42.8 11.2Q34 12 24 17.5V36Q34 31 42.8 31Q45 31 45 29Z" fill="#B7DEC9"/>
         </svg>
-        <span><b>Pinjam.In</b><small>Perpustakaan Digital Sekolah</small></span>
+        <span><b><?= htmlspecialchars($appNama ?? 'Pinjam.In') ?></b><small><?= htmlspecialchars($appSlogan ?? 'Perpustakaan Digital') ?></small></span>
     </a>
 
     <a href="profil.php" class="side-user" style="text-decoration:none;" title="Kelola Profil Administrator">
