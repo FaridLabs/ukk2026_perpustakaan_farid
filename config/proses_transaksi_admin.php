@@ -2,16 +2,20 @@
 require 'cek_session_admin.php';
 require 'koneksi.php';
 require_once __DIR__ . '/log_helper.php';
+require_once __DIR__ . '/pengaturan_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../admin/peminjaman.php');
     exit;
 }
 
+// Ambil aturan dinamis batas kuota dan durasi pinjam dari pengaturan sistem
+$pengaturan     = ambilPengaturan($koneksi);
+$batasPinjam    = (int) ($pengaturan['maks_pinjam_buku'] ?? 3);
+$lamaPinjamHari = (int) ($pengaturan['lama_pinjam_hari'] ?? 7);
+
 $anggotaId      = $_SESSION['admin_scan_anggota_id'] ?? null;
 $kode_item      = trim($_POST['kode_item'] ?? '');
-$batasPinjam    = 3;
-$lamaPinjamHari = 7;
 
 if (!$anggotaId || empty($kode_item)) {
     header('Location: ../admin/peminjaman.php?error=empty');

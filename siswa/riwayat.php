@@ -12,6 +12,7 @@
 require '../config/cek_session_siswa.php';
 require '../config/koneksi.php';
 require_once '../config/upload_cover.php';
+require_once '../config/pengaturan_helper.php';
 
 $anggotaId = (int) $_SESSION['anggota_id'];
 
@@ -307,10 +308,17 @@ require 'includes/header.php';
                                 <span class="badge-info" style="background:#DDF3E8; color:#1B7A55;">
                                     Tepat Waktu
                                 </span>
-                            <?php elseif ($terlambat): ?>
+                            <?php elseif ($terlambat): 
+                                $dendaRow = (int) ($row['denda'] ?? 0);
+                            ?>
                                 <span class="badge-danger">
                                     <?= $row['status'] === 'dipinjam' ? 'Terlambat (Aktif)' : 'Kembali Terlambat' ?>
                                 </span>
+                                <?php if ($dendaRow > 0): ?>
+                                    <small style="display: block; color: var(--sw-danger); font-size: 11px; font-weight: 700; margin-top: 3px;">
+                                        Denda: <?= formatRupiah($dendaRow) ?>
+                                    </small>
+                                <?php endif; ?>
                             <?php else: ?>
                                 <span class="badge-info" style="background:#E3ECFD; color:#2F63D8;">
                                     Sedang Dipinjam

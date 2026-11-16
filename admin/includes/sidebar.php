@@ -28,6 +28,7 @@ $sbMenu = [
     ],
     'SISTEM' => [
         ['log_aktivitas', 'log_aktivitas.php', 'activity', 'Log Aktivitas'],
+        ['pengaturan',    'pengaturan.php',    'settings', 'Pengaturan'],
         ['profil',        'profil.php',        'user',     'Profil Admin'],
     ],
 ];

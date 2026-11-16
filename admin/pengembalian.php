@@ -1,6 +1,10 @@
 <?php
 require '../config/cek_session_admin.php';
 require '../config/koneksi.php';
+require_once '../config/pengaturan_helper.php';
+
+$pengaturan = ambilPengaturan($koneksi);
+$tarifDenda = (int) ($pengaturan['denda_per_hari'] ?? 1000);
 
 // Cek apakah ada anggota yang di-scan
 $anggota = null;
@@ -96,8 +100,15 @@ $ikonKartu = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
             <strong>Pengembalian berhasil.</strong> Buku "<strong><?= htmlspecialchars($_GET['judul'] ?? '') ?></strong>"
             (kode <code><?= htmlspecialchars($_GET['kode_item'] ?? '') ?></code>) atas nama
             <strong><?= htmlspecialchars($_GET['nama'] ?? '') ?></strong> sudah dicatat kembali ke stok perpustakaan.
-            <?php if (isset($_GET['terlambat'])): ?>
-                <span class="late">Catatan: pengembalian ini terlambat <?= htmlspecialchars($_GET['hari'] ?? '') ?> hari dari batas waktu.</span>
+            <?php if (isset($_GET['terlambat'])): 
+                $dendaNom = isset($_GET['denda']) ? (int)$_GET['denda'] : 0;
+            ?>
+                <span class="late">
+                    Catatan: pengembalian ini terlambat <?= htmlspecialchars($_GET['hari'] ?? '') ?> hari dari batas waktu.
+                    <?php if ($dendaNom > 0): ?>
+                        &bull; Denda keterlambatan: <strong><?= formatRupiah($dendaNom) ?></strong>
+                    <?php endif; ?>
+                </span>
             <?php else: ?>
                 <span class="ontime">Buku dikembalikan tepat waktu.</span>
             <?php endif; ?>
@@ -222,11 +233,21 @@ $ikonKartu = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
                     <tbody>
                     <?php foreach ($listDipinjam as $row):
                         $sisa = (int) round((strtotime($row['tgl_kembali_rencana']) - strtotime($today)) / 86400);
-                        if ($sisa < 0)       { $kls = 'late'; $lbl = 'Terlambat ' . abs($sisa) . ' hari'; }
+                        $dendaEst = 0;
+                        if ($sisa < 0) {
+                            $hariTelat = abs($sisa);
+                            $dendaEst  = $hariTelat * $tarifDenda;
+                            $kls = 'late';
+                            $lbl = 'Terlambat ' . $hariTelat . ' hari' . ($dendaEst > 0 ? ' (' . formatRupiah($dendaEst) . ')' : '');
+                        }
                         elseif ($sisa === 0) { $kls = 'soon'; $lbl = 'Jatuh tempo hari ini'; }
                         elseif ($sisa === 1) { $kls = 'soon'; $lbl = 'Sisa 1 hari'; }
                         else                 { $kls = 'ok';   $lbl = 'Sisa ' . $sisa . ' hari'; }
+                        
                         $pesan = "Konfirmasi pengembalian buku '" . $row['judul'] . "'?";
+                        if ($sisa < 0 && $dendaEst > 0) {
+                            $pesan .= "\n\nCatatan: Buku terlambat " . abs($sisa) . " hari.\nTotal denda: " . formatRupiah($dendaEst);
+                        }
                     ?>
                         <tr>
                             <td><strong><?= htmlspecialchars($row['judul']) ?></strong><small><?= htmlspecialchars($row['kode_item']) ?></small></td>

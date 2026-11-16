@@ -13,6 +13,13 @@ require '../config/cek_session_siswa.php';
 require '../config/koneksi.php';
 require_once '../config/upload_cover.php';
 require_once '../config/upload_foto.php';
+require_once '../config/pengaturan_helper.php';
+
+// Ambil aturan dinamis perpustakaan
+$pengaturan = ambilPengaturan($koneksi);
+$maksPinjam = (int) ($pengaturan['maks_pinjam_buku'] ?? 3);
+$lamaPinjam = (int) ($pengaturan['lama_pinjam_hari'] ?? 7);
+$tarifDenda = (int) ($pengaturan['denda_per_hari'] ?? 1000);
 
 $anggotaId = (int) $_SESSION['anggota_id'];
 
@@ -54,7 +61,6 @@ $stmtAktif->execute([':id' => $anggotaId]);
 $listAktif = $stmtAktif->fetchAll(PDO::FETCH_ASSOC);
 
 $totalDipinjam = count($listAktif);
-$maksPinjam    = 3; // Batas aturan perpustakaan sekolah: maksimal 3 buku
 $slotKosong    = max(0, $maksPinjam - $totalDipinjam);
 
 // 4. Query total seluruh riwayat peminjaman siswa ini
@@ -326,9 +332,11 @@ require 'includes/header.php';
 
                     <!-- Kolom Status Batas Waktu -->
                     <div class="sw-loan-status-col">
-                        <?php if ($terlambat): ?>
+                        <?php if ($terlambat): 
+                            $dendaEst = abs($sisaHari) * $tarifDenda;
+                        ?>
                             <div class="sw-due-badge danger">
-                                <span>Terlambat <?= abs($sisaHari) ?> Hari</span>
+                                <span>Terlambat <?= abs($sisaHari) ?> Hari<?= $dendaEst > 0 ? ' (' . formatRupiah($dendaEst) . ')' : '' ?></span>
                             </div>
                         <?php elseif ($sisaHari === 0): ?>
                             <div class="sw-due-badge warning">

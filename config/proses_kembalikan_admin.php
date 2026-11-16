@@ -2,6 +2,7 @@
 require 'cek_session_admin.php';
 require 'koneksi.php';
 require_once __DIR__ . '/log_helper.php';
+require_once __DIR__ . '/pengaturan_helper.php';
 
 // Mendukung POST (dari form scan) maupun GET (dari tombol aksi kembali di daftar)
 $kode_item    = trim($_POST['kode_item'] ?? $_GET['kode_item'] ?? '');
@@ -114,22 +115,32 @@ if (!$transaksi || !$item) {
     exit;
 }
 
+// Ambil besaran tarif denda keterlambatan dari pengaturan sistem
+$pengaturan    = ambilPengaturan($koneksi);
+$tarifDenda    = (int) ($pengaturan['denda_per_hari'] ?? 1000);
+
 $tglSekarang   = date('Y-m-d');
 $isTerlambat   = $tglSekarang > $transaksi['tgl_kembali_rencana'];
 $statusFinal   = $isTerlambat ? 'terlambat' : 'dikembalikan';
 $hariTerlambat = 0;
+$nominalDenda  = 0;
+
 if ($isTerlambat) {
     $hariTerlambat = (int) round((strtotime($tglSekarang) - strtotime($transaksi['tgl_kembali_rencana'])) / 86400);
+    $nominalDenda  = $hariTerlambat * $tarifDenda;
 }
 
 try {
     $koneksi->beginTransaction();
 
     $stmtUpdateTrx = $koneksi->prepare("
-        UPDATE transaksi SET tgl_kembali_aktual = :tgl, status = :status WHERE id = :id
+        UPDATE transaksi 
+        SET tgl_kembali_aktual = :tgl, status = :status, denda = :denda 
+        WHERE id = :id
     ");
     $stmtUpdateTrx->bindParam(':tgl',    $tglSekarang);
     $stmtUpdateTrx->bindParam(':status', $statusFinal);
+    $stmtUpdateTrx->bindValue(':denda',  $nominalDenda, PDO::PARAM_INT);
     $stmtUpdateTrx->bindParam(':id',     $transaksi['id']);
     $stmtUpdateTrx->execute();
 
@@ -139,7 +150,7 @@ try {
 
     $koneksi->commit();
 
-    $ketTelat = $isTerlambat ? "terlambat {$hariTerlambat} hari" : 'tepat waktu';
+    $ketTelat = $isTerlambat ? "terlambat {$hariTerlambat} hari, denda " . formatRupiah($nominalDenda) : 'tepat waktu';
     catatLog(
         $koneksi,
         'admin',
@@ -155,7 +166,7 @@ try {
               . '&nama=' . urlencode($transaksi['nama_lengkap'])
               . '&kode_item=' . urlencode($transaksi['kode_item']);
     if ($isTerlambat) {
-        $redirect .= '&terlambat=1&hari=' . $hariTerlambat;
+        $redirect .= '&terlambat=1&hari=' . $hariTerlambat . '&denda=' . $nominalDenda;
     }
 
     header('Location: ' . $redirect);

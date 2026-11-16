@@ -1,6 +1,10 @@
 <?php
 require '../config/cek_session_admin.php';
 require '../config/koneksi.php';
+require_once '../config/pengaturan_helper.php';
+
+$pengaturan   = ambilPengaturan($koneksi);
+$tarifDenda   = (int) ($pengaturan['denda_per_hari'] ?? 1000);
 
 $keyword      = trim($_GET['keyword'] ?? '');
 $filterStatus = $_GET['status'] ?? '';
@@ -158,7 +162,7 @@ require 'includes/header.php';
         <span class="tr-count">Ditemukan <b><?= count($data) ?></b> transaksi</span>
     </div>
     <?php renderPrintHead($infoCetak + [
-        'subUnit'    => 'Sistem Informasi Sirkulasi Buku & Manajemen Koleksi Perpustakaan',
+        'subUnit'    => htmlspecialchars($pengaturan['nama_perpustakaan']),
         'docBadge'   => 'Dokumen Laporan Resmi',
         'judul'      => 'Laporan Transaksi Sirkulasi Buku',
         'filterText' => $ringkas ? implode('  |  ', $ringkas) : 'Semua transaksi (tanpa filter)',
@@ -179,7 +183,7 @@ require 'includes/header.php';
         <?php else: ?>
         <table>
             <thead>
-                <tr><th style="width:38px;text-align:center">No</th><th>Kode Transaksi</th><th>Siswa Peminjam</th><th>Buku</th><th>Tgl Pinjam</th><th>Batas Waktu</th><th>Tgl Kembali</th><th>Keterangan</th><th>Status</th></tr>
+                <tr><th style="width:38px;text-align:center">No</th><th>Kode Transaksi</th><th>Siswa Peminjam</th><th>Buku</th><th>Tgl Pinjam</th><th>Batas Waktu</th><th>Tgl Kembali</th><th>Keterangan</th><th>Denda</th><th>Status</th></tr>
             </thead>
             <tbody>
             <?php foreach ($data as $i => $row):
@@ -207,6 +211,9 @@ require 'includes/header.php';
                 if ($isTerlambat)                       { $bd = 'late'; $lb = 'Terlambat'; }
                 elseif ($row['status'] === 'dikembalikan') { $bd = 'ok';   $lb = 'Dikembalikan'; }
                 else                                    { $bd = 'run';  $lb = 'Dipinjam'; }
+
+                // Hitung denda yang tercatat atau estimasi denda berjalan
+                $dendaTercatat = (int) ($row['denda'] ?? 0);
             ?>
                 <tr>
                     <td style="text-align:center"><?= $i + 1 ?></td>
@@ -227,6 +234,18 @@ require 'includes/header.php';
                     <td class="nw"><?= tglId($row['tgl_kembali_rencana'], $blnId) ?></td>
                     <td class="nw"><?= tglId($row['tgl_kembali_aktual'], $blnId) ?></td>
                     <td><span class="kt <?= $ktKls ?>"><?= $kt ?></span></td>
+                    <td class="nw">
+                        <?php if ($dendaTercatat > 0): ?>
+                            <strong style="color: #C23B3B;"><?= formatRupiah($dendaTercatat) ?></strong>
+                        <?php elseif ($isAktifDipinjam && $today > $row['tgl_kembali_rencana']): 
+                            $h = (int) round((strtotime($today) - strtotime($row['tgl_kembali_rencana'])) / 86400);
+                            $estDenda = $h * $tarifDenda;
+                        ?>
+                            <span style="color: #C23B3B; font-size: 12px;" title="Estimasi denda berjalan sampai buku dikembalikan">Est. <?= formatRupiah($estDenda) ?></span>
+                        <?php else: ?>
+                            <span style="color: var(--muted);">-</span>
+                        <?php endif; ?>
+                    </td>
                     <td><span class="bd <?= $bd ?>"><?= $lb ?></span></td>
                 </tr>
             <?php endforeach; ?>

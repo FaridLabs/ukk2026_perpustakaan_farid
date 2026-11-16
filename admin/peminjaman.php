@@ -1,6 +1,7 @@
 <?php
 require '../config/cek_session_admin.php';
 require '../config/koneksi.php';
+require_once '../config/pengaturan_helper.php';
 
 // Reset → ganti anggota
 if (isset($_GET['reset'])) {
@@ -9,11 +10,14 @@ if (isset($_GET['reset'])) {
     exit;
 }
 
+// Ambil aturan dinamis batas kuota, durasi pinjam, dan denda
+$pengaturan  = ambilPengaturan($koneksi);
+$batasPinjam = (int) ($pengaturan['maks_pinjam_buku'] ?? 3);
+$lamaPinjam  = (int) ($pengaturan['lama_pinjam_hari'] ?? 7);
+
 $anggota      = null;
 $listDipinjam = [];
 $jumlahAktif  = 0;
-$batasPinjam  = 3;
-$lamaPinjam   = 7; // hanya untuk teks aturan; angka sebenarnya diatur di proses_transaksi_admin.php
 
 // Jika anggota sudah di-scan (ada di session)
 if (isset($_SESSION['admin_scan_anggota_id'])) {
@@ -93,7 +97,7 @@ $cekIkon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wi
     $errMap = [
         'tidak_ditemukan'      => 'Kartu anggota tidak dikenali. Pastikan RFID atau NIS sudah terdaftar di data anggota.',
         'buku_tidak_ditemukan' => 'Kode QR/barcode buku tidak ditemukan di sistem.',
-        'batas'                => 'Anggota telah mencapai batas maksimal peminjaman (3 buku). Kembalikan buku terlebih dahulu.',
+        'batas'                => 'Anggota telah mencapai batas maksimal peminjaman (' . $batasPinjam . ' buku). Kembalikan buku terlebih dahulu.',
         'sudah_pinjam_judul'   => '<strong>Cegah Dobel Scan:</strong> Siswa ini sudah meminjam 1 eksemplar buku "' . $judulError . '". Sistem otomatis menolak peminjaman ganda buku yang sama.',
         'stok_habis'           => 'Semua eksemplar fisik buku "' . $judulError . '" saat ini sedang dipinjam oleh siswa lain.',
         'sedang_dipinjam'      => 'Buku "' . $judulError . '" berstatus sedang dipinjam dan belum dikembalikan.',
@@ -135,6 +139,7 @@ $cekIkon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wi
             <ul>
                 <li><span><?= $batasPinjam ?></span><div><b>Maksimal <?= $batasPinjam ?> buku aktif</b><small>per anggota, sampai ada yang dikembalikan.</small></div></li>
                 <li><span><?= $lamaPinjam ?></span><div><b><?= $lamaPinjam ?> hari masa pinjam</b><small>dihitung dari tanggal peminjaman.</small></div></li>
+                <li><span>Rp</span><div><b>Denda keterlambatan</b><small><?= formatRupiah($pengaturan['denda_per_hari']) ?> per hari per buku.</small></div></li>
                 <li><span>1</span><div><b>Satu eksemplar per judul</b><small>judul yang sama tidak bisa dipinjam dua kali oleh siswa yang sama.</small></div></li>
             </ul>
         </aside>

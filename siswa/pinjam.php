@@ -12,9 +12,13 @@
 require '../config/cek_session_siswa.php';
 require '../config/koneksi.php';
 require_once '../config/upload_cover.php';
+require_once '../config/pengaturan_helper.php';
 
 $anggotaId   = (int) $_SESSION['anggota_id'];
-$batasPinjam = 3; // Batas maksimal peminjaman sesuai SOP perpustakaan sekolah
+$pengaturan  = ambilPengaturan($koneksi);
+$batasPinjam = (int) ($pengaturan['maks_pinjam_buku'] ?? 3);
+$lamaPinjam  = (int) ($pengaturan['lama_pinjam_hari'] ?? 7);
+$tarifDenda  = (int) ($pengaturan['denda_per_hari'] ?? 1000);
 $hariIni     = date('Y-m-d');
 
 // 2. Query seluruh transaksi peminjaman yang masih berstatus 'dipinjam' oleh siswa ini
@@ -185,14 +189,16 @@ require 'includes/header.php';
 
                 <!-- Kolom Status Batas Waktu & Countdown -->
                 <div class="sw-loan-status-col">
-                    <?php if ($terlambat): ?>
+                    <?php if ($terlambat): 
+                        $dendaEst = abs($selisihHari) * $tarifDenda;
+                    ?>
                         <div class="sw-due-badge danger">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
                                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
                             </svg>
-                            <span>Terlambat <?= abs($selisihHari) ?> Hari</span>
+                            <span>Terlambat <?= abs($selisihHari) ?> Hari<?= $dendaEst > 0 ? ' (' . formatRupiah($dendaEst) . ')' : '' ?></span>
                         </div>
                     <?php elseif ($selisihHari === 0): ?>
                         <div class="sw-due-badge warning">

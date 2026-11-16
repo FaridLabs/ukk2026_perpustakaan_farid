@@ -211,6 +211,31 @@ INSERT INTO `log_aktivitas` VALUES (1,'admin',1,'Administrator Perpustakaan','Lo
 UNLOCK TABLES;
 
 --
+-- Table structure for table `pengaturan`
+--
+
+DROP TABLE IF EXISTS `pengaturan`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pengaturan` (
+  `kunci` varchar(50) NOT NULL,
+  `nilai` text NOT NULL,
+  `keterangan` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`kunci`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pengaturan`
+--
+
+LOCK TABLES `pengaturan` WRITE;
+/*!40000 ALTER TABLE `pengaturan` DISABLE KEYS */;
+INSERT INTO `pengaturan` VALUES ('denda_per_hari','1000','Tarif denda keterlambatan pengembalian buku per hari (Rupiah)'),('lama_pinjam_hari','7','Batas durasi peminjaman buku dalam satuan hari'),('maks_pinjam_buku','3','Batas maksimal buku yang dapat dipinjam siswa secara bersamaan'),('nama_perpustakaan','Perpustakaan Digital SMKN 1 Panyingkiran','Nama resmi perpustakaan sekolah');
+/*!40000 ALTER TABLE `pengaturan` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `transaksi`
 --
 
@@ -225,6 +250,7 @@ CREATE TABLE `transaksi` (
   `tgl_pinjam` date NOT NULL,
   `tgl_kembali_rencana` date NOT NULL,
   `tgl_kembali_aktual` date DEFAULT NULL,
+  `denda` int(11) NOT NULL DEFAULT 0,
   `status` enum('dipinjam','dikembalikan','terlambat') NOT NULL DEFAULT 'dipinjam',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
@@ -241,7 +267,7 @@ CREATE TABLE `transaksi` (
 
 LOCK TABLES `transaksi` WRITE;
 /*!40000 ALTER TABLE `transaksi` DISABLE KEYS */;
-INSERT INTO `transaksi` VALUES (3,'TRX-20261109100433-21-154',21,62,'2026-11-09','2026-11-16','2026-11-09','dikembalikan','2026-11-09 03:04:33');
+INSERT INTO `transaksi` VALUES (3,'TRX-20261109100433-21-154',21,62,'2026-11-09','2026-11-16','2026-11-09',0,'dikembalikan','2026-11-09 03:04:33');
 /*!40000 ALTER TABLE `transaksi` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -258,4 +284,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-15 14:41:35
+-- Dump completed on 2026-11-16  9:11:31
