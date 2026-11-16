@@ -33,7 +33,7 @@ $sbMenu = [
     ],
 ];
 // Halaman turunan yang tetap menandai menu induknya
-$sbAlias = ['buku_item' => 'buku'];
+$sbAlias = ['buku_item' => 'buku', 'generate_qr' => 'buku'];
 $sbAktif = $sbAlias[$currentPage] ?? $currentPage;
 ?>
 <aside class="side" id="sidebar" aria-label="Menu admin">

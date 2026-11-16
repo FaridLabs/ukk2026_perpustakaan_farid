@@ -214,177 +214,17 @@ $currentPage = 'buku';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css?v=4.0">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=1.0">
     <link rel="stylesheet" href="../assets/css/transition.css?v=1.0">
     <script src="../assets/js/qrcode.min.js"></script>
     <style>
+        /* Font monospace untuk kode buku & eksemplar */
         :root {
-            --g-950: #0a3d2a;
-            --g-900: #0d4a33;
-            --g-800: #11593d;
-            --g-700: #1f6f4e;
-            --g-600: #16895a;
-            --g-400: #34d399;
-            --g-100: #dcf5e8;
-            --g-50:  #effaf4;
-            --bg:    #f4f7f5;
-            --line:  #e6eee9;
-            --ink:   #10241b;
-            --muted: #5f7469;
-            --font-ui:   'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             --font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; }
-        body {
-            font-family: var(--font-ui);
-            background: var(--bg);
-            color: var(--ink);
-            line-height: 1.45;
-        }
-        a { color: inherit; }
-        svg { flex-shrink: 0; }
-
-        /* ===================== LAYOUT ===================== */
-        .app {
-            display: grid;
-            grid-template-columns: 264px minmax(0, 1fr);
-            min-height: 100vh;
-        }
-        .main { min-width: 0; display: flex; flex-direction: column; }
-        .content { padding: 32px 32px 48px; width: 100%; max-width: 1240px; margin: 0 auto; }
-
-        /* ===================== SIDEBAR ===================== */
-        .side {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            color: #d6efe3;
-            background: linear-gradient(180deg, var(--g-900) 0%, var(--g-950) 100%);
-        }
-        .side-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 22px 22px 18px;
-            text-decoration: none;
-            color: #fff;
-        }
-        .side-brand svg { width: 46px; height: 38px; }
-        .side-brand b { display: block; font-size: 21px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; }
-        .side-brand small { display: block; font-size: 11px; color: rgba(214, 239, 227, .8); }
-
-        .side-user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 22px 18px;
-        }
-        .side-ava {
-            width: 48px; height: 48px;
-            display: grid; place-items: center;
-            border-radius: 50%;
-            color: var(--g-900);
-            background: #e3f2ea;
-        }
-        .side-who { min-width: 0; flex: 1; }
-        .side-who b {
-            display: block;
-            font-size: 15.5px; font-weight: 700; color: #fff;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .side-role { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
-        .side-role small { font-size: 12px; color: rgba(214, 239, 227, .75); }
-        .pill-on {
-            padding: 1px 9px;
-            border-radius: 9999px;
-            font-size: 11px; font-weight: 600;
-            color: #c9f5de;
-            background: rgba(52, 211, 153, .2);
-            border: 1px solid rgba(52, 211, 153, .35);
-        }
-
-        .side-nav { padding: 4px 0 12px; }
-        .side-label {
-            padding: 14px 22px 8px;
-            font-size: 11px; font-weight: 600;
-            letter-spacing: .06em;
-            color: rgba(214, 239, 227, .6);
-        }
-        .side-nav a {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin: 2px 10px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            font-size: 15px; font-weight: 500;
-            color: #e3f2ea;
-            text-decoration: none;
-            transition: background .15s ease;
-        }
-        .side-nav a:hover { background: rgba(255, 255, 255, .07); }
-        .side-nav a.active { background: rgba(255, 255, 255, .15); color: #fff; font-weight: 700; }
-
-        .side-foot {
-            margin-top: auto;
-            padding: 12px 10px 16px;
-            border-top: 1px solid rgba(255, 255, 255, .1);
-        }
-        .side-foot a {
-            display: flex; align-items: center; gap: 14px;
-            padding: 12px 14px;
-            border-radius: 12px;
-            font-size: 15px; font-weight: 500;
-            color: #e3f2ea;
-            text-decoration: none;
-        }
-        .side-foot a:hover { background: rgba(214, 69, 69, .22); color: #fff; }
-
-        /* ===================== TOPBAR ===================== */
-        .top {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            height: 68px;
-            padding: 0 32px;
-            background: #fff;
-            border-bottom: 1px solid var(--line);
-        }
-        .top-l { display: flex; align-items: center; gap: 14px; min-width: 0; }
-        .burger {
-            display: none;
-            width: 40px; height: 40px;
-            place-items: center;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            background: var(--g-50);
-            color: var(--g-800);
-            cursor: pointer;
-        }
-        .crumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); white-space: nowrap; }
-        .crumb i { font-style: normal; }
-        .crumb b { color: var(--ink); font-weight: 600; }
-
-        .clock { display: flex; align-items: center; gap: 12px; text-align: left; }
-        .clock-ico {
-            width: 42px; height: 42px;
-            display: grid; place-items: center;
-            border-radius: 12px;
-            color: var(--g-700);
-            background: var(--g-50);
-        }
-        .clock b { display: block; font-size: 14px; font-weight: 600; line-height: 1.25; }
-        .clock small { display: block; font-size: 12px; color: var(--muted); }
-
-        /* ===================== HEADER HALAMAN ===================== */
+        /* ===================== HEADER HALAMAN & ACTIONS ===================== */
         .page-head {
             display: flex;
             align-items: flex-start;
@@ -393,61 +233,32 @@ $currentPage = 'buku';
             flex-wrap: wrap;
             margin-bottom: 24px;
         }
-        .page-head h1 { font-size: 32px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
+        .page-head h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; color: var(--ink); }
         .page-head p { margin-top: 6px; font-size: 15px; color: var(--muted); }
         .head-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-        .btn {
-            display: inline-flex; align-items: center; gap: 9px;
-            height: 46px;
-            padding: 0 20px;
-            border-radius: 12px;
-            font-family: inherit; font-size: 14.5px; font-weight: 700;
-            text-decoration: none;
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: filter .15s ease, background .15s ease, transform .15s ease;
-        }
-        .btn:active { transform: translateY(1px); }
-        .btn-primary {
-            color: #fff;
-            background: var(--g-700);
-            box-shadow: 0 8px 18px rgba(31, 111, 78, .28);
-        }
-        .btn-primary:hover { filter: brightness(1.1); }
         .btn-ghost {
             color: var(--ink);
             background: #fff;
-            border-color: var(--line);
+            border: 1px solid var(--line);
             font-weight: 600;
         }
-        .btn-ghost:hover { background: var(--g-50); border-color: #cfe6da; color: var(--g-800); }
-        .btn:focus-visible, .pill:focus-visible, .burger:focus-visible {
-            outline: 3px solid rgba(52, 211, 153, .55);
-            outline-offset: 2px;
-        }
+        .btn-ghost:hover { background: #eef7f2; border-color: #cfe6da; color: var(--g-dark, #1a5c41); }
 
-        /* ===================== KARTU ===================== */
-        .card {
-            background: #fff;
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            box-shadow: 0 4px 18px rgba(16, 60, 40, .05);
-        }
-
+        /* Banner info penambahan buku baru */
         .banner-info {
             display: flex; align-items: flex-start; gap: 12px;
             margin-bottom: 18px;
             padding: 14px 18px;
             border-radius: 14px;
             font-size: 14px; font-weight: 500;
-            color: var(--g-800);
-            background: var(--g-50);
+            color: #11593d;
+            background: #eefaf3;
             border: 1px solid #bfe6d1;
         }
-        .banner-info svg { margin-top: 1px; color: var(--g-700); }
+        .banner-info svg { margin-top: 1px; color: var(--g); flex-shrink: 0; }
 
-        /* Toolbar */
+        /* ===================== TOOLBAR OPSI CETAK ===================== */
         .toolbar {
             display: flex; align-items: center; justify-content: space-between;
             gap: 16px; flex-wrap: wrap;
@@ -455,8 +266,8 @@ $currentPage = 'buku';
             margin-bottom: 18px;
         }
         .toolbar-l { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-        .toolbar-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; margin-right: 6px; }
-        .toolbar-title svg { color: var(--g-700); }
+        .toolbar-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-right: 6px; color: var(--ink); }
+        .toolbar-title svg { color: var(--g); }
         .pill {
             height: 40px;
             padding: 0 18px;
@@ -468,8 +279,8 @@ $currentPage = 'buku';
             cursor: pointer;
             transition: all .15s ease;
         }
-        .pill:hover { background: var(--g-50); border-color: #cfe6da; }
-        .pill.active { background: var(--g-700); border-color: var(--g-700); color: #fff; }
+        .pill:hover { background: #f3f8f5; border-color: #cfe6da; }
+        .pill.active { background: var(--g); border-color: var(--g); color: #fff; }
 
         .toolbar-r { display: flex; gap: 8px; flex-wrap: wrap; }
         .chip {
@@ -477,12 +288,12 @@ $currentPage = 'buku';
             padding: 6px 12px;
             border-radius: 9999px;
             font-size: 12.5px; font-weight: 600;
-            color: var(--g-800);
-            background: var(--g-50);
+            color: #11593d;
+            background: #eefaf3;
             border: 1px solid #d3eadc;
         }
 
-        /* Kartu pratinjau */
+        /* ===================== KARTU PRATINJAU STIKER ===================== */
         .sheet-card { overflow: hidden; }
         .card-head {
             display: flex; align-items: center; justify-content: space-between;
@@ -496,10 +307,10 @@ $currentPage = 'buku';
             display: grid; place-items: center;
             border-radius: 12px;
             color: #fff;
-            background: var(--g-700);
+            background: var(--g);
         }
-        .card-head h3 { font-size: 17px; font-weight: 800; line-height: 1.25; }
-        .card-head p { font-size: 13px; color: var(--muted); }
+        .card-head h3 { font-size: 17px; font-weight: 800; line-height: 1.25; margin: 0; }
+        .card-head p { font-size: 13px; color: var(--muted); margin: 3px 0 0; }
         .card-head-r { font-size: 13.5px; color: var(--muted); }
         .card-head-r b { color: var(--ink); font-weight: 800; }
 
@@ -514,9 +325,9 @@ $currentPage = 'buku';
             background: #fff;
             border: 1px solid var(--line);
         }
-        .tip svg { margin-top: 1px; color: var(--g-700); }
+        .tip svg { margin-top: 1px; color: var(--g); flex-shrink: 0; }
 
-        /* ===================== GRID LABEL ===================== */
+        /* ===================== GRID & KARTU LABEL QR ===================== */
         .labels-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
         .labels-grid.cols-2 { grid-template-columns: repeat(2, 1fr); gap: 18px; }
         .labels-grid.cols-4 { grid-template-columns: repeat(4, 1fr); gap: 12px; }
@@ -550,8 +361,8 @@ $currentPage = 'buku';
             margin-top: 4px;
             font-family: var(--font-mono);
             font-size: 10px; font-weight: 700;
-            color: var(--g-800);
-            background: var(--g-100);
+            color: #11593d;
+            background: #dcf5e8;
             padding: 2px 8px;
             border-radius: 9999px;
             display: inline-block;
@@ -561,7 +372,7 @@ $currentPage = 'buku';
             display: flex; align-items: center; justify-content: space-between; gap: 6px;
             margin-bottom: 2px;
             font-size: 9.5px; font-weight: 800; letter-spacing: .8px;
-            color: var(--g-700);
+            color: var(--g);
             text-transform: uppercase;
         }
         .label-category-pill {
@@ -569,8 +380,8 @@ $currentPage = 'buku';
             padding: 2px 7px;
             border-radius: 9999px;
             font-size: 8.5px; font-weight: 700; letter-spacing: 0;
-            color: var(--g-800);
-            background: var(--g-100);
+            color: #11593d;
+            background: #dcf5e8;
             border: 1px solid #bfe6d1;
             text-transform: none;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -610,18 +421,7 @@ $currentPage = 'buku';
         .labels-grid.cols-4 .label-lib-brand { font-size: 8.5px; }
 
         /* ===================== RESPONSIF ===================== */
-        @media (max-width: 1000px) {
-            .app { grid-template-columns: minmax(0, 1fr); }
-            .side {
-                position: fixed; left: 0; top: 0; bottom: 0; z-index: 50;
-                width: 264px;
-                transform: translateX(-100%);
-                transition: transform .2s ease;
-            }
-            .side.open { transform: translateX(0); box-shadow: 0 0 40px rgba(0, 0, 0, .35); }
-            .burger { display: grid; }
-            .top { padding: 0 16px; }
-            .content { padding: 22px 16px 40px; }
+        @media (max-width: 900px) {
             .page-head h1 { font-size: 26px; }
         }
         @media (max-width: 640px) {
@@ -630,7 +430,7 @@ $currentPage = 'buku';
             .sheet-body { padding: 16px; }
         }
 
-        /* ===================== CETAK ===================== */
+        /* ===================== CETAK DOKUMEN A4 ===================== */
         @media print {
             @page { size: A4 portrait; margin: 8mm; }
             html, body {
@@ -641,9 +441,9 @@ $currentPage = 'buku';
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            .side, .top, .page-head, .banner-info, .toolbar, .tip, .card-head { display: none !important; }
-            .app, .main { display: block !important; }
-            .content { padding: 0 !important; max-width: none !important; }
+            .shell, .stage { display: block !important; }
+            .side, .scrim, .top, .page-head, .banner-info, .toolbar, .tip, .card-head { display: none !important; }
+            .content { padding: 0 !important; max-width: none !important; margin: 0 !important; }
             .sheet-card { border: none !important; box-shadow: none !important; border-radius: 0 !important; overflow: visible !important; }
             .sheet-body { padding: 0 !important; background: #fff !important; }
             .labels-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 5mm !important; }
@@ -660,23 +460,24 @@ $currentPage = 'buku';
         }
     </style>
 </head>
-<body>
-<div class="app">
+<body class="adm">
+<div class="shell">
 
-    <!-- ===================== SIDEBAR (dari admin/includes) ===================== -->
+    <!-- ===================== SIDEBAR (KONSISTEN DENGAN ADMIN) ===================== -->
     <?php require __DIR__ . '/../admin/includes/sidebar.php'; ?>
+    <div class="scrim" id="scrim"></div>
 
-    <div class="main">
+    <div class="stage">
 
         <!-- ===================== TOPBAR ===================== -->
         <header class="top">
             <div class="top-l">
                 <button type="button" class="burger" aria-label="Buka menu" aria-controls="sidebar"
-                        onclick="document.getElementById('sidebar').classList.toggle('open')"><?= lbl_ic('menu', 22) ?></button>
+                        onclick="document.getElementById('sidebar').classList.toggle('open')"><?= ic('menu', 22) ?></button>
                 <div class="crumb"><span>Admin</span><i>/</i><span>Data Buku</span><i>/</i><b>Cetak Label QR</b></div>
             </div>
             <div class="clock">
-                <div class="clock-ico"><?= lbl_ic('calendar') ?></div>
+                <div class="clock-ico"><?= ic('calendar') ?></div>
                 <div>
                     <b><?= $lblTgl ?></b>
                     <small><span id="clockTime"><?= $lblNow->format('H:i') ?></span> WIB</small>
@@ -848,6 +649,14 @@ $currentPage = 'buku';
                 } catch (e) {}
             }
             setInterval(tick, 20000);
+        })();
+
+        // Tutup sidebar mobile: klik latar gelap (scrim), tombol Esc
+        (function () {
+            var side = document.getElementById('sidebar'), scrim = document.getElementById('scrim');
+            function tutup() { if (side) side.classList.remove('open'); }
+            if (scrim) scrim.addEventListener('click', tutup);
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') tutup(); });
         })();
     </script>
 </body>
