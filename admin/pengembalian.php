@@ -56,9 +56,13 @@ $pageTitle   = 'Pengembalian Buku';
 $currentPage = 'pengembalian';
 
 $blnId = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-function tglId(string $t, array $b): string {
-    $ts = strtotime($t);
-    return date('j', $ts) . ' ' . $b[(int) date('n', $ts) - 1] . ' ' . date('Y', $ts);
+if (!function_exists('tglId')) {
+    // Format tanggal Indonesia ringkas (contoh: 16 Nov 2026)
+    function tglId(?string $t, array $b): string {
+        if (!$t) return '-';
+        $ts = strtotime($t);
+        return date('j', $ts) . ' ' . $b[(int) date('n', $ts) - 1] . ' ' . date('Y', $ts);
+    }
 }
 
 $extraHead = '<link rel="stylesheet" href="../assets/css/scan.css?v=2">';

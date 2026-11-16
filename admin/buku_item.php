@@ -238,6 +238,11 @@ require 'includes/header.php';
         <?= $ikAlert ?>
         <div>Eksemplar tidak dapat dihapus karena sedang dalam status dipinjam.</div>
     </div>
+<?php elseif ($errCode === 'ada_transaksi'): ?>
+    <div class="kc-al err bi-al" role="alert">
+        <?= $ikAlert ?>
+        <div>Eksemplar tidak dapat dihapus karena memiliki riwayat sirkulasi peminjaman. Jika kondisi buku tidak layak lagi, Anda dapat mengubah statusnya menjadi <strong>Rusak</strong> atau <strong>Hilang</strong>.</div>
+    </div>
 <?php elseif ($errCode === 'system'): ?>
     <div class="kc-al err bi-al" role="alert">
         <?= $ikAlert ?>

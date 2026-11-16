@@ -2,6 +2,7 @@
 require 'cek_session_siswa.php';
 require 'koneksi.php';
 require_once __DIR__ . '/log_helper.php';
+require_once __DIR__ . '/pengaturan_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../siswa/riwayat.php');
@@ -52,21 +53,33 @@ if ($transaksi['anggota_id'] != $anggotaId) {
     exit;
 }
 
-// Cek keterlambatan
-$tglSekarang = date('Y-m-d');
-$isTerlambat = $tglSekarang > $transaksi['tgl_kembali_rencana'];
-$statusFinal = $isTerlambat ? 'terlambat' : 'dikembalikan';
+// Ambil besaran tarif denda keterlambatan dari pengaturan sistem
+$pengaturan    = ambilPengaturan($koneksi);
+$tarifDenda    = (int) ($pengaturan['denda_per_hari'] ?? 1000);
+
+// Cek keterlambatan dan kalkulasi denda
+$tglSekarang   = date('Y-m-d');
+$isTerlambat   = $tglSekarang > $transaksi['tgl_kembali_rencana'];
+$statusFinal   = $isTerlambat ? 'terlambat' : 'dikembalikan';
+$hariTerlambat = 0;
+$nominalDenda  = 0;
+
+if ($isTerlambat) {
+    $hariTerlambat = (int) round((strtotime($tglSekarang) - strtotime($transaksi['tgl_kembali_rencana'])) / 86400);
+    $nominalDenda  = $hariTerlambat * $tarifDenda;
+}
 
 try {
     $koneksi->beginTransaction();
 
     $stmtUpdateTrx = $koneksi->prepare("
         UPDATE transaksi 
-        SET tgl_kembali_aktual = :tgl_kembali_aktual, status = :status
+        SET tgl_kembali_aktual = :tgl_kembali_aktual, status = :status, denda = :denda
         WHERE id = :id
     ");
     $stmtUpdateTrx->bindParam(':tgl_kembali_aktual', $tglSekarang);
     $stmtUpdateTrx->bindParam(':status', $statusFinal);
+    $stmtUpdateTrx->bindValue(':denda',  $nominalDenda, PDO::PARAM_INT);
     $stmtUpdateTrx->bindParam(':id', $transaksi['id']);
     $stmtUpdateTrx->execute();
 
@@ -76,7 +89,7 @@ try {
 
     $koneksi->commit();
 
-    $ketTelat = $isTerlambat ? 'terlambat' : 'tepat waktu';
+    $ketTelat = $isTerlambat ? "terlambat {$hariTerlambat} hari (denda " . formatRupiah($nominalDenda) . ")" : 'tepat waktu';
     catatLog(
         $koneksi,
         'siswa',
@@ -89,7 +102,7 @@ try {
 
     $redirect = '../siswa/riwayat.php?success=' . urlencode($item['judul']);
     if ($isTerlambat) {
-        $redirect .= '&terlambat=1';
+        $redirect .= '&terlambat=1&hari=' . $hariTerlambat . '&denda=' . $nominalDenda;
     }
     header('Location: ' . $redirect);
     exit;

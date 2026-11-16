@@ -189,12 +189,22 @@ if ($action === 'tambah') {
     if (empty($id)) { header('Location: ../admin/anggota.php'); exit; }
 
     // Cek apakah anggota ini masih memiliki buku yang sedang dipinjam (pinjaman aktif)
-    $cek = $koneksi->prepare("SELECT COUNT(*) AS total FROM transaksi WHERE anggota_id = :id AND status = 'dipinjam'");
-    $cek->bindParam(':id', $id);
-    $cek->execute();
+    $cekAktif = $koneksi->prepare("SELECT COUNT(*) AS total FROM transaksi WHERE anggota_id = :id AND status = 'dipinjam'");
+    $cekAktif->bindParam(':id', $id);
+    $cekAktif->execute();
 
-    if ($cek->fetch()['total'] > 0) {
+    if ($cekAktif->fetch()['total'] > 0) {
         header('Location: ../admin/anggota.php?error=sedang_meminjam');
+        exit;
+    }
+
+    // Cek apakah anggota memiliki riwayat transaksi di sistem (mencegah pelanggaran relasi Foreign Key)
+    $cekRiwayat = $koneksi->prepare("SELECT COUNT(*) AS total FROM transaksi WHERE anggota_id = :id");
+    $cekRiwayat->bindParam(':id', $id);
+    $cekRiwayat->execute();
+
+    if ($cekRiwayat->fetch()['total'] > 0) {
+        header('Location: ../admin/anggota.php?error=ada_transaksi');
         exit;
     }
 
@@ -203,9 +213,14 @@ if ($action === 'tambah') {
     $stmtInfo->execute();
     $infoAnggota = $stmtInfo->fetch();
 
-    $stmt = $koneksi->prepare("DELETE FROM anggota WHERE id = :id");
-    $stmt->bindParam(':id', $id);
-    $stmt->execute();
+    try {
+        $stmt = $koneksi->prepare("DELETE FROM anggota WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+    } catch (PDOException $e) {
+        header('Location: ../admin/anggota.php?error=ada_transaksi');
+        exit;
+    }
 
     // Hapus file foto anggota jika ada di server
     if (!empty($infoAnggota['foto'])) {

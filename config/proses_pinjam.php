@@ -2,23 +2,27 @@
 require 'cek_session_siswa.php';
 require 'koneksi.php';
 require_once __DIR__ . '/log_helper.php';
+require_once __DIR__ . '/pengaturan_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../siswa/pinjam.php');
     exit;
 }
 
+// Ambil aturan dinamis batas kuota dan durasi pinjam dari pengaturan sistem
+$pengaturan     = ambilPengaturan($koneksi);
+$batasPinjam    = (int) ($pengaturan['maks_pinjam_buku'] ?? 3);
+$lamaPinjamHari = (int) ($pengaturan['lama_pinjam_hari'] ?? 7);
+
 $anggotaId      = $_SESSION['anggota_id'];
 $kode_item      = trim($_POST['kode_item'] ?? '');
-$batasPinjam    = 3;
-$lamaPinjamHari = 7;
 
 if (empty($kode_item)) {
     header('Location: ../siswa/pinjam.php');
     exit;
 }
 
-// Cek batas peminjaman aktif (maks 3 buku)
+// Cek batas peminjaman aktif sesuai kuota dinamis pengaturan sistem
 $cekAktif = $koneksi->prepare("SELECT COUNT(*) AS total FROM transaksi WHERE anggota_id = :id AND status = 'dipinjam'");
 $cekAktif->bindParam(':id', $anggotaId);
 $cekAktif->execute();

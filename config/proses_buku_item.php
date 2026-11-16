@@ -202,9 +202,23 @@ if ($action === 'generate_qr' || $action === 'generate_baru') {
         exit;
     }
 
-    $stmt = $koneksi->prepare("DELETE FROM buku_item WHERE id = :id");
-    $stmt->bindParam(':id', $id);
-    $stmt->execute();
+    // Cek apakah eksemplar memiliki riwayat transaksi di perpustakaan (relasi Foreign Key RESTRICT)
+    $cekTrx = $koneksi->prepare("SELECT COUNT(*) FROM transaksi WHERE buku_item_id = :id");
+    $cekTrx->bindParam(':id', $id);
+    $cekTrx->execute();
+    if ($cekTrx->fetchColumn() > 0) {
+        header("Location: ../admin/buku_item.php?buku_id=$bukuId&error=ada_transaksi");
+        exit;
+    }
+
+    try {
+        $stmt = $koneksi->prepare("DELETE FROM buku_item WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+    } catch (PDOException $e) {
+        header("Location: ../admin/buku_item.php?buku_id=$bukuId&error=ada_transaksi");
+        exit;
+    }
 
     if ($itemData) {
         catatLog(

@@ -4,7 +4,9 @@
 // Logout untuk admin maupun siswa
 // =========================================
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require 'koneksi.php';
 require_once __DIR__ . '/log_helper.php';
 

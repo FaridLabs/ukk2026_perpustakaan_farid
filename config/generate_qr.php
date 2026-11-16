@@ -3,8 +3,11 @@ require 'cek_session_admin.php';
 require 'koneksi.php';
 require_once __DIR__ . '/pengaturan_helper.php';
 
-$appConfig = ambilPengaturan($koneksi);
-$appNama   = $appConfig['nama_aplikasi'] ?? 'Pinjam.In';
+$appConfig  = ambilPengaturan($koneksi);
+$appNama    = $appConfig['nama_aplikasi'] ?? 'Pinjam.In';
+$appSlogan  = $appConfig['slogan_aplikasi'] ?? 'Perpustakaan Digital';
+$appSekolah = $appConfig['nama_sekolah'] ?? 'SMKN 1 Panyingkiran';
+$appPerpus  = $appConfig['nama_perpustakaan'] ?? 'Perpustakaan Digital SMKN 1 Panyingkiran';
 
 $bukuId  = $_GET['buku_id'] ?? null;
 $itemId  = $_GET['item_id'] ?? null;
@@ -499,9 +502,9 @@ $currentPage = 'buku';
                     </p>
                 </div>
                 <div class="head-actions">
-                    <a href="../admin/buku.php" class="btn btn-ghost"><?= lbl_ic('back', 18) ?> Ke Data Buku</a>
+                    <a href="buku.php" class="btn btn-ghost"><?= lbl_ic('back', 18) ?> Ke Data Buku</a>
                     <?php if (!empty($bukuInfo) && !empty($bukuInfo['id'])): ?>
-                        <a href="../admin/buku_item.php?buku_id=<?= $bukuInfo['id'] ?>" class="btn btn-ghost"><?= lbl_ic('layers', 18) ?> Kelola Eksemplar</a>
+                        <a href="buku_item.php?buku_id=<?= $bukuInfo['id'] ?>" class="btn btn-ghost"><?= lbl_ic('layers', 18) ?> Kelola Eksemplar</a>
                     <?php endif; ?>
                     <button type="button" class="btn btn-primary" onclick="window.print()"><?= lbl_ic('printer', 18) ?> Cetak Label Sekarang</button>
                 </div>

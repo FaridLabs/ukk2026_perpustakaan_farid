@@ -48,7 +48,8 @@ if (!empty($keyword)) {
 if ($tabFilter === 'dipinjam') {
     $sql .= " AND transaksi.status = 'dipinjam'";
 } elseif ($tabFilter === 'kembali') {
-    $sql .= " AND transaksi.status = 'dikembalikan'";
+    // Menampilkan seluruh buku yang sudah selesai dikembalikan (tepat waktu maupun kembali terlambat)
+    $sql .= " AND (transaksi.status = 'dikembalikan' OR (transaksi.status = 'terlambat' AND transaksi.tgl_kembali_aktual IS NOT NULL))";
 } elseif ($tabFilter === 'terlambat') {
     $sql .= " AND (transaksi.status = 'terlambat' OR (transaksi.status = 'dipinjam' AND transaksi.tgl_kembali_rencana < :today))";
     $params[':today'] = $hariIni;
@@ -69,7 +70,12 @@ $stmtAktif = $koneksi->prepare("SELECT COUNT(*) FROM transaksi WHERE anggota_id 
 $stmtAktif->execute([':id' => $anggotaId]);
 $totalDipinjam = (int) $stmtAktif->fetchColumn();
 
-$stmtKembali = $koneksi->prepare("SELECT COUNT(*) FROM transaksi WHERE anggota_id = :id AND status = 'dikembalikan'");
+// Total buku yang sudah tuntas dikembalikan (tepat waktu maupun terlambat)
+$stmtKembali = $koneksi->prepare("
+    SELECT COUNT(*) FROM transaksi 
+    WHERE anggota_id = :id 
+      AND (status = 'dikembalikan' OR (status = 'terlambat' AND tgl_kembali_aktual IS NOT NULL))
+");
 $stmtKembali->execute([':id' => $anggotaId]);
 $totalKembali = (int) $stmtKembali->fetchColumn();
 
@@ -81,9 +87,14 @@ $stmtTelat = $koneksi->prepare("
 $stmtTelat->execute([':id' => $anggotaId]);
 $totalTelat = (int) $stmtTelat->fetchColumn();
 
-// Hitung persentase ketepatan waktu
-$persenTepat = ($totalKembali + $totalTelat) > 0 
-    ? (int) round(($totalKembali / ($totalKembali + $totalTelat)) * 100) 
+// Hitung total pengembalian tepat waktu untuk persentase ketepatan
+$stmtTepat = $koneksi->prepare("SELECT COUNT(*) FROM transaksi WHERE anggota_id = :id AND status = 'dikembalikan'");
+$stmtTepat->execute([':id' => $anggotaId]);
+$totalTepat = (int) $stmtTepat->fetchColumn();
+
+// Hitung persentase ketepatan waktu pengembalian
+$persenTepat = $totalKembali > 0 
+    ? (int) round(($totalTepat / $totalKembali) * 100) 
     : 100;
 
 $pageTitle   = 'Riwayat Peminjaman Buku';
