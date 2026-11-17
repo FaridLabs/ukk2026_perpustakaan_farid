@@ -210,6 +210,15 @@ $ikonKartu = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
                 <h2 id="hKembali">Scan QR Buku yang Diserahkan</h2>
                 <p>Arahkan scanner ke label QR pada buku yang diserahkan siswa untuk pengembalian instan.</p>
                 <form action="../config/proses_kembalikan_admin.php" method="POST" id="form-kembali" autocomplete="off">
+                    <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 16px; font-size: 13.5px; color: var(--ink); flex-wrap: wrap;">
+                        <span style="font-weight: 700;">Status Denda Kas (jika terlambat):</span>
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                            <input type="radio" name="status_denda" value="lunas" checked> Denda Langsung Lunas (Uang Diterima)
+                        </label>
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                            <input type="radio" name="status_denda" value="belum_lunas"> Belum Lunas (Tunggakan/Hutang Siswa)
+                        </label>
+                    </div>
                     <div class="pm-field">
                         <div class="pm-in" id="wrap-kembali">
                             <i></i>

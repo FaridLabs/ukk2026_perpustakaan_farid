@@ -1,0 +1,9 @@
+<?php
+/**
+ * Contoh Template Kredensial Google OAuth 2.0
+ * Salin (copy) file ini menjadi: config/google_keys.local.php
+ * lalu masukkan Client ID dan Client Secret dari Google Cloud Console.
+ */
+
+define('GOOGLE_CLIENT_ID', 'ISI_DENGAN_GOOGLE_CLIENT_ID_ANDA');
+define('GOOGLE_CLIENT_SECRET', 'ISI_DENGAN_GOOGLE_CLIENT_SECRET_ANDA');

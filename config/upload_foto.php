@@ -38,6 +38,11 @@ function simpanFotoProfil(?array $file, ?string $fotoLama = null, string $jenisU
         return ['ok' => false, 'error' => 'Ukuran foto maksimal 2 MB. Silakan pilih foto yang lebih kecil.'];
     }
 
+    // Pastikan file temporer benar-benar ada sebelum dibaca
+    if (empty($file['tmp_name']) || !file_exists($file['tmp_name'])) {
+        return ['ok' => false, 'error' => 'File foto tidak valid atau gagal terunggah ke server.'];
+    }
+
     // 4. Validasi format file berdasarkan MIME Type asli (bukan hanya ekstensi nama)
     $finfo    = new finfo(FILEINFO_MIME_TYPE);
     $mime     = $finfo->file($file['tmp_name']);

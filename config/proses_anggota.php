@@ -243,6 +243,36 @@ if ($action === 'tambah') {
     header('Location: ../admin/anggota.php?success=hapus');
     exit;
 
+} elseif ($action === 'reset_password') {
+
+    $id = (int)($_GET['id'] ?? 0);
+    $stmt = $koneksi->prepare("SELECT id, nis, nama_lengkap FROM anggota WHERE id = :id LIMIT 1");
+    $stmt->execute([':id' => $id]);
+    $m = $stmt->fetch();
+
+    if ($m) {
+        $defaultPass = $m['nis'];
+        $hash = password_hash($defaultPass, PASSWORD_BCRYPT);
+        $up = $koneksi->prepare("UPDATE anggota SET password = :p WHERE id = :id");
+        $up->execute([':p' => $hash, ':id' => $id]);
+
+        catatLog(
+            $koneksi,
+            'admin',
+            $adminId,
+            $adminNama,
+            'Reset Password',
+            'Anggota',
+            "Mereset password siswa {$m['nama_lengkap']} (NIS: {$m['nis']}) kembali ke default NIS."
+        );
+
+        header('Location: ../admin/anggota.php?success=reset_pass&nama=' . urlencode($m['nama_lengkap']));
+        exit;
+    }
+
+    header('Location: ../admin/anggota.php');
+    exit;
+
 } else {
     header('Location: ../admin/anggota.php');
     exit;

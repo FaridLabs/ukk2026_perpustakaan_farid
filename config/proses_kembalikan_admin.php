@@ -124,10 +124,13 @@ $isTerlambat   = $tglSekarang > $transaksi['tgl_kembali_rencana'];
 $statusFinal   = $isTerlambat ? 'terlambat' : 'dikembalikan';
 $hariTerlambat = 0;
 $nominalDenda  = 0;
+$statusDenda   = 'lunas';
 
 if ($isTerlambat) {
     $hariTerlambat = (int) round((strtotime($tglSekarang) - strtotime($transaksi['tgl_kembali_rencana'])) / 86400);
     $nominalDenda  = $hariTerlambat * $tarifDenda;
+    $inputStatusDenda = trim($_POST['status_denda'] ?? $_GET['status_denda'] ?? 'lunas');
+    $statusDenda   = ($inputStatusDenda === 'belum_lunas') ? 'belum_lunas' : 'lunas';
 }
 
 try {
@@ -135,13 +138,14 @@ try {
 
     $stmtUpdateTrx = $koneksi->prepare("
         UPDATE transaksi 
-        SET tgl_kembali_aktual = :tgl, status = :status, denda = :denda 
+        SET tgl_kembali_aktual = :tgl, status = :status, denda = :denda, status_denda = :status_denda
         WHERE id = :id
     ");
-    $stmtUpdateTrx->bindParam(':tgl',    $tglSekarang);
-    $stmtUpdateTrx->bindParam(':status', $statusFinal);
-    $stmtUpdateTrx->bindValue(':denda',  $nominalDenda, PDO::PARAM_INT);
-    $stmtUpdateTrx->bindParam(':id',     $transaksi['id']);
+    $stmtUpdateTrx->bindParam(':tgl',          $tglSekarang);
+    $stmtUpdateTrx->bindParam(':status',       $statusFinal);
+    $stmtUpdateTrx->bindValue(':denda',        $nominalDenda, PDO::PARAM_INT);
+    $stmtUpdateTrx->bindParam(':status_denda', $statusDenda);
+    $stmtUpdateTrx->bindParam(':id',           $transaksi['id']);
     $stmtUpdateTrx->execute();
 
     $stmtUpdateItem = $koneksi->prepare("UPDATE buku_item SET status = 'tersedia' WHERE id = :id");
@@ -150,7 +154,8 @@ try {
 
     $koneksi->commit();
 
-    $ketTelat = $isTerlambat ? "terlambat {$hariTerlambat} hari, denda " . formatRupiah($nominalDenda) : 'tepat waktu';
+    $labelKas = ($nominalDenda > 0) ? " (Status Denda: " . strtoupper($statusDenda) . ")" : "";
+    $ketTelat = $isTerlambat ? "terlambat {$hariTerlambat} hari, denda " . formatRupiah($nominalDenda) . $labelKas : 'tepat waktu';
     catatLog(
         $koneksi,
         'admin',

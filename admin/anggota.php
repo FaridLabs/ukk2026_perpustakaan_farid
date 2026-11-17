@@ -119,6 +119,7 @@ if ($rfidTarget) {
 $svgK    = fn(string $d): string => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $d . '</svg>';
 $ikEdit  = $svgK('<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>');
 $ikHapus = $svgK('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>');
+$ikKey   = $svgK('<path d="m21 2-2 2m-1.5 1.5L14 9a5 5 0 1 0 3 3l2-2v-2h2v-2h2V4l-2-2z"/><circle cx="7.5" cy="16.5" r="1.5"/>');
 $ikClose = $svgK('<path d="M18 6 6 18M6 6l12 12"/>');
 $ikAlert = $svgK('<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>');
 $ikRfid  = $svgK('<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M14 9h4M14 12h4M14 15h2"/>');
@@ -163,7 +164,9 @@ require 'includes/header.php';
     <div class="kc-al err" role="alert"><?= $ikAlert ?><div><?= htmlspecialchars($errMsg, ENT_QUOTES, 'UTF-8') ?></div></div>
 <?php endif; ?>
 
-<?php if (isset($_GET['success']) && $_GET['success'] === 'hapus'): ?>
+<?php if (isset($_GET['success']) && $_GET['success'] === 'reset_pass'): ?>
+    <div class="kc-al ok" role="status"><?= ic('check') ?><div>Password siswa <strong><?= htmlspecialchars($_GET['nama'] ?? 'siswa', ENT_QUOTES, 'UTF-8') ?></strong> berhasil direset kembali ke default (NIS).</div></div>
+<?php elseif (isset($_GET['success']) && $_GET['success'] === 'hapus'): ?>
     <div class="kc-al ok" role="status"><?= ic('check') ?><div>Data anggota berhasil dihapus dari sistem.</div></div>
 <?php elseif (isset($_GET['success'])): ?>
     <div class="kc-al ok" role="status"><?= ic('check') ?><div>Data anggota berhasil diperbarui.</div></div>
@@ -322,6 +325,14 @@ require 'includes/header.php';
                                     aria-label="Edit <?= htmlspecialchars($row['nama_lengkap'], ENT_QUOTES, 'UTF-8') ?>">
                                 <?= $ikEdit ?>
                             </button>
+                            <a href="../config/proses_anggota.php?action=reset_password&amp;id=<?= (int)$row['id'] ?>"
+                               class="kb ico"
+                               title="Reset password akun ke default (NIS: <?= htmlspecialchars($row['nis'], ENT_QUOTES, 'UTF-8') ?>)"
+                               onclick="return confirm('Konfirmasi: Reset password akun <?= htmlspecialchars(addslashes($row['nama_lengkap'])) ?> kembali ke default NIS (<?= $row['nis'] ?>)?');"
+                               aria-label="Reset password <?= htmlspecialchars($row['nama_lengkap'], ENT_QUOTES, 'UTF-8') ?>"
+                               style="color:#b4600a;">
+                                <?= $ikKey ?>
+                            </a>
                             <?php if ($pinjamAktif > 0): ?>
                                 <button type="button"
                                         class="kb ico"

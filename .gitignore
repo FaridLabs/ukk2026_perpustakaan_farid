@@ -1,0 +1,8 @@
+# Kredensial rahasia lokal (Google OAuth & API Keys)
+config/google_keys.local.php
+
+# Berkas sementara & OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.log

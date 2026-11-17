@@ -2,6 +2,37 @@
 require '../config/cek_session_admin.php';
 require '../config/koneksi.php';
 require_once '../config/pengaturan_helper.php';
+require_once '../config/log_helper.php';
+
+// Proses pelunasan denda kas perpustakaan jika ada siswa yang baru membayar denda
+if (isset($_GET['lunasi']) && !empty($_GET['lunasi'])) {
+    $trxId = (int)$_GET['lunasi'];
+    $stmtCek = $koneksi->prepare("
+        SELECT t.id, t.kode_transaksi, t.denda, a.nama_lengkap 
+        FROM transaksi t 
+        JOIN anggota a ON t.anggota_id = a.id 
+        WHERE t.id = :id AND t.denda > 0 AND t.status_denda = 'belum_lunas'
+    ");
+    $stmtCek->execute([':id' => $trxId]);
+    $trxData = $stmtCek->fetch();
+
+    if ($trxData) {
+        $stmtUp = $koneksi->prepare("UPDATE transaksi SET status_denda = 'lunas' WHERE id = :id");
+        $stmtUp->execute([':id' => $trxId]);
+
+        catatLog(
+            $koneksi,
+            'admin',
+            isset($_SESSION['admin_id']) ? (int)$_SESSION['admin_id'] : null,
+            $_SESSION['admin_nama'] ?? 'Administrator',
+            'Lunasi Denda',
+            'Transaksi',
+            "Menerima pelunasan kas denda sebesar " . formatRupiah((int)$trxData['denda']) . " dari {$trxData['nama_lengkap']} (Kode: {$trxData['kode_transaksi']})."
+        );
+    }
+    header('Location: transaksi.php?success=lunas');
+    exit;
+}
 
 $pengaturan   = ambilPengaturan($koneksi);
 $tarifDenda   = (int) ($pengaturan['denda_per_hari'] ?? 1000);
@@ -103,9 +134,20 @@ require 'includes/header.php';
         <p>Arsip seluruh aktivitas sirkulasi peminjaman dan pengembalian buku siswa.</p>
     </div>
     <div class="d-btn-row">
+        <a href="export_transaksi.php<?= $adaFilter ? '?' . http_build_query($_GET) : '' ?>" class="btn-d" style="background:#fff; border:1px solid var(--line); font-weight:600; text-decoration:none;" title="Unduh data dalam format CSV / Excel">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Ekspor Excel / CSV</span>
+        </a>
         <button type="button" onclick="cetakLaporan('Laporan_Transaksi_PinjamIn_<?= date('Y-m-d') ?>')" class="btn-d main" title="Cetak laporan atau pilih Simpan sebagai PDF"><?= ic('printer') ?>Cetak / Export PDF</button>
     </div>
 </div>
+
+<?php if (isset($_GET['success']) && $_GET['success'] === 'lunas'): ?>
+    <div class="kc-al ok" role="status" style="margin-bottom:18px;">
+        <?= ic('check') ?>
+        <div>Pelunasan denda kas perpustakaan berhasil dicatat ke sistem.</div>
+    </div>
+<?php endif; ?>
 
 <!-- RINGKASAN -->
 <section class="d-stats four" aria-label="Ringkasan transaksi">
@@ -239,7 +281,13 @@ require 'includes/header.php';
                     <td><span class="kt <?= $ktKls ?>"><?= $kt ?></span></td>
                     <td class="nw">
                         <?php if ($dendaTercatat > 0): ?>
-                            <strong style="color: #C23B3B;"><?= formatRupiah($dendaTercatat) ?></strong>
+                            <strong style="color: #C23B3B; display:block;"><?= formatRupiah($dendaTercatat) ?></strong>
+                            <?php if (($row['status_denda'] ?? 'lunas') === 'belum_lunas'): ?>
+                                <span style="display:inline-block; font-size:10.5px; font-weight:700; color:#B4600A; background:#FDEBD3; padding:2px 6px; border-radius:4px; margin-top:2px;">Belum Lunas</span>
+                                <a href="transaksi.php?lunasi=<?= (int)$row['id'] ?>" class="btn-d" style="font-size:11px; padding:2px 8px; margin-top:4px; display:inline-block; text-decoration:none;" onclick="return confirm('Konfirmasi: Siswa telah membayar uang denda sebesar <?= formatRupiah($dendaTercatat) ?>?')">Tandai Lunas</a>
+                            <?php else: ?>
+                                <span style="display:inline-block; font-size:10.5px; font-weight:700; color:#1B7A55; background:#DDF3E8; padding:2px 6px; border-radius:4px; margin-top:2px;">Lunas</span>
+                            <?php endif; ?>
                         <?php elseif ($isAktifDipinjam && $today > $row['tgl_kembali_rencana']): 
                             $h = (int) round((strtotime($today) - strtotime($row['tgl_kembali_rencana'])) / 86400);
                             $estDenda = $h * $tarifDenda;

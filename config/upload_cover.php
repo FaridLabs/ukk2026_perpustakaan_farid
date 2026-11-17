@@ -31,6 +31,11 @@ function simpanCover(?array $file, ?string $coverLama = null): array
         return ['ok' => false, 'error' => 'Ukuran cover maksimal 2 MB.'];
     }
 
+    // Pastikan file temporer valid dan ada sebelum dibaca
+    if (empty($file['tmp_name']) || !file_exists($file['tmp_name'])) {
+        return ['ok' => false, 'error' => 'File cover tidak valid atau gagal terunggah ke server.'];
+    }
+
     // Cek tipe file dari isinya, bukan dari nama/ekstensi yang dikirim browser
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime  = $finfo->file($file['tmp_name']);

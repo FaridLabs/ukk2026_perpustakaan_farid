@@ -47,6 +47,8 @@ if ($errCode === 'empty') {
     $errMsg = 'Judul buku dan kategori wajib diisi lengkap.';
 } elseif ($errCode === 'cover') {
     $errMsg = $_GET['pesan'] ?? 'Cover gagal diunggah. Gunakan JPG, PNG, atau WEBP maksimal 2 MB.';
+} elseif ($errCode === 'import') {
+    $errMsg = $_GET['msg'] ?? 'Gagal mengimpor file CSV.';
 }
 
 $pageTitle   = 'Data Koleksi Buku';
@@ -103,7 +105,7 @@ if ($editData) {
         'total_tersedia'  => (int) ($editData['total_tersedia'] ?? 0),
         'error'           => $errMsg,
     ];
-} elseif ($errMsg !== '') {
+} elseif ($errMsg !== '' && $errCode !== 'import') {
     $initialModalPayload = [
         'mode'  => 'tambah',
         'error' => $errMsg,
@@ -117,12 +119,18 @@ require 'includes/header.php';
         <h1>Kelola Data Buku</h1>
         <p>Daftarkan judul buku baru, kelola eksemplar fisik, dan cetak label barcode/QR.</p>
     </div>
-    <div class="d-act">
+    <div class="d-act" style="display:flex; gap:8px;">
+        <button type="button" class="btn-d" id="btnImportBuku" style="background:var(--card,#fff); border:1px solid var(--line,#e2e8f0); color:var(--text,#1e293b); font-weight:600;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Import CSV</span>
+        </button>
         <button type="button" class="btn-d main" id="btnTambahBuku"><?= ic('plus') ?><span>Tambah Judul Buku</span></button>
     </div>
 </div>
 
-<?php if ($errCode === 'empty'): ?>
+<?php if ($errCode === 'import'): ?>
+    <div class="kc-al err" role="alert"><?= $ikAlert ?><div><?= htmlspecialchars($errMsg, ENT_QUOTES, 'UTF-8') ?></div></div>
+<?php elseif ($errCode === 'empty'): ?>
     <div class="kc-al err" role="alert"><?= $ikAlert ?><div><?= htmlspecialchars($errMsg, ENT_QUOTES, 'UTF-8') ?></div></div>
 <?php elseif ($errCode === 'cover'): ?>
     <div class="kc-al err" role="alert"><?= $ikAlert ?><div><?= htmlspecialchars($errMsg, ENT_QUOTES, 'UTF-8') ?></div></div>
@@ -132,7 +140,12 @@ require 'includes/header.php';
     <div class="kc-al err" role="alert"><?= $ikAlert ?><div>Terjadi kesalahan pada sistem saat menyimpan data buku.</div></div>
 <?php endif; ?>
 
-<?php if (isset($_GET['success']) && $_GET['success'] === 'tambah'): ?>
+<?php if (isset($_GET['success']) && $_GET['success'] === 'import'): ?>
+    <div class="kc-al ok" role="status">
+        <?= ic('check') ?>
+        <div>Berhasil mengimpor <strong><?= htmlspecialchars($_GET['jumlah'] ?? '0', ENT_QUOTES, 'UTF-8') ?></strong> judul buku baru beserta eksemplar fisik ke koleksi.</div>
+    </div>
+<?php elseif (isset($_GET['success']) && $_GET['success'] === 'tambah'): ?>
     <div class="kc-al ok" role="status">
         <?= ic('check') ?>
         <div>
@@ -440,6 +453,48 @@ require 'includes/header.php';
     </div>
 </div>
 
+<!-- MODAL IMPORT CSV -->
+<div class="bm-backdrop" id="modalImportCsv" hidden role="dialog" aria-modal="true" aria-labelledby="bmImportTitle">
+    <div class="bm-dialog bm-sm">
+        <div class="bm-head">
+            <div class="bm-head-main">
+                <div class="bm-ico"><?= $ikUpload ?></div>
+                <div class="bm-head-txt">
+                    <h2 id="bmImportTitle">Import Buku dari CSV</h2>
+                    <p>Unggah spreadsheet untuk menambah banyak buku sekaligus.</p>
+                </div>
+            </div>
+            <button type="button" class="bm-close" data-bm-close="modalImportCsv" aria-label="Tutup dialog"><?= $ikClose ?></button>
+        </div>
+        <form action="../config/proses_import_buku.php" method="POST" enctype="multipart/form-data" class="bm-form" autocomplete="off">
+            <div class="bm-body">
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; margin-bottom:16px; font-size:13px; line-height:1.5; color:#475569;">
+                    <strong style="color:#1e293b; display:block; margin-bottom:4px;">Petunjuk Pengisian CSV:</strong>
+                    Format kolom harus sesuai template: <em>judul, pengarang, penerbit, tahun_terbit, kategori, jumlah_eksemplar</em>.
+                    <div style="margin-top:8px;">
+                        <a href="../config/proses_import_buku.php?template=1" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 12px; background:#e0f2fe; color:#0284c7; border:none; text-decoration:none; border-radius:6px; font-weight:600;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Download Template CSV
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bm-field">
+                    <label class="bm-lbl" for="file_csv">Pilih File CSV <em>*</em></label>
+                    <input type="file" id="file_csv" name="file_csv" accept=".csv,text/csv" required style="padding:8px; border:1px dashed #cbd5e1; width:100%; border-radius:6px; background:#fff;">
+                </div>
+            </div>
+            <div class="bm-foot">
+                <span class="bm-foot-hint">Maks. 5 MB (.csv)</span>
+                <div class="bm-foot-actions">
+                    <button type="button" class="kc-cancel" data-bm-close="modalImportCsv">Batal</button>
+                    <button type="submit" class="kc-save">Unggah &amp; Proses Import</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <?php
 $initialJson = json_encode($initialModalPayload, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 $ikBukuJson  = json_encode($ikBuku);
@@ -454,6 +509,8 @@ $extraScripts = <<<HTML
 
     const modalBuku    = document.getElementById('modalBuku');
     const modalHapus   = document.getElementById('modalHapusBuku');
+    const modalImport  = document.getElementById('modalImportCsv');
+    const btnImportBuku = document.getElementById('btnImportBuku');
     const bmForm       = document.getElementById('bmForm');
     const bmTitle      = document.getElementById('bmTitle');
     const bmSubtitle   = document.getElementById('bmSubtitle');
@@ -591,7 +648,7 @@ $extraScripts = <<<HTML
     }
 
     function lockBody() {
-        const anyOpen = (modalBuku && !modalBuku.hidden) || (modalHapus && !modalHapus.hidden);
+        const anyOpen = (modalBuku && !modalBuku.hidden) || (modalHapus && !modalHapus.hidden) || (modalImport && !modalImport.hidden);
         document.body.classList.toggle('bm-lock', anyOpen);
     }
 
@@ -697,6 +754,14 @@ $extraScripts = <<<HTML
         openBookModal({ mode: 'tambah' });
     });
 
+    // Trigger Import CSV
+    if (btnImportBuku && modalImport) {
+        btnImportBuku.addEventListener('click', () => {
+            modalImport.hidden = false;
+            lockBody();
+        });
+    }
+
     // Trigger Edit & Hapus Buku dari tabel
     document.addEventListener('click', e => {
         const editBtn = e.target.closest('.js-edit-buku');
@@ -723,7 +788,7 @@ $extraScripts = <<<HTML
     document.querySelectorAll('[data-bm-close]').forEach(btn => {
         btn.addEventListener('click', () => closeModal(document.getElementById(btn.dataset.bmClose)));
     });
-    [modalBuku, modalHapus].forEach(backdrop => {
+    [modalBuku, modalHapus, modalImport].forEach(backdrop => {
         if (!backdrop) return;
         backdrop.addEventListener('click', e => {
             if (e.target === backdrop) closeModal(backdrop);
@@ -732,6 +797,7 @@ $extraScripts = <<<HTML
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             if (modalHapus && !modalHapus.hidden) closeModal(modalHapus);
+            else if (modalImport && !modalImport.hidden) closeModal(modalImport);
             else if (modalBuku && !modalBuku.hidden) closeModal(modalBuku);
         }
     });

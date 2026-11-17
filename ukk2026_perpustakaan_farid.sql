@@ -57,16 +57,20 @@ CREATE TABLE `anggota` (
   `kode_rfid` varchar(50) DEFAULT NULL,
   `nama_lengkap` varchar(100) NOT NULL,
   `kelas` varchar(20) NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
   `no_hp` varchar(20) DEFAULT NULL,
   `alamat` text DEFAULT NULL,
   `foto` varchar(255) DEFAULT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `google_id` varchar(100) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `nis` (`nis`),
   UNIQUE KEY `username` (`username`),
-  UNIQUE KEY `kode_rfid` (`kode_rfid`)
+  UNIQUE KEY `kode_rfid` (`kode_rfid`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `google_id` (`google_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -76,7 +80,7 @@ CREATE TABLE `anggota` (
 
 LOCK TABLES `anggota` WRITE;
 /*!40000 ALTER TABLE `anggota` DISABLE KEYS */;
-INSERT INTO `anggota` VALUES (16,'24250223','1705319278','BAGAS NATASAPUTRA','XII RPL 2','085',NULL,NULL,'bagas','$2y$10$Oddy9NtoSApmKhOn.O.iv.DFAbT.kByXzDnAJCP3R0D/pCSHG1KpG','2026-09-10 07:49:16'),(17,'5252536','1709911214','Yaya Dadan Jaya','XII RPL 2','085',NULL,NULL,'yaya','$2y$10$y7AmlbS8f5urqQjB9olbl.HRXwM0eyHbV7mnNWmsMUA0h.bGglkpe','2026-09-10 07:49:33'),(18,'123242','1705876302','farel','kuliah','213314',NULL,NULL,'buku pinjam','$2y$10$bQMr39Kda.J0El4ucbTgaO.RbC7aONJ1jq4qODPa256pWfqg3Uy.q','2026-10-08 04:34:12'),(21,'2425123','0493428243','Muhammad Farid Malik','XII RPL 2','085798231433',NULL,NULL,'fariddd','$2y$10$yYiJ5mFk8rqm4iZVkYbQduGIlyDZQlWn8ypSJpYT58XEUTRlYWFfq','2026-10-19 03:46:13'),(22,'2425888',NULL,'Budi Santoso','XII RPL 1','08123456789',NULL,NULL,'budisantoso','$2y$10$OvFTpZHl2GgIDHVd9XTEm.00TViHhAbNqmj1azCbSPvLvWO9dBpTm','2026-10-19 03:57:27');
+INSERT INTO `anggota` VALUES (16,'24250223','1705319278','BAGAS NATASAPUTRA','XII RPL 2',NULL,'085',NULL,NULL,'bagas','$2y$10$Oddy9NtoSApmKhOn.O.iv.DFAbT.kByXzDnAJCP3R0D/pCSHG1KpG',NULL,'2026-09-10 07:49:16'),(17,'5252536','1709911214','Yaya Dadan Jaya','XII RPL 2',NULL,'085',NULL,NULL,'yaya','$2y$10$y7AmlbS8f5urqQjB9olbl.HRXwM0eyHbV7mnNWmsMUA0h.bGglkpe',NULL,'2026-09-10 07:49:33'),(18,'123242','1705876302','farel','kuliah',NULL,'213314',NULL,NULL,'buku pinjam','$2y$10$bQMr39Kda.J0El4ucbTgaO.RbC7aONJ1jq4qODPa256pWfqg3Uy.q',NULL,'2026-10-08 04:34:12'),(21,'2425123','0493428243','Muhammad Farid Malik','XII RPL 2',NULL,'085798231433',NULL,NULL,'fariddd','$2y$10$yYiJ5mFk8rqm4iZVkYbQduGIlyDZQlWn8ypSJpYT58XEUTRlYWFfq',NULL,'2026-10-19 03:46:13'),(22,'2425888',NULL,'Budi Santoso','XII RPL 1',NULL,'08123456789',NULL,NULL,'budisantoso','$2y$10$OvFTpZHl2GgIDHVd9XTEm.00TViHhAbNqmj1azCbSPvLvWO9dBpTm',NULL,'2026-10-19 03:57:27');
 /*!40000 ALTER TABLE `anggota` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -101,7 +105,7 @@ CREATE TABLE `buku` (
   UNIQUE KEY `kode_buku` (`kode_buku`),
   KEY `kategori_id` (`kategori_id`),
   CONSTRAINT `buku_ibfk_1` FOREIGN KEY (`kategori_id`) REFERENCES `kategori` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -128,10 +132,11 @@ CREATE TABLE `buku_item` (
   `status` enum('tersedia','dipinjam','rusak','hilang') NOT NULL DEFAULT 'tersedia',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
+  UNIQUE KEY `kode_item` (`kode_item`),
   KEY `buku_id` (`buku_id`),
   KEY `idx_kode_item` (`kode_item`),
   CONSTRAINT `buku_item_ibfk_1` FOREIGN KEY (`buku_id`) REFERENCES `buku` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -140,7 +145,7 @@ CREATE TABLE `buku_item` (
 
 LOCK TABLES `buku_item` WRITE;
 /*!40000 ALTER TABLE `buku_item` DISABLE KEYS */;
-INSERT INTO `buku_item` VALUES (32,'562350038',13,'dipinjam','2026-09-10 07:40:18'),(33,'562350038',13,'tersedia','2026-09-10 07:40:18'),(34,'2022.04461.BOS',13,'tersedia','2026-09-10 07:40:19'),(35,'BK-13-004',13,'tersedia','2026-09-10 07:44:25'),(36,'562350038',13,'tersedia','2026-09-10 07:52:53'),(37,'9786020385938',13,'tersedia','2026-09-10 07:53:34'),(41,'BK-14-001',14,'tersedia','2026-09-21 01:54:32'),(42,'BK-14-002',14,'tersedia','2026-09-21 01:55:15'),(43,'BK-14-003',14,'tersedia','2026-09-21 02:18:25'),(44,'BK-14-004',14,'tersedia','2026-09-21 02:18:36'),(45,'BK-14-005',14,'tersedia','2026-09-21 02:18:47'),(46,'BK-14-006',14,'tersedia','2026-10-08 04:18:42'),(47,'BK-14-007',14,'tersedia','2026-10-08 04:18:42'),(48,'BK-14-008',14,'tersedia','2026-10-08 04:18:42'),(49,'BK-14-009',14,'tersedia','2026-10-08 04:18:42'),(50,'BK-14-010',14,'tersedia','2026-10-08 04:18:42'),(51,'BK-15-001',15,'tersedia','2026-10-08 04:31:22'),(52,'BK-15-002',15,'tersedia','2026-10-08 04:31:22'),(53,'BK-15-003',15,'tersedia','2026-10-08 04:31:22'),(54,'BK-15-004',15,'tersedia','2026-10-08 04:31:22'),(55,'BK-15-005',15,'tersedia','2026-10-08 04:31:22'),(56,'BK-15-006',15,'tersedia','2026-10-08 04:31:22'),(57,'BK-15-007',15,'tersedia','2026-10-08 04:31:22'),(58,'BK-15-008',15,'tersedia','2026-10-08 04:31:22'),(59,'BK-15-009',15,'tersedia','2026-10-08 04:31:22'),(60,'BK-15-010',15,'tersedia','2026-10-08 04:31:22'),(61,'BK-16-001',16,'tersedia','2026-10-08 04:33:05'),(62,'BK-17-001',17,'tersedia','2026-10-08 04:37:31');
+INSERT INTO `buku_item` VALUES (32,'562350038',13,'tersedia','2026-09-10 07:40:18'),(33,'BK-13-002',13,'tersedia','2026-09-10 07:40:18'),(34,'2022.04461.BOS',13,'tersedia','2026-09-10 07:40:19'),(35,'BK-13-004',13,'tersedia','2026-09-10 07:44:25'),(36,'BK-13-005',13,'tersedia','2026-09-10 07:52:53'),(37,'9786020385938',13,'tersedia','2026-09-10 07:53:34'),(41,'BK-14-001',14,'tersedia','2026-09-21 01:54:32'),(42,'BK-14-002',14,'tersedia','2026-09-21 01:55:15'),(43,'BK-14-003',14,'tersedia','2026-09-21 02:18:25'),(44,'BK-14-004',14,'tersedia','2026-09-21 02:18:36'),(45,'BK-14-005',14,'tersedia','2026-09-21 02:18:47'),(46,'BK-14-006',14,'tersedia','2026-10-08 04:18:42'),(47,'BK-14-007',14,'tersedia','2026-10-08 04:18:42'),(48,'BK-14-008',14,'tersedia','2026-10-08 04:18:42'),(49,'BK-14-009',14,'tersedia','2026-10-08 04:18:42'),(50,'BK-14-010',14,'tersedia','2026-10-08 04:18:42'),(51,'BK-15-001',15,'tersedia','2026-10-08 04:31:22'),(52,'BK-15-002',15,'tersedia','2026-10-08 04:31:22'),(53,'BK-15-003',15,'tersedia','2026-10-08 04:31:22'),(54,'BK-15-004',15,'tersedia','2026-10-08 04:31:22'),(55,'BK-15-005',15,'tersedia','2026-10-08 04:31:22'),(56,'BK-15-006',15,'tersedia','2026-10-08 04:31:22'),(57,'BK-15-007',15,'tersedia','2026-10-08 04:31:22'),(58,'BK-15-008',15,'tersedia','2026-10-08 04:31:22'),(59,'BK-15-009',15,'tersedia','2026-10-08 04:31:22'),(60,'BK-15-010',15,'tersedia','2026-10-08 04:31:22'),(61,'BK-16-001',16,'tersedia','2026-10-08 04:33:05'),(62,'BK-17-001',17,'tersedia','2026-10-08 04:37:31');
 /*!40000 ALTER TABLE `buku_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -189,7 +194,7 @@ CREATE TABLE `log_aktivitas` (
   KEY `idx_log_role` (`role`),
   KEY `idx_log_modul` (`modul`),
   KEY `idx_log_created` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -198,7 +203,7 @@ CREATE TABLE `log_aktivitas` (
 
 LOCK TABLES `log_aktivitas` WRITE;
 /*!40000 ALTER TABLE `log_aktivitas` DISABLE KEYS */;
-INSERT INTO `log_aktivitas` VALUES (1,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-12 00:49:54'),(2,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-12 08:46:04'),(3,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-15 04:56:09'),(4,'admin',1,'Administrator Perpustakaan','Logout','Autentikasi','Admin keluar (logout) dari sistem.','::1','2026-11-15 05:28:44'),(5,'siswa',21,'Muhammad Farid Malik','Login','Autentikasi','Siswa Muhammad Farid Malik (NIS: 2425123) login ke sistem.','::1','2026-11-15 05:28:54'),(6,'siswa',21,'Muhammad Farid Malik','Logout','Autentikasi','Siswa keluar (logout) dari sistem.','::1','2026-11-15 05:38:31'),(7,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-15 05:38:38'),(8,'admin',1,'Administrator Perpustakaan','update_profil','profil','Administrator memperbarui data profil','::1','2026-11-15 05:38:58'),(9,'admin',1,'Administrator Perpustakaan','update_profil','profil','Administrator memperbarui data profil','::1','2026-11-15 07:38:20'),(10,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-16 04:01:52'),(11,'admin',1,'Administrator Perpustakaan','update_pengaturan','pengaturan','Memperbarui pengaturan: App \'Pinjam.In\', Sekolah \'SMKN 1 Panyingkiran\', kuota 3 buku, durasi 7 hari, denda Rp 1.000/hari.','::1','2026-11-16 04:02:13'),(12,'admin',1,'Administrator Perpustakaan','update_pengaturan','pengaturan','Memperbarui pengaturan: App \'Pinjam.In\', Sekolah \'SMKN 1 Panyingkiran\', kuota 3 buku, durasi 7 hari, denda Rp 1.000/hari.','::1','2026-11-16 04:02:23'),(13,'admin',1,'Administrator Perpustakaan','update_pengaturan','pengaturan','Memperbarui pengaturan: App \'Pinjam.In\', Sekolah \'SMKN 1 Panyingkiran\', kuota 3 buku, durasi 7 hari, denda Rp 1.000/hari.','::1','2026-11-16 04:02:30'),(14,'admin',1,'Administrator Perpustakaan','Logout','Autentikasi','Admin keluar (logout) dari sistem.','::1','2026-11-16 04:02:41'),(15,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-16 06:35:14'),(16,'sistem',NULL,'admin','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'admin\'.','::1','2026-11-16 07:19:55'),(17,'sistem',NULL,'admin','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'admin\'.','::1','2026-11-16 07:20:28'),(18,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-16 07:20:37'),(19,'sistem',NULL,'admin','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'admin\'.','::1','2026-11-16 10:04:03'),(20,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-16 10:04:10'),(21,'admin',1,'Administrator Perpustakaan','Logout','Autentikasi','Admin keluar (logout) dari sistem.','::1','2026-11-16 10:05:25');
+INSERT INTO `log_aktivitas` VALUES (1,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-12 00:49:54'),(2,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-12 08:46:04'),(3,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-15 04:56:09'),(4,'admin',1,'Administrator Perpustakaan','Logout','Autentikasi','Admin keluar (logout) dari sistem.','::1','2026-11-15 05:28:44'),(5,'siswa',21,'Muhammad Farid Malik','Login','Autentikasi','Siswa Muhammad Farid Malik (NIS: 2425123) login ke sistem.','::1','2026-11-15 05:28:54'),(6,'siswa',21,'Muhammad Farid Malik','Logout','Autentikasi','Siswa keluar (logout) dari sistem.','::1','2026-11-15 05:38:31'),(7,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-15 05:38:38'),(8,'admin',1,'Administrator Perpustakaan','update_profil','profil','Administrator memperbarui data profil','::1','2026-11-15 05:38:58'),(9,'admin',1,'Administrator Perpustakaan','update_profil','profil','Administrator memperbarui data profil','::1','2026-11-15 07:38:20'),(10,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-16 04:01:52'),(11,'admin',1,'Administrator Perpustakaan','update_pengaturan','pengaturan','Memperbarui pengaturan: App \'Pinjam.In\', Sekolah \'SMKN 1 Panyingkiran\', kuota 3 buku, durasi 7 hari, denda Rp 1.000/hari.','::1','2026-11-16 04:02:13'),(12,'admin',1,'Administrator Perpustakaan','update_pengaturan','pengaturan','Memperbarui pengaturan: App \'Pinjam.In\', Sekolah \'SMKN 1 Panyingkiran\', kuota 3 buku, durasi 7 hari, denda Rp 1.000/hari.','::1','2026-11-16 04:02:23'),(13,'admin',1,'Administrator Perpustakaan','update_pengaturan','pengaturan','Memperbarui pengaturan: App \'Pinjam.In\', Sekolah \'SMKN 1 Panyingkiran\', kuota 3 buku, durasi 7 hari, denda Rp 1.000/hari.','::1','2026-11-16 04:02:30'),(14,'admin',1,'Administrator Perpustakaan','Logout','Autentikasi','Admin keluar (logout) dari sistem.','::1','2026-11-16 04:02:41'),(15,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-16 06:35:14'),(16,'sistem',NULL,'admin','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'admin\'.','::1','2026-11-16 07:19:55'),(17,'sistem',NULL,'admin','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'admin\'.','::1','2026-11-16 07:20:28'),(18,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-16 07:20:37'),(19,'sistem',NULL,'admin','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'admin\'.','::1','2026-11-16 10:04:03'),(20,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-16 10:04:10'),(21,'admin',1,'Administrator Perpustakaan','Logout','Autentikasi','Admin keluar (logout) dari sistem.','::1','2026-11-16 10:05:25'),(22,'sistem',NULL,'wrong','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'wrong\'.','127.0.0.1','2026-11-16 10:29:28'),(23,'admin',1,'Admin','update_pengaturan','pengaturan','Memperbarui pengaturan: App \'Pinjam.In\', Sekolah \'SMKN 1 Panyingkiran\', kuota 3 buku, durasi 7 hari, denda Rp 1.000/hari.','127.0.0.1','2026-11-16 10:29:28'),(24,'sistem',NULL,'wrong','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'wrong\'.','127.0.0.1','2026-11-16 10:34:57'),(25,'admin',1,'Admin','update_pengaturan','pengaturan','Memperbarui pengaturan: App \'Pinjam.In\', Sekolah \'SMKN 1 Panyingkiran\', kuota 3 buku, durasi 7 hari, denda Rp 1.000/hari.','127.0.0.1','2026-11-16 10:34:58'),(26,'sistem',NULL,'wrong','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'wrong\'.','127.0.0.1','2026-11-16 10:42:03'),(27,'admin',1,'Admin','update_pengaturan','pengaturan','Memperbarui pengaturan: App \'Pinjam.In\', Sekolah \'SMKN 1 Panyingkiran\', kuota 3 buku, durasi 7 hari, denda Rp 1.000/hari.','127.0.0.1','2026-11-16 10:42:04'),(28,'sistem',NULL,'admin','Login Gagal','Autentikasi','Percobaan login gagal menggunakan username \'admin\'.','::1','2026-11-17 09:27:03'),(29,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-17 09:27:44'),(30,'admin',1,'Administrator Perpustakaan','Login','Autentikasi','Admin Administrator Perpustakaan (@admin) login ke sistem.','::1','2026-11-17 09:28:20'),(31,'siswa',16,'BAGAS NATASAPUTRA','Login','Autentikasi','Siswa BAGAS NATASAPUTRA (NIS: 24250223) login ke sistem.','::1','2026-11-17 09:28:39');
 /*!40000 ALTER TABLE `log_aktivitas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -243,6 +248,7 @@ CREATE TABLE `transaksi` (
   `tgl_kembali_rencana` date NOT NULL,
   `tgl_kembali_aktual` date DEFAULT NULL,
   `denda` int(11) NOT NULL DEFAULT 0,
+  `status_denda` enum('lunas','belum_lunas') NOT NULL DEFAULT 'lunas',
   `status` enum('dipinjam','dikembalikan','terlambat') NOT NULL DEFAULT 'dipinjam',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
@@ -251,7 +257,7 @@ CREATE TABLE `transaksi` (
   KEY `buku_item_id` (`buku_item_id`),
   CONSTRAINT `transaksi_ibfk_1` FOREIGN KEY (`anggota_id`) REFERENCES `anggota` (`id`),
   CONSTRAINT `transaksi_ibfk_2` FOREIGN KEY (`buku_item_id`) REFERENCES `buku_item` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -260,7 +266,7 @@ CREATE TABLE `transaksi` (
 
 LOCK TABLES `transaksi` WRITE;
 /*!40000 ALTER TABLE `transaksi` DISABLE KEYS */;
-INSERT INTO `transaksi` VALUES (3,'TRX-20261109100433-21-154',21,62,'2026-11-09','2026-11-16','2026-11-09',0,'dikembalikan','2026-11-09 03:04:33');
+INSERT INTO `transaksi` VALUES (3,'TRX-20261109100433-21-154',21,62,'2026-11-09','2026-11-16','2026-11-09',0,'lunas','dikembalikan','2026-11-09 03:04:33');
 /*!40000 ALTER TABLE `transaksi` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -277,4 +283,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-16 17:25:06
+-- Dump completed on 2026-11-17 17:22:38

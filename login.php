@@ -276,6 +276,9 @@ form{margin-top:clamp(16px,2.8vh,28px)}
             <?php
               if ($_GET['error'] === 'invalid') echo 'Username atau password yang Anda masukkan salah.';
               elseif ($_GET['error'] === 'empty') echo 'Semua field wajib diisi lengkap.';
+              elseif ($_GET['error'] === 'google_batal') echo 'Proses login dengan Google dibatalkan.';
+              elseif ($_GET['error'] === 'google_token' || $_GET['error'] === 'google_profile') echo 'Gagal menghubungkan akun Google. Silakan coba lagi.';
+              elseif ($_GET['error'] === 'google_state') echo 'Sesi otentikasi Google kedaluwarsa. Silakan coba lagi.';
               else echo 'Terjadi kesalahan autentikasi.';
             ?>
           </div>
@@ -295,7 +298,10 @@ form{margin-top:clamp(16px,2.8vh,28px)}
           </div>
 
           <div class="field">
-            <label for="password">Password</label>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
+              <label for="password" style="margin-bottom:0;">Password</label>
+              <a href="lupa_password.php" style="font-size:13px; color:var(--g-text); font-weight:600; text-decoration:none;">Lupa Password?</a>
+            </div>
             <div class="input">
               <svg class="lead-ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h.5A2.5 2.5 0 0 1 20 12.5v6a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18.5v-6A2.5 2.5 0 0 1 6.5 10H7Zm2 0h6V7.5a3 3 0 0 0-6 0V10Z"/></svg>
               <input type="password" id="password" name="password" placeholder="Masukkan password..." required autocomplete="off">
@@ -309,6 +315,22 @@ form{margin-top:clamp(16px,2.8vh,28px)}
           <button type="submit" class="submit">Masuk
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
+
+          <div style="display:flex; align-items:center; margin:18px 0 14px; color:var(--muted); font-size:13px;">
+            <span style="flex:1; height:1px; background:var(--line);"></span>
+            <span style="padding:0 12px; font-weight:500;">atau masuk dengan</span>
+            <span style="flex:1; height:1px; background:var(--line);"></span>
+          </div>
+
+          <a href="config/google_login.php" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; height:48px; border:1.5px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); font-size:15px; font-weight:600; text-decoration:none; transition:background .15s, border-color .15s; box-shadow:0 1px 3px rgba(0,0,0,.04);">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.14z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27a7.2 7.2 0 0 1 0-4.54V6.58H1.25a11.98 11.98 0 0 0 0 10.84l4.03-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            <span>Akun Google</span>
+          </a>
         </form>
 
         <div class="divider"></div>
