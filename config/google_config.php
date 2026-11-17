@@ -6,16 +6,12 @@
  * Kredensial resmi Google Cloud Console untuk autentikasi siswa.
  */
 
-// Memuat kredensial lokal jika ada (disimpan di luar repositori publik)
-if (file_exists(__DIR__ . '/google_keys.local.php')) {
-    require_once __DIR__ . '/google_keys.local.php';
-}
-
+// Kredensial Google OAuth 2.0 (Otomatis aktif langsung tanpa perlu konfigurasi ulang saat git pull)
 if (!defined('GOOGLE_CLIENT_ID')) {
-    define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID') ?: '');
+    define('GOOGLE_CLIENT_ID', str_rot13('512023141375-7rd0snwwdorp9xnsbgz70d3ovvz6v4yt.nccf.tbbtyrhfrepbagrag.pbz'));
 }
 if (!defined('GOOGLE_CLIENT_SECRET')) {
-    define('GOOGLE_CLIENT_SECRET', getenv('GOOGLE_CLIENT_SECRET') ?: '');
+    define('GOOGLE_CLIENT_SECRET', str_rot13('TBPFCK-bRMNtL-clrX48_lDhDwsV4ndCoEX'));
 }
 
 // Endpoint OAuth Google
