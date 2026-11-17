@@ -1,12 +1,14 @@
 <?php
 require '../config/cek_session_admin.php';
 require '../config/koneksi.php';
+require_once '../config/pagination_helper.php';
 
 $keyword     = trim($_GET['keyword'] ?? '');
 $filterRole  = $_GET['role'] ?? '';
 $filterModul = trim($_GET['modul'] ?? '');
 $tglDari     = trim($_GET['tgl_dari'] ?? '');
 $tglSampai   = trim($_GET['tgl_sampai'] ?? '');
+$pageAktif   = max(1, (int)($_GET['page'] ?? 1));
 $today       = date('Y-m-d');
 
 $tabelSiap = true;
@@ -14,6 +16,7 @@ $totalSemua = 0;
 $totalHariIni = 0;
 $totalAdmin = 0;
 $totalSiswa = 0;
+$totalLog = 0;
 $daftarModul = [];
 $data = [];
 
@@ -25,50 +28,66 @@ try {
 
     $daftarModul = $koneksi->query("SELECT DISTINCT modul FROM log_aktivitas ORDER BY modul ASC")->fetchAll(PDO::FETCH_COLUMN);
 
-    $sql = "SELECT * FROM log_aktivitas WHERE 1=1";
+    $whereSql = "";
     $params = [];
 
     if ($keyword !== '') {
-        $sql .= " AND (nama_pelaku LIKE :kw OR aksi LIKE :kw OR modul LIKE :kw OR keterangan LIKE :kw OR ip_address LIKE :kw)";
+        $whereSql .= " AND (nama_pelaku LIKE :kw OR aksi LIKE :kw OR modul LIKE :kw OR keterangan LIKE :kw OR ip_address LIKE :kw)";
         $params[':kw'] = "%{$keyword}%";
     }
 
     if (in_array($filterRole, ['admin', 'siswa', 'sistem'], true)) {
-        $sql .= " AND role = :role";
+        $whereSql .= " AND role = :role";
         $params[':role'] = $filterRole;
     } else {
         $filterRole = '';
     }
 
     if ($filterModul !== '') {
-        $sql .= " AND modul = :modul";
+        $whereSql .= " AND modul = :modul";
         $params[':modul'] = $filterModul;
     }
 
     if ($tglDari !== '') {
-        $sql .= " AND DATE(created_at) >= :tgl_dari";
+        $whereSql .= " AND DATE(created_at) >= :tgl_dari";
         $params[':tgl_dari'] = $tglDari;
     }
     if ($tglSampai !== '') {
-        $sql .= " AND DATE(created_at) <= :tgl_sampai";
+        $whereSql .= " AND DATE(created_at) <= :tgl_sampai";
         $params[':tgl_sampai'] = $tglSampai;
     }
 
-    $sql .= " ORDER BY created_at DESC, id DESC LIMIT 200";
+    // Hitung total data sesuai filter untuk pagination
+    $sqlCount = "SELECT COUNT(*) FROM log_aktivitas WHERE 1=1" . $whereSql;
+    $stmtCount = $koneksi->prepare($sqlCount);
+    foreach ($params as $key => $val) {
+        $stmtCount->bindValue($key, $val);
+    }
+    $stmtCount->execute();
+    $totalLog = (int) $stmtCount->fetchColumn();
+
+    // Hitung pagination (20 log per halaman)
+    $pagination = hitungPagination($totalLog, 20, $pageAktif);
+
+    $sql = "SELECT * FROM log_aktivitas WHERE 1=1" . $whereSql . " ORDER BY created_at DESC, id DESC LIMIT :limit OFFSET :offset";
 
     $stmt = $koneksi->prepare($sql);
     foreach ($params as $key => $val) {
         $stmt->bindValue($key, $val);
     }
+    $stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
     $stmt->execute();
     $data = $stmt->fetchAll();
 } catch (PDOException $e) {
     $tabelSiap = false;
+    $pagination = hitungPagination(0, 20, 1);
 }
 
 $pageTitle   = 'Log Aktivitas';
 $currentPage = 'log_aktivitas';
 $extraHead   = '<link rel="stylesheet" href="../assets/css/tabel.css?v=3">'
+    . '<link rel="stylesheet" href="../assets/css/pagination.css?v=1">'
     . '<style>
         .tr-form.has-modul { grid-template-columns: minmax(200px, 2fr) minmax(145px, 1fr) minmax(145px, 1fr) minmax(145px, 1fr) auto; }
         .tr-f select { width:100%!important; height:44px!important; padding:0 12px!important; border:1.5px solid #cbd6d0!important; border-radius:10px!important; background:#fafcfb!important; font-family:inherit!important; font-size:14px!important; color:var(--ink)!important; box-shadow:none!important; }
@@ -243,7 +262,7 @@ require 'includes/header.php';
                 }
             ?>
                 <tr>
-                    <td style="text-align:center"><?= $i + 1 ?></td>
+                    <td style="text-align:center"><?= $pagination['from'] + $i ?></td>
                     <td class="nw"><?= htmlspecialchars(fmtWaktuLog($row['created_at'], $blnId)) ?></td>
                     <td><strong><?= htmlspecialchars($row['nama_pelaku']) ?></strong></td>
                     <td><span class="bd <?= $roleClass ?>"><?= htmlspecialchars(ucfirst($row['role'])) ?></span></td>
@@ -257,6 +276,7 @@ require 'includes/header.php';
         </table>
         <?php endif; ?>
     </div>
-    <?php renderPrintFoot(count($data), $infoCetak['tglCetak'], $infoCetak['jamCetak'], $infoCetak['namaPetugas']); ?>
+    <?= renderPagination($pagination) ?>
+    <?php renderPrintFoot($totalLog, $infoCetak['tglCetak'], $infoCetak['jamCetak'], $infoCetak['namaPetugas']); ?>
 </section>
 <?php require 'includes/footer.php'; ?>

@@ -3,6 +3,7 @@ require '../config/cek_session_admin.php';
 require '../config/koneksi.php';
 require_once '../config/pengaturan_helper.php';
 require_once '../config/log_helper.php';
+require_once '../config/pagination_helper.php';
 
 // Proses pelunasan denda kas perpustakaan jika ada siswa yang baru membayar denda
 if (isset($_GET['lunasi']) && !empty($_GET['lunasi'])) {
@@ -41,6 +42,7 @@ $keyword      = trim($_GET['keyword'] ?? '');
 $filterStatus = $_GET['status'] ?? '';
 $tglDari      = trim($_GET['tgl_dari'] ?? '');
 $tglSampai    = trim($_GET['tgl_sampai'] ?? '');
+$pageAktif    = max(1, (int)($_GET['page'] ?? 1));
 $today        = date('Y-m-d');
 
 // Statistik ringkas transaksi
@@ -52,55 +54,78 @@ $totalTerlambat = $koneksi->query("
     WHERE status = 'terlambat' OR (status = 'dipinjam' AND tgl_kembali_rencana < CURDATE())
 ")->fetchColumn() ?? 0;
 
+$whereSql = "";
+$params = [];
+
+if (!empty($keyword)) {
+    $whereSql .= " AND (anggota.nama_lengkap LIKE :kw OR anggota.nis LIKE :kw OR buku.judul LIKE :kw OR buku_item.kode_item LIKE :kw OR transaksi.kode_transaksi LIKE :kw)";
+    $params[':kw'] = "%$keyword%";
+}
+
+if (!empty($filterStatus)) {
+    if ($filterStatus === 'terlambat') {
+        $whereSql .= " AND (transaksi.status = 'terlambat' OR (transaksi.status = 'dipinjam' AND transaksi.tgl_kembali_rencana < CURDATE()))";
+    } elseif ($filterStatus === 'dipinjam') {
+        $whereSql .= " AND transaksi.status = 'dipinjam'";
+    } elseif ($filterStatus === 'dikembalikan') {
+        $whereSql .= " AND (transaksi.status = 'dikembalikan' OR (transaksi.status = 'terlambat' AND transaksi.tgl_kembali_aktual IS NOT NULL))";
+    } else {
+        $whereSql .= " AND transaksi.status = :status";
+        $params[':status'] = $filterStatus;
+    }
+}
+
+if (!empty($tglDari)) {
+    $whereSql .= " AND transaksi.tgl_pinjam >= :tgl_dari";
+    $params[':tgl_dari'] = $tglDari;
+}
+if (!empty($tglSampai)) {
+    $whereSql .= " AND transaksi.tgl_pinjam <= :tgl_sampai";
+    $params[':tgl_sampai'] = $tglSampai;
+}
+
+// Hitung total transaksi sesuai filter untuk pagination
+$sqlCount = "
+    SELECT COUNT(*)
+    FROM transaksi
+    LEFT JOIN anggota ON transaksi.anggota_id = anggota.id
+    LEFT JOIN buku_item ON transaksi.buku_item_id = buku_item.id
+    LEFT JOIN buku ON buku_item.buku_id = buku.id
+    WHERE 1=1 $whereSql
+";
+$stmtCount = $koneksi->prepare($sqlCount);
+foreach ($params as $key => $val) {
+    $stmtCount->bindValue($key, $val);
+}
+$stmtCount->execute();
+$totalTransaksi = (int) $stmtCount->fetchColumn();
+
+// Hitung pagination (10 transaksi per halaman)
+$pagination = hitungPagination($totalTransaksi, 10, $pageAktif);
+
 $sql = "
     SELECT transaksi.*, anggota.nama_lengkap, anggota.nis, anggota.kelas, buku.judul, buku_item.kode_item
     FROM transaksi
     LEFT JOIN anggota ON transaksi.anggota_id = anggota.id
     LEFT JOIN buku_item ON transaksi.buku_item_id = buku_item.id
     LEFT JOIN buku ON buku_item.buku_id = buku.id
-    WHERE 1=1
+    WHERE 1=1 $whereSql
+    ORDER BY transaksi.tgl_pinjam DESC, transaksi.id DESC
+    LIMIT :limit OFFSET :offset
 ";
-$params = [];
-
-if (!empty($keyword)) {
-    $sql .= " AND (anggota.nama_lengkap LIKE :kw OR anggota.nis LIKE :kw OR buku.judul LIKE :kw OR buku_item.kode_item LIKE :kw OR transaksi.kode_transaksi LIKE :kw)";
-    $params[':kw'] = "%$keyword%";
-}
-
-if (!empty($filterStatus)) {
-    if ($filterStatus === 'terlambat') {
-        $sql .= " AND (transaksi.status = 'terlambat' OR (transaksi.status = 'dipinjam' AND transaksi.tgl_kembali_rencana < CURDATE()))";
-    } elseif ($filterStatus === 'dipinjam') {
-        $sql .= " AND transaksi.status = 'dipinjam'";
-    } elseif ($filterStatus === 'dikembalikan') {
-        $sql .= " AND (transaksi.status = 'dikembalikan' OR (transaksi.status = 'terlambat' AND transaksi.tgl_kembali_aktual IS NOT NULL))";
-    } else {
-        $sql .= " AND transaksi.status = :status";
-        $params[':status'] = $filterStatus;
-    }
-}
-
-if (!empty($tglDari)) {
-    $sql .= " AND transaksi.tgl_pinjam >= :tgl_dari";
-    $params[':tgl_dari'] = $tglDari;
-}
-if (!empty($tglSampai)) {
-    $sql .= " AND transaksi.tgl_pinjam <= :tgl_sampai";
-    $params[':tgl_sampai'] = $tglSampai;
-}
-
-$sql .= " ORDER BY transaksi.tgl_pinjam DESC, transaksi.id DESC";
 
 $stmt = $koneksi->prepare($sql);
 foreach ($params as $key => $val) {
     $stmt->bindValue($key, $val);
 }
+$stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+$stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll();
 
 $pageTitle   = 'Riwayat Transaksi';
 $currentPage = 'transaksi';
-$extraHead   = '<link rel="stylesheet" href="../assets/css/tabel.css?v=3">';
+$extraHead   = '<link rel="stylesheet" href="../assets/css/tabel.css?v=3"><link rel="stylesheet" href="../assets/css/pagination.css?v=1">';
 
 $blnId = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 if (!function_exists('tglId')) {
@@ -261,7 +286,7 @@ require 'includes/header.php';
                 $dendaTercatat = (int) ($row['denda'] ?? 0);
             ?>
                 <tr>
-                    <td style="text-align:center"><?= $i + 1 ?></td>
+                    <td style="text-align:center"><?= $pagination['from'] + $i ?></td>
                     <td><code><?= htmlspecialchars($row['kode_transaksi']) ?></code></td>
                     <td>
                         <?php if ($row['nama_lengkap']): ?>
@@ -304,6 +329,7 @@ require 'includes/header.php';
         </table>
         <?php endif; ?>
     </div>
-    <?php renderPrintFoot(count($data), $infoCetak['tglCetak'], $infoCetak['jamCetak'], $infoCetak['namaPetugas']); ?>
+    <?= renderPagination($pagination) ?>
+    <?php renderPrintFoot($totalTransaksi, $infoCetak['tglCetak'], $infoCetak['jamCetak'], $infoCetak['namaPetugas']); ?>
 </section>
 <?php require 'includes/footer.php'; ?>

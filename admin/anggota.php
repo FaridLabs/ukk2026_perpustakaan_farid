@@ -2,47 +2,72 @@
 require '../config/cek_session_admin.php';
 require '../config/koneksi.php';
 require_once '../config/upload_foto.php';
+require_once '../config/pagination_helper.php';
 
-$keyword = trim($_GET['keyword'] ?? '');
+$keyword   = trim($_GET['keyword'] ?? '');
+$filter    = $_GET['filter'] ?? 'all';
+$pageAktif = max(1, (int)($_GET['page'] ?? 1));
+
+// Statistik ringkas seluruh anggota
+$statTotal = (int) ($koneksi->query("SELECT COUNT(*) FROM anggota")->fetchColumn() ?: 0);
+$statMeminjam = (int) ($koneksi->query("
+    SELECT COUNT(DISTINCT a.id) 
+    FROM anggota a 
+    JOIN transaksi t ON t.anggota_id = a.id AND t.status = 'dipinjam'
+")->fetchColumn() ?: 0);
+$statBebas = max(0, $statTotal - $statMeminjam);
+$statRfid = (int) ($koneksi->query("SELECT COUNT(*) FROM anggota WHERE kode_rfid IS NOT NULL AND kode_rfid != ''")->fetchColumn() ?: 0);
+
+// Susun filter query
+$where  = [];
+$params = [];
+
+if (!empty($keyword)) {
+    $where[] = "(nama_lengkap LIKE :kw OR nis LIKE :kw OR kelas LIKE :kw OR alamat LIKE :kw OR username LIKE :kw OR kode_rfid LIKE :kw)";
+    $params[':kw'] = "%$keyword%";
+}
+
+if ($filter === 'bebas') {
+    $where[] = "(SELECT COUNT(*) FROM transaksi WHERE transaksi.anggota_id = anggota.id AND transaksi.status = 'dipinjam') = 0";
+} elseif ($filter === 'meminjam') {
+    $where[] = "(SELECT COUNT(*) FROM transaksi WHERE transaksi.anggota_id = anggota.id AND transaksi.status = 'dipinjam') > 0";
+} elseif ($filter === 'rfid') {
+    $where[] = "(kode_rfid IS NOT NULL AND kode_rfid != '')";
+} else {
+    $filter = 'all';
+}
+
+$whereSql = !empty($where) ? " WHERE " . implode(" AND ", $where) : "";
+
+// Hitung total data sesuai filter
+$sqlCount = "SELECT COUNT(*) FROM anggota $whereSql";
+$stmtCount = $koneksi->prepare($sqlCount);
+foreach ($params as $k => $v) {
+    $stmtCount->bindValue($k, $v);
+}
+$stmtCount->execute();
+$totalAnggota = (int) $stmtCount->fetchColumn();
+
+// Hitung pagination (10 anggota per halaman)
+$pagination = hitungPagination($totalAnggota, 10, $pageAktif);
 
 $sql = "
     SELECT anggota.*,
            (SELECT COUNT(*) FROM transaksi WHERE transaksi.anggota_id = anggota.id AND transaksi.status = 'dipinjam') AS pinjaman_aktif
     FROM anggota 
-    WHERE 1=1
+    $whereSql
+    ORDER BY nama_lengkap ASC
+    LIMIT :limit OFFSET :offset
 ";
-$params = [];
-
-if (!empty($keyword)) {
-    $sql .= " AND (nama_lengkap LIKE :kw OR nis LIKE :kw OR kelas LIKE :kw OR alamat LIKE :kw OR username LIKE :kw OR kode_rfid LIKE :kw)";
-    $params[':kw'] = "%$keyword%";
-}
-
-$sql .= " ORDER BY nama_lengkap ASC";
 
 $stmt = $koneksi->prepare($sql);
 foreach ($params as $k => $v) {
     $stmt->bindValue($k, $v);
 }
+$stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+$stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
 $stmt->execute();
 $data = $stmt->fetchAll();
-
-// Hitung metrik anggota untuk filter chip dan ringkasan
-$totalSiswa    = count($data);
-$totalBebas    = 0;
-$totalMeminjam = 0;
-$totalRfid     = 0;
-
-foreach ($data as $r) {
-    if ((int) $r['pinjaman_aktif'] > 0) {
-        $totalMeminjam++;
-    } else {
-        $totalBebas++;
-    }
-    if (!empty($r['kode_rfid'])) {
-        $totalRfid++;
-    }
-}
 
 // Data edit jika dibuka langsung via ?edit=ID
 $editData = null;
@@ -137,7 +162,7 @@ if (!function_exists('avatarInisial')) {
 
 $pageTitle   = 'Kelola Anggota Perpustakaan';
 $currentPage = 'anggota';
-$extraHead   = '<link rel="stylesheet" href="../assets/css/kelola.css?v=4">';
+$extraHead   = '<link rel="stylesheet" href="../assets/css/kelola.css?v=4"><link rel="stylesheet" href="../assets/css/pagination.css?v=1">';
 
 require 'includes/header.php';
 ?>
@@ -175,19 +200,30 @@ require 'includes/header.php';
 <!-- CARI + FILTER STATUS ANGGOTA -->
 <div class="kc-bar">
     <form action="anggota.php" method="GET" class="kc-search" autocomplete="off">
+        <?php if ($filter !== 'all'): ?>
+            <input type="hidden" name="filter" value="<?= htmlspecialchars($filter, ENT_QUOTES, 'UTF-8') ?>">
+        <?php endif; ?>
         <div class="ic">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/></svg>
             <input type="text" name="keyword" placeholder="Cari nama siswa, NIS, kelas, atau alamat..." value="<?= htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') ?>" aria-label="Cari anggota" autocomplete="off">
         </div>
         <button type="submit">Cari</button>
-        <?php if (!empty($keyword)): ?><a href="anggota.php" class="kc-reset">Reset</a><?php endif; ?>
+        <?php if (!empty($keyword) || $filter !== 'all'): ?><a href="anggota.php" class="kc-reset">Reset</a><?php endif; ?>
     </form>
 
+    <?php
+    $buildChipUrl = function(string $f) use ($keyword): string {
+        $p = [];
+        if ($f !== 'all') $p['filter'] = $f;
+        if (!empty($keyword)) $p['keyword'] = $keyword;
+        return 'anggota.php' . ($p ? '?' . http_build_query($p) : '');
+    };
+    ?>
     <div class="kc-chips" id="chips" role="group" aria-label="Filter status anggota">
-        <button type="button" data-filter="all" aria-pressed="true">Semua (<?= $totalSiswa ?>)</button>
-        <button type="button" data-filter="bebas" aria-pressed="false">Bebas Pinjaman (<?= $totalBebas ?>)</button>
-        <button type="button" data-filter="meminjam" aria-pressed="false">Sedang Meminjam (<?= $totalMeminjam ?>)</button>
-        <button type="button" data-filter="rfid" aria-pressed="false">RFID Aktif (<?= $totalRfid ?>)</button>
+        <button type="button" data-filter="all" aria-pressed="<?= $filter === 'all' ? 'true' : 'false' ?>" onclick="window.location.href='<?= htmlspecialchars($buildChipUrl('all'), ENT_QUOTES, 'UTF-8') ?>'">Semua (<?= $statTotal ?>)</button>
+        <button type="button" data-filter="bebas" aria-pressed="<?= $filter === 'bebas' ? 'true' : 'false' ?>" onclick="window.location.href='<?= htmlspecialchars($buildChipUrl('bebas'), ENT_QUOTES, 'UTF-8') ?>'">Bebas Pinjaman (<?= $statBebas ?>)</button>
+        <button type="button" data-filter="meminjam" aria-pressed="<?= $filter === 'meminjam' ? 'true' : 'false' ?>" onclick="window.location.href='<?= htmlspecialchars($buildChipUrl('meminjam'), ENT_QUOTES, 'UTF-8') ?>'">Sedang Meminjam (<?= $statMeminjam ?>)</button>
+        <button type="button" data-filter="rfid" aria-pressed="<?= $filter === 'rfid' ? 'true' : 'false' ?>" onclick="window.location.href='<?= htmlspecialchars($buildChipUrl('rfid'), ENT_QUOTES, 'UTF-8') ?>'">RFID Aktif (<?= $statRfid ?>)</button>
     </div>
 </div>
 
@@ -200,7 +236,7 @@ require 'includes/header.php';
             <p><?= $keyword !== '' ? 'Hasil pencarian "' . htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') . '".' : 'Siswa dapat meminjam buku menggunakan NIS atau kartu RFID fisik.' ?></p>
         </div>
         <div class="kc-meta" id="meta">
-            <b><?= $totalSiswa ?></b> siswa &middot; <b><?= $totalMeminjam ?></b> meminjam &middot; <b><?= $totalRfid ?></b> RFID aktif
+            <b><?= $statTotal ?></b> siswa &middot; <b><?= $statMeminjam ?></b> meminjam &middot; <b><?= $statRfid ?></b> RFID aktif
         </div>
     </div>
 
@@ -364,6 +400,7 @@ require 'includes/header.php';
         </div>
         <?php endif; ?>
     </div>
+    <?= renderPagination($pagination) ?>
 </section>
 
 <!-- MODAL TAMBAH & EDIT ANGGOTA -->
@@ -783,41 +820,6 @@ $extraScripts = <<<HTML
             }
         });
     }
-
-    // Filter Chips interaktif
-    const chips = document.querySelectorAll('#chips button');
-    const rows  = document.querySelectorAll('#tabelAnggota tbody tr');
-    const meta  = document.getElementById('meta');
-    const empty = document.getElementById('filterEmptyMsg');
-    const awalMeta = meta ? meta.innerHTML : '';
-
-    chips.forEach(c => {
-        c.addEventListener('click', () => {
-            const filter = c.dataset.filter || 'all';
-            chips.forEach(x => x.setAttribute('aria-pressed', x === c ? 'true' : 'false'));
-
-            let count = 0;
-            rows.forEach(r => {
-                const st = r.dataset.status;
-                const rf = r.dataset.rfid;
-                let cocok = false;
-                if (filter === 'all') cocok = true;
-                else if (filter === 'bebas') cocok = (st === 'bebas');
-                else if (filter === 'meminjam') cocok = (st === 'meminjam');
-                else if (filter === 'rfid') cocok = (rf === 'ada');
-
-                r.hidden = !cocok;
-                if (cocok) count++;
-            });
-
-            if (empty) empty.hidden = (count > 0);
-            if (meta) {
-                meta.innerHTML = filter === 'all'
-                    ? awalMeta
-                    : 'Menampilkan <b>' + count + '</b> anggota sesuai filter';
-            }
-        });
-    });
 
     // Buka modal secara otomatis jika ada parameter query
     if (INITIAL_MEMBER) {

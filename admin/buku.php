@@ -2,10 +2,43 @@
 require '../config/cek_session_admin.php';
 require '../config/koneksi.php';
 require_once '../config/upload_cover.php';
+require_once '../config/pagination_helper.php';
 
 $kategoriList = $koneksi->query("SELECT * FROM kategori ORDER BY nama_kategori ASC")->fetchAll();
 
-$keyword = trim($_GET['keyword'] ?? '');
+$keyword        = trim($_GET['keyword'] ?? '');
+$kategoriFilter = trim($_GET['kategori'] ?? '');
+$pageAktif      = max(1, (int)($_GET['page'] ?? 1));
+
+// Susun filter query
+$where  = [];
+$params = [];
+
+if (!empty($keyword)) {
+    $where[] = "(buku.judul LIKE :kw OR buku.pengarang LIKE :kw OR buku.penerbit LIKE :kw OR buku.kode_buku LIKE :kw)";
+    $params[':kw'] = "%$keyword%";
+}
+
+if (!empty($kategoriFilter)) {
+    $where[] = "kategori.nama_kategori = :kategori";
+    $params[':kategori'] = $kategoriFilter;
+}
+
+$whereSql = !empty($where) ? " WHERE " . implode(" AND ", $where) : "";
+
+// Hitung total data untuk pagination
+$sqlCount = "
+    SELECT COUNT(*) 
+    FROM buku
+    LEFT JOIN kategori ON buku.kategori_id = kategori.id
+    $whereSql
+";
+$stmtCount = $koneksi->prepare($sqlCount);
+$stmtCount->execute($params);
+$totalBuku = (int) $stmtCount->fetchColumn();
+
+// Kalkulasi pagination (10 buku per halaman)
+$pagination = hitungPagination($totalBuku, 10, $pageAktif);
 
 $sql = "
     SELECT buku.*, kategori.nama_kategori,
@@ -13,16 +46,18 @@ $sql = "
         (SELECT COUNT(*) FROM buku_item WHERE buku_item.buku_id = buku.id AND status = 'tersedia') AS total_tersedia
     FROM buku
     LEFT JOIN kategori ON buku.kategori_id = kategori.id
+    $whereSql
+    ORDER BY buku.id DESC
+    LIMIT :limit OFFSET :offset
 ";
 
-if (!empty($keyword)) {
-    $sql .= " WHERE judul LIKE :keyword OR pengarang LIKE :keyword";
-    $stmt = $koneksi->prepare($sql . " ORDER BY buku.id DESC");
-    $stmt->bindValue(':keyword', "%$keyword%");
-    $stmt->execute();
-} else {
-    $stmt = $koneksi->query($sql . " ORDER BY buku.id DESC");
+$stmt = $koneksi->prepare($sql);
+foreach ($params as $k => $v) {
+    $stmt->bindValue($k, $v);
 }
+$stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+$stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+$stmt->execute();
 $data = $stmt->fetchAll();
 
 // Jika dibuka via ?edit=ID (mis. dari buku_item.php atau redirect validasi cover)
@@ -63,19 +98,23 @@ $coverCss = <<<'CSS'
 .bk-info{min-width:0}
 </style>
 CSS;
-$extraHead = '<link rel="stylesheet" href="../assets/css/kelola.css?v=3">' . $coverCss;
+$extraHead = '<link rel="stylesheet" href="../assets/css/kelola.css?v=3">'
+           . '<link rel="stylesheet" href="../assets/css/pagination.css?v=1">'
+           . $coverCss;
 
-// Ringkasan hasil yang sedang tampil
-$sumJudul = count($data);
-$sumFisik = array_sum(array_map(fn($r) => (int) $r['total_eksemplar'], $data));
-$sumAda   = array_sum(array_map(fn($r) => (int) $r['total_tersedia'], $data));
+// Ringkasan seluruh koleksi buku
+$statBuku = $koneksi->query("
+    SELECT 
+        (SELECT COUNT(*) FROM buku) AS total_judul,
+        (SELECT COUNT(*) FROM buku_item) AS total_eksemplar,
+        (SELECT COUNT(*) FROM buku_item WHERE status = 'tersedia') AS total_tersedia
+")->fetch();
+$sumJudul = (int) ($statBuku['total_judul'] ?? 0);
+$sumFisik = (int) ($statBuku['total_eksemplar'] ?? 0);
+$sumAda   = (int) ($statBuku['total_tersedia'] ?? 0);
 
-// Kategori yang muncul di hasil (untuk chip filter) + warna konsisten per kategori
-$katTampil = [];
-foreach ($data as $r) {
-    $katTampil[$r['nama_kategori'] ?? 'Umum'] = true;
-}
-$katTampil = array_keys($katTampil);
+// Kategori untuk chip filter + warna konsisten
+$katTampil = array_column($kategoriList, 'nama_kategori');
 $warnaKat  = [['#DDF3E8', '#1B7A55'], ['#E3ECFD', '#2F63D8'], ['#FDEBD3', '#B4600A'], ['#ECE5FB', '#7140D0'], ['#FBE1E1', '#C23B3B'], ['#E1F1F4', '#17717F']];
 $warnaDari = fn(string $n) => $warnaKat[crc32($n) % count($warnaKat)];
 
@@ -165,17 +204,25 @@ require 'includes/header.php';
 <!-- CARI + FILTER KATEGORI -->
 <div class="kc-bar">
     <form action="buku.php" method="GET" class="kc-search" autocomplete="off">
+        <?php if (!empty($kategoriFilter)): ?>
+            <input type="hidden" name="kategori" value="<?= htmlspecialchars($kategoriFilter, ENT_QUOTES, 'UTF-8') ?>">
+        <?php endif; ?>
         <div class="ic">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" name="keyword" placeholder="Cari judul atau pengarang buku..." value="<?= htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') ?>" aria-label="Cari buku" autocomplete="off">
+            <input type="text" name="keyword" placeholder="Cari judul, pengarang, penerbit, kode..." value="<?= htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') ?>" aria-label="Cari buku" autocomplete="off">
         </div>
         <button type="submit">Cari</button>
-        <?php if (!empty($keyword)): ?><a href="buku.php" class="kc-reset">Reset</a><?php endif; ?>
+        <?php if (!empty($keyword) || !empty($kategoriFilter)): ?><a href="buku.php" class="kc-reset">Reset</a><?php endif; ?>
     </form>
-    <?php if (count($katTampil) > 1): ?>
+    <?php if (count($katTampil) > 0): ?>
     <div class="kc-chips" id="chips" role="group" aria-label="Filter kategori">
-        <button type="button" data-kat="" aria-pressed="true">Semua</button>
-        <?php foreach ($katTampil as $kn): ?><button type="button" data-kat="<?= htmlspecialchars($kn, ENT_QUOTES, 'UTF-8') ?>" aria-pressed="false"><?= htmlspecialchars($kn, ENT_QUOTES, 'UTF-8') ?></button><?php endforeach; ?>
+        <button type="button" data-kat="" aria-pressed="<?= empty($kategoriFilter) ? 'true' : 'false' ?>" onclick="window.location.href='buku.php<?= !empty($keyword) ? '?keyword=' . urlencode($keyword) : '' ?>'">Semua</button>
+        <?php foreach ($katTampil as $kn): 
+            $isPressed = ($kategoriFilter === $kn);
+            $urlKat = 'buku.php?' . http_build_query(array_filter(['kategori' => $kn, 'keyword' => $keyword]));
+        ?>
+            <button type="button" data-kat="<?= htmlspecialchars($kn, ENT_QUOTES, 'UTF-8') ?>" aria-pressed="<?= $isPressed ? 'true' : 'false' ?>" onclick="window.location.href='<?= htmlspecialchars($urlKat, ENT_QUOTES, 'UTF-8') ?>'"><?= htmlspecialchars($kn, ENT_QUOTES, 'UTF-8') ?></button>
+        <?php endforeach; ?>
     </div>
     <?php endif; ?>
 </div>
@@ -284,6 +331,7 @@ require 'includes/header.php';
         </table>
         <?php endif; ?>
     </div>
+    <?= renderPagination($pagination) ?>
 </section>
 
 <!-- MODAL TAMBAH & EDIT BUKU -->
@@ -861,25 +909,6 @@ $extraScripts = <<<HTML
         inpJml.addEventListener('input', () => syncCopiesUI(inpJml.value));
         inpJml.addEventListener('blur', () => syncCopiesUI(inpJml.value));
     }
-
-    // Filter kategori tabel
-    const chips = document.querySelectorAll('#chips button');
-    const rows  = document.querySelectorAll('#tabelBuku tbody tr');
-    const meta  = document.getElementById('meta');
-    const awal  = meta ? meta.innerHTML : '';
-    chips.forEach(c => {
-        c.addEventListener('click', () => {
-            const kat = c.dataset.kat;
-            let n = 0;
-            chips.forEach(x => x.setAttribute('aria-pressed', x === c ? 'true' : 'false'));
-            rows.forEach(r => {
-                const cocok = !kat || r.dataset.kat === kat;
-                r.hidden = !cocok;
-                if (cocok) n++;
-            });
-            if (meta) meta.innerHTML = kat ? '<b>' + n + '</b> judul dalam kategori ini' : awal;
-        });
-    });
 
     // Buka modal otomatis jika ada ?edit= atau validasi redirect ?error=
     if (INITIAL_MODAL) {

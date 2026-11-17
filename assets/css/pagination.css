@@ -1,0 +1,88 @@
+/* ==========================================================================
+   PAGINATION COMPONENT - PINJAM.IN
+   ========================================================================== */
+.pg-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--card, #fff);
+  border-top: 1px solid var(--line, #e2e8f0);
+  border-radius: 0 0 12px 12px;
+  flex-wrap: wrap;
+}
+.pg-wrap.pg-standalone {
+  border-radius: 12px;
+  border: 1px solid var(--line, #e2e8f0);
+}
+.pg-info {
+  font-size: 13.5px;
+  color: var(--muted, #64748b);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pg-info b {
+  color: var(--text, #1e293b);
+  font-weight: 600;
+}
+.pg-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line, #e2e8f0);
+  background: #fff;
+  color: var(--text, #1e293b);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all .15s ease;
+}
+.pg-btn:hover:not(.is-disabled):not(.is-active) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: var(--primary, #217350);
+}
+.pg-btn.is-active {
+  background: var(--primary, #217350);
+  border-color: var(--primary, #217350);
+  color: #fff;
+  cursor: default;
+}
+.pg-btn.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: #f8fafc;
+}
+.pg-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  color: var(--muted, #94a3b8);
+  font-weight: bold;
+}
+@media (max-width: 640px) {
+  .pg-wrap {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+  }
+}
+@media print {
+  .pg-wrap {
+    display: none !important;
+  }
+}

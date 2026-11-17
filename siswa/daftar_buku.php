@@ -12,41 +12,58 @@
 require '../config/cek_session_siswa.php';
 require '../config/koneksi.php';
 require_once '../config/upload_cover.php';
+require_once '../config/pagination_helper.php';
 
 // 2. Ambil parameter pencarian dan filter kategori dari URL (GET)
 $keyword    = trim($_GET['keyword'] ?? '');
 $kategoriId = trim($_GET['kategori'] ?? '');
+$pageAktif  = max(1, (int)($_GET['page'] ?? 1));
 
-// 3. Susun query SQL untuk mengambil data buku beserta kalkulasi stok fisik
-$sql = "
-    SELECT buku.*, 
-           kategori.nama_kategori,
-           COUNT(buku_item.id) AS total_eksemplar,
-           SUM(CASE WHEN buku_item.status = 'tersedia' THEN 1 ELSE 0 END) AS total_tersedia
-    FROM buku
-    LEFT JOIN kategori ON buku.kategori_id = kategori.id
-    LEFT JOIN buku_item ON buku_item.buku_id = buku.id
-    WHERE 1=1
-";
-
+// 3. Susun filter query
+$where  = [];
 $params = [];
 
-// Filter berdasarkan kata kunci judul, pengarang, atau penerbit
 if (!empty($keyword)) {
-    $sql .= " AND (buku.judul LIKE :kw OR buku.pengarang LIKE :kw OR buku.penerbit LIKE :kw OR buku.kode_buku LIKE :kw)";
+    $where[] = "(buku.judul LIKE :kw OR buku.pengarang LIKE :kw OR buku.penerbit LIKE :kw OR buku.kode_buku LIKE :kw)";
     $params[':kw'] = "%{$keyword}%";
 }
 
-// Filter berdasarkan kategori yang dipilih
 if (!empty($kategoriId)) {
-    $sql .= " AND buku.kategori_id = :kat";
+    $where[] = "buku.kategori_id = :kat";
     $params[':kat'] = $kategoriId;
 }
 
-$sql .= " GROUP BY buku.id ORDER BY buku.judul ASC";
+$whereSql = !empty($where) ? " WHERE " . implode(" AND ", $where) : "";
+
+// Hitung total buku sesuai filter untuk pagination
+$sqlCount = "SELECT COUNT(*) FROM buku $whereSql";
+$stmtCount = $koneksi->prepare($sqlCount);
+$stmtCount->execute($params);
+$totalHasil = (int) $stmtCount->fetchColumn();
+
+// Kalkulasi pagination (12 buku per halaman)
+$pagination = hitungPagination($totalHasil, 12, $pageAktif);
+
+// Ambil data buku dengan limit dan offset
+$sql = "
+    SELECT buku.*, 
+           kategori.nama_kategori,
+           (SELECT COUNT(*) FROM buku_item WHERE buku_item.buku_id = buku.id) AS total_eksemplar,
+           (SELECT COUNT(*) FROM buku_item WHERE buku_item.buku_id = buku.id AND status = 'tersedia') AS total_tersedia
+    FROM buku
+    LEFT JOIN kategori ON buku.kategori_id = kategori.id
+    $whereSql
+    ORDER BY buku.judul ASC
+    LIMIT :limit OFFSET :offset
+";
 
 $stmt = $koneksi->prepare($sql);
-$stmt->execute($params);
+foreach ($params as $k => $v) {
+    $stmt->bindValue($k, $v);
+}
+$stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+$stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+$stmt->execute();
 $dataBuku = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // 4. Ambil daftar seluruh kategori beserta jumlah bukunya untuk filter pill
@@ -58,11 +75,9 @@ $kategoriList = $koneksi->query("
     ORDER BY kategori.nama_kategori ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// Total seluruh judul yang sesuai filter
-$totalHasil = count($dataBuku);
-
 $pageTitle   = 'Katalog Koleksi Buku';
 $currentPage = 'daftar_buku';
+$extraHead   = '<link rel="stylesheet" href="../assets/css/pagination.css?v=1">';
 
 require 'includes/header.php';
 ?>
@@ -247,6 +262,9 @@ require 'includes/header.php';
                 </div>
             </div>
         <?php endforeach; ?>
+    </div>
+    <div style="margin-top: 24px;">
+        <?= renderPagination($pagination, 'pg-standalone') ?>
     </div>
 <?php endif; ?>
 
