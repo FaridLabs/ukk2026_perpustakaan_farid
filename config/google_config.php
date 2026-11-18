@@ -31,6 +31,10 @@ function getGoogleRedirectUri(): string
     return $protocol . $host . '/ukk2026_perpustakaan_farid/config/google_callback.php';
 }
 
+if (!defined('GOOGLE_REDIRECT_URI')) {
+    define('GOOGLE_REDIRECT_URI', getGoogleRedirectUri());
+}
+
 /**
  * Membuat tautan login Google dengan perlindungan token CSRF
  */
