@@ -421,7 +421,7 @@ h1,h2,h3,p,ul,dl,dd{margin:0}ul{padding:0;list-style:none}a{color:inherit}button
           <dl><dt>Penerbit</dt><dd id="pPub"></dd><dt>Tahun terbit</dt><dd id="pYear"></dd></dl>
           <div class="dots" id="pDots"></div>
           <div class="copies" id="pCopies"></div>
-          <button type="button" class="btn btn-line" style="margin-top:16px;width:100%;font-size:14px;" id="btnLihatDetailPanel">Buka Pop-up Detail Buku</button>
+          <!-- <button type="button" class="btn btn-line" style="margin-top:16px;width:100%;font-size:14px;" id="btnLihatDetailPanel">Buka Pop-up Detail Buku</button> -->
           <a href="login.php" class="btn btn-solid" style="margin-top:8px;">Masuk untuk meminjam</a>
           <p class="panel-hint">Belum punya akun? <a href="daftar.php">Daftar dulu</a></p>
         </aside>

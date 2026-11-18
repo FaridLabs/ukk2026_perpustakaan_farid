@@ -45,17 +45,34 @@ $totalHasil = (int) $stmtCount->fetchColumn();
 $pagination = hitungPagination($totalHasil, 12, $pageAktif);
 
 // Ambil data buku dengan limit dan offset
+
 $sql = "
-    SELECT buku.*, 
+    SELECT buku.*,
            kategori.nama_kategori,
-           (SELECT COUNT(*) FROM buku_item WHERE buku_item.buku_id = buku.id) AS total_eksemplar,
-           (SELECT COUNT(*) FROM buku_item WHERE buku_item.buku_id = buku.id AND status = 'tersedia') AS total_tersedia
+           (SELECT COUNT(*)
+            FROM buku_item
+            WHERE buku_item.buku_id = buku.id) AS total_eksemplar,
+
+           (SELECT COUNT(*)
+            FROM buku_item
+            WHERE buku_item.buku_id = buku.id
+            AND buku_item.status = 'tersedia') AS total_tersedia,
+
+           (SELECT MIN(transaksi.tgl_kembali_rencana)
+            FROM transaksi
+            INNER JOIN buku_item
+                ON transaksi.buku_item_id = buku_item.id
+            WHERE buku_item.buku_id = buku.id
+            AND transaksi.status IN ('dipinjam', 'terlambat')
+           ) AS tgl_dikembali_rencana
+
     FROM buku
     LEFT JOIN kategori ON buku.kategori_id = kategori.id
     $whereSql
     ORDER BY buku.judul ASC
     LIMIT :limit OFFSET :offset
 ";
+
 
 $stmt = $koneksi->prepare($sql);
 foreach ($params as $k => $v) {
@@ -203,6 +220,9 @@ require 'includes/header.php';
                 'nama_kategori' => (string) ($buku['nama_kategori'] ?? 'Umum'),
                 'cover_url'     => $cvUrl ?: '',
                 'stok_tersedia' => $stokTersedia,
+                'tgl_dikembalikan' => !empty($buku['tgl_dikembali_rencana'])
+                    ? date('d M Y', strtotime($buku['tgl_dikembali_rencana']))
+                    : '-',
                 'total_fisik'   => $totalFisik,
             ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
         ?>
@@ -308,6 +328,9 @@ require 'includes/header.php';
 
                         <div class="sw-detail-dt">Stok Fisik di Rak</div>
                         <div class="sw-detail-dd" id="mStokTxt">-</div>
+
+                        <div class="sw-detail-dt">Tanggal Kembali Rencana</div>
+                        <div class="sw-detail-dd" id="mRencanaKembaliTxt">-</div>
                     </div>
                 </div>
             </div>
@@ -321,7 +344,7 @@ require 'includes/header.php';
                 </svg>
                 <div>
                     <strong>Cara Meminjam Buku Ini:</strong><br>
-                    Kunjungi meja sirkulasi perpustakaan sekolah dengan membawa buku ini dan tap kartu RFID pelajarmu. Petugas akan memindai barcode buku dan batas pengembalian adalah <strong>7 hari</strong> ke depan.
+                    Kunjungi meja sirkulasi perpustakaan sekolah dengan membawa buku ini dan tap kartu RFID pelajarmu. Petugas akan memindai barcode buku dan batas pengembalian yang ditentukan. Pastikan untuk mengembalikan buku tepat waktu agar tidak terkena denda keterlambatan.
                 </div>
             </div>
         </div>
@@ -347,6 +370,8 @@ $extraScripts = <<<'HTML'
     const mPenerbitTxt = document.getElementById('mPenerbitTxt');
     const mTahunTxt = document.getElementById('mTahunTxt');
     const mStokTxt = document.getElementById('mStokTxt');
+    const mRencanaKembaliTxt = document.getElementById('mRencanaKembaliTxt');
+    
 
     function tampilkanDetailBuku(b) {
         if (!b) return;
@@ -363,6 +388,8 @@ $extraScripts = <<<'HTML'
         mStokTxt.innerHTML = ada > 0 
             ? `<span style="color:#1B7A55;"><strong>${ada} eksemplar tersedia</strong> (dari ${tot} buku fisik)</span>`
             : `<span style="color:#C23B3B;">Sedang dipinjam semua (0/${tot})</span>`;
+
+        mRencanaKembaliTxt.textContent = b.tgl_dikembalikan || '-';
 
         if (b.cover_url) {
             mCoverImg.src = b.cover_url;

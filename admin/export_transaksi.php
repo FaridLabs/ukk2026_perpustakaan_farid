@@ -193,7 +193,7 @@ function formatTglExcel(?string $t): string {
       <th style="width: 110px;">Batas Waktu</th>
       <th style="width: 110px;">Tanggal Kembali</th>
       <th style="width: 130px;">Keterangan Sirkulasi</th>
-      <th style="width: 120px;">Denda</th>
+      <th style="width: 120px;">Total Denda</th>
       <th style="width: 110px;">Status Denda</th>
       <th style="width: 125px;">Status Sirkulasi</th>
     </tr>
@@ -274,7 +274,7 @@ function formatTglExcel(?string $t): string {
         <td colspan="7" class="tl" style="padding: 10px 12px;">
           TOTAL KESELURUHAN: <b><?= count($data) ?> Transaksi</b>
         </td>
-        <td colspan="4" class="tr">TOTAL KAS DENDA:</td>
+        <td colspan="4" class="tr">TOTAL DENDA KESELURUHAN:</td>
         <td class="tr mso-curr" style="color: #C23B3B; font-size: 10.5pt;">
           Rp <?= number_format($totalDendaKumulatif, 0, ',', '.') ?>
         </td>
