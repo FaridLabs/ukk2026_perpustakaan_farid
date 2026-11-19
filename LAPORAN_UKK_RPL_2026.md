@@ -516,37 +516,44 @@ Berikut adalah dokumentasi antarmuka pada area publik dan portal siswa:
 ### 7.1 Halaman Beranda Publik (`index.php`)
 - **Fungsi**: Halaman awal yang menyambut pengunjung perpustakaan, menampilkan katalog unggulan, statistik koleksi, serta panduan singkat tata cara peminjaman buku sekolah.
 - **Elemen Penting**: Header interaktif, pencarian katalog instan, tombol pintas login portal siswa/admin, dan kartu koleksi buku populer.
-> *(Tempelkan Screenshot Tampilan `index.php` pada area ini saat menyusun dokumen di Microsoft Word)*
+![Gambar 7.1: Antarmuka Halaman Beranda Utama (index.php)](assets/screenshots/01_beranda_index.png)
+*Gambar 7.1: Antarmuka Halaman Beranda Utama (index.php)*
 
 ### 7.2 Halaman Autentikasi Pengguna (`login.php`)
 - **Fungsi**: Gerbang masuk tunggal untuk Administrator maupun Siswa dengan sistem auto-routing berdasarkan role.
 - **Elemen Penting**: Input username/NIS, input password, tombol "Masuk dengan Google" resmi, serta tautan ke halaman bantuan lupa password dan registrasi siswa mandiri.
-> *(Tempelkan Screenshot Tampilan `login.php` pada area ini)*
+![Gambar 7.2: Form Login Multi-Role & Tombol Masuk dengan Google (login.php)](assets/screenshots/02_login_form.png)
+*Gambar 7.2: Form Login Multi-Role & Tombol Masuk dengan Google (login.php)*
 
 ### 7.3 Halaman Pendaftaran Siswa Mandiri (`daftar.php`)
 - **Fungsi**: Form registrasi akun bagi siswa yang belum terdaftar di sistem perpustakaan.
 - **Elemen Penting**: Input NIS unik, nama lengkap, pilihan kelas (X, XI, XII RPL), nomor WhatsApp, username, dan konfirmasi password.
-> *(Tempelkan Screenshot Tampilan `daftar.php` pada area ini)*
+![Gambar 7.3: Formulir Registrasi Akun Siswa Mandiri (daftar.php)](assets/screenshots/03_daftar_siswa.png)
+*Gambar 7.3: Formulir Registrasi Akun Siswa Mandiri (daftar.php)*
 
 ### 7.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`)
 - **Fungsi**: Formulir verifikasi bagi siswa yang baru pertama kali login menggunakan akun Google. Nama dan surel diambil otomatis dari Google API, siswa cukup mengonfirmasi kesesuaian nama dan mengisi NIS sekolah.
 - **Elemen Penting**: Avatar foto Google terverifikasi, form NIS, pilihan kelas, dan tombol simpan profil anggota.
-> *(Tempelkan Screenshot Tampilan `lengkapi_profil_google.php` pada area ini)*
+![Gambar 7.4: Formulir Onboarding Verifikasi Profil Akun Google Siswa](assets/screenshots/04_google_onboarding.png)
+*Gambar 7.4: Formulir Onboarding Verifikasi Profil Akun Google Siswa*
 
 ### 7.5 Halaman Dashboard Siswa (`siswa/dashboard.php`)
 - **Fungsi**: Pusat kendali siswa yang merangkum kartu informasi anggota digital, buku yang sedang dipinjam beserta sisa hari jatuh tempo, total buku yang pernah dibaca, dan rekomendasi buku baru.
 - **Elemen Penting**: Kartu Pelajar Digital ber-QR Code, peringatan batas tanggal kembali, dan widget status sirkulasi pribadi.
-> *(Tempelkan Screenshot Tampilan `siswa/dashboard.php` pada area ini)*
+![Gambar 7.5: Dashboard Portal Mandiri Siswa (siswa/dashboard.php)](assets/screenshots/05_siswa_dashboard.png)
+*Gambar 7.5: Dashboard Portal Mandiri Siswa (siswa/dashboard.php)*
 
 ### 7.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`)
 - **Fungsi**: Antarmuka bagi siswa untuk menjelajahi seluruh koleksi buku sekolah secara mandiri.
 - **Elemen Penting**: Bilah pencarian kata kunci, pil filter kategori (Fiksi, Non-Fiksi, Pelajaran, Komik), kartu buku 3D dengan indikator ketersediaan stok fisik di rak (`X dari Y tersedia`), pagination server-side, serta modal popup rincian bibliografi buku.
-> *(Tempelkan Screenshot Tampilan `siswa/daftar_buku.php` pada area ini)*
+![Gambar 7.6: Katalog Koleksi Buku Siswa dengan Filter Kategori & Stok Rak](assets/screenshots/06_siswa_katalog.png)
+*Gambar 7.6: Katalog Koleksi Buku Siswa dengan Filter Kategori & Stok Rak*
 
 ### 7.7 Halaman Riwayat Transaksi Siswa (`siswa/riwayat.php`)
 - **Fungsi**: Rekapan lengkap seluruh buku yang pernah dipinjam siswa beserta status denda dan keterangan pengembalian tepat waktu/terlambat.
 - **Elemen Penting**: Badge status (`Dipinjam`, `Dikembalikan`, `Terlambat`), tanggal pinjam, batas waktu, tanggal kembali riil, dan nominal denda.
-> *(Tempelkan Screenshot Tampilan `siswa/riwayat.php` pada area ini)*
+![Gambar 7.7: Rekapan Riwayat Sirkulasi Peminjaman Siswa (siswa/riwayat.php)](assets/screenshots/07_siswa_riwayat.png)
+*Gambar 7.7: Rekapan Riwayat Sirkulasi Peminjaman Siswa (siswa/riwayat.php)*
 
 ---
 
@@ -557,46 +564,58 @@ Berikut adalah dokumentasi antarmuka kerja Administrator / Staf Perpustakaan:
 ### 8.1 Dashboard Utama Administrator (`admin/dashboard.php`)
 - **Fungsi**: Memantau metrik performa operasional perpustakaan sekolah dalam satu layar terpadu.
 - **Elemen Penting**: Metrik ringkas (Total Judul Buku, Total Fisik Eksemplar, Anggota Siswa Aktif, Peminjaman Sedang Berjalan, Transaksi Terlambat), grafik tren sirkulasi bulanan, dan tabel peminjaman terkini.
-> *(Tempelkan Screenshot Tampilan `admin/dashboard.php` pada area ini)*
+![Gambar 8.1: Dashboard Manajemen Administrator Perpustakaan](assets/screenshots/08_admin_dashboard.png)
+*Gambar 8.1: Dashboard Manajemen Administrator Perpustakaan*
 
 ### 8.2 Manajemen Koleksi Buku (`admin/buku.php`)
 - **Fungsi**: Mengelola master judul buku, unggah file cover buku, filter kategori server-side, pagination, serta aksi modal tambah/edit/hapus buku.
 - **Elemen Penting**: Tabel judul buku, metrik stok eksemplar, tombol "Kelola Eksemplar", tombol "Cetak Stiker QR", dan filter chip kategori.
-> *(Tempelkan Screenshot Tampilan `admin/buku.php` pada area ini)*
+![Gambar 8.2: Kelola Data Koleksi Buku & Filter Kategori (admin/buku.php)](assets/screenshots/09_admin_buku.png)
+*Gambar 8.2: Kelola Data Koleksi Buku & Filter Kategori (admin/buku.php)*
 
 ### 8.3 Manajemen Eksemplar Fisik & Cetak Stiker Label QR (`admin/buku_item.php` & `config/generate_qr.php`)
 - **Fungsi**: Mengelola stok fisik individual per buku di rak perpustakaan dan mencetak stiker barcode/QR code fisik.
 - **Elemen Penting**: Daftar kode item (`BK-xx-yyy`), status fisik per buku (`tersedia`, `dipinjam`, `rusak`, `hilang`), dan lembar cetak stiker label siap gunting untuk ditempel pada punggung buku.
-> *(Tempelkan Screenshot Tampilan `admin/buku_item.php` & `config/generate_qr.php` pada area ini)*
+![Gambar 8.3: Manajemen Eksemplar Fisik Buku (admin/buku_item.php)](assets/screenshots/10_admin_eksemplar_qr.png)
+*Gambar 8.3: Manajemen Eksemplar Fisik Buku (admin/buku_item.php)*
+
+![Gambar 8.4: Lembar Pratinjau Cetak Stiker Label QR Code Eksemplar Buku](assets/screenshots/11_admin_cetak_label_qr.png)
+*Gambar 8.4: Lembar Pratinjau Cetak Stiker Label QR Code Eksemplar Buku*
 
 ### 8.4 Manajemen Anggota & Fitur Pairing Kartu RFID (`admin/anggota.php`)
 - **Fungsi**: Pendataan seluruh siswa, reset password akun ke default (NIS), dan menautkan kartu fisik RFID siswa.
 - **Elemen Penting**: Modal interaktif "Tap Kartu RFID Siswa" yang otomatis mendeteksi UID kartu USB, filter chip status (Bebas Pinjaman, Meminjam, RFID Aktif), dan pagination data siswa.
-> *(Tempelkan Screenshot Tampilan `admin/anggota.php` pada area ini)*
+![Gambar 8.5: Kelola Data Siswa & Modal Tap Pairing Kartu RFID Fisik](assets/screenshots/12_admin_anggota.png)
+*Gambar 8.5: Kelola Data Siswa & Modal Tap Pairing Kartu RFID Fisik*
 
 ### 8.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`)
 - **Fungsi**: Halaman operasional utama kasir perpustakaan untuk memproses peminjaman buku oleh siswa dalam hitungan detik.
 - **Elemen Penting**: Input scan kartu RFID siswa / NIS, panel identitas siswa aktif, pemindai Barcode Gun / Webcam HTML5, validasi kuota 3 buku, dan tombol cetak struk thermal peminjaman.
-> *(Tempelkan Screenshot Tampilan `admin/peminjaman.php` pada area ini)*
+![Gambar 8.6: Meja Sirkulasi Peminjaman Cepat Berbasis Scan RFID & QR](assets/screenshots/13_admin_peminjaman.png)
+*Gambar 8.6: Meja Sirkulasi Peminjaman Cepat Berbasis Scan RFID & QR*
 
 ### 8.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`)
 - **Fungsi**: Memproses pengembalian buku fisik, kalkulasi selisih hari denda otomatis, dan pencatatan kas denda.
 - **Elemen Penting**: Tombol "Kembalikan", label peringatan telat, kalkulator estimasi denda berjalan, konfirmasi pelunasan kas denda, dan cetak struk thermal pengembalian.
-> *(Tempelkan Screenshot Tampilan `admin/pengembalian.php` pada area ini)*
+![Gambar 8.7: Meja Sirkulasi Pengembalian Buku & Deteksi Denda Keterlambatan](assets/screenshots/14_admin_pengembalian.png)
+*Gambar 8.7: Meja Sirkulasi Pengembalian Buku & Deteksi Denda Keterlambatan*
 
 ### 8.7 Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`)
 - **Fungsi**: Arsip menyeluruh seluruh sirkulasi perpustakaan dengan filter tanggal dari-sampai, kata kunci, dan status.
 - **Elemen Penting**: Tombol "Tandai Lunas" denda, badge status sirkulasi, pagination responsif, dan tombol cetak arsip.
-> *(Tempelkan Screenshot Tampilan `admin/transaksi.php` pada area ini)*
+![Gambar 8.8: Riwayat Transaksi Sirkulasi & Pelunasan Kas Denda](assets/screenshots/15_admin_transaksi.png)
+*Gambar 8.8: Riwayat Transaksi Sirkulasi & Pelunasan Kas Denda*
 
 ### 8.8 Ekspor Rekapitulasi Laporan Excel (.xls) (`admin/export_transaksi.php`)
 - **Fungsi**: Mengunduh seluruh rekap sirkulasi ke spreadsheet Microsoft Excel berformat rapi dan profesional.
 - **Elemen Penting**: KOP resmi SMKN 1 Panyingkiran, lebar kolom pas (mencegah teks tanggal `########`), format mata uang Rupiah standar akuntansi, zebra striping tabel, serta ringkasan total uang kas denda terkumpul.
-> *(Tempelkan Screenshot Hasil Ekspor Excel pada area ini)*
+![Gambar 8.9: Hasil Ekspor Rekapitulasi Laporan Transaksi ke Microsoft Excel (.xls)](assets/screenshots/16_admin_export_excel.png)
+*Gambar 8.9: Hasil Ekspor Rekapitulasi Laporan Transaksi ke Microsoft Excel (.xls)*
 
 ### 8.9 Log Aktivitas Sistem (`admin/log_aktivitas.php`)
 - **Fungsi**: Rekam jejak audit keamanan sistem perpustakaan yang mencatat waktu kejadian, aktor pelaku, role, jenis aksi, modul, deskripsi aktivitas, dan alamat IP.
-> *(Tempelkan Screenshot Tampilan `admin/log_aktivitas.php` pada area ini)*
+![Gambar 8.10: Log Aktivitas Audit Trail Keamanan Sistem (admin/log_aktivitas.php)](assets/screenshots/17_admin_log_aktivitas.png)
+*Gambar 8.10: Log Aktivitas Audit Trail Keamanan Sistem (admin/log_aktivitas.php)*
 
 ---
 
@@ -629,18 +648,27 @@ flowchart LR
 ```
 
 ### 9.1 Barcode Scanner Gun (USB Handheld)
+
+![Gambar 9.1: Spesifikasi & Peranan Barcode Scanner Gun di Meja Sirkulasi](assets/screenshots/hw_01_barcode_scanner.png)
+*Gambar 9.1: Spesifikasi & Peranan Barcode Scanner Gun di Meja Sirkulasi*
 - **Tipe & Antarmuka**: Barcode / 2D QR Scanner Gun dengan koneksi USB (Plug and Play).
 - **Mekanisme Kerja**: Bekerja dalam mode **HID (Human Interface Device) Keyboard Wedge**. Ketika scanner menembakkan laser/sensor optik ke kode QR stiker buku fisik, scanner mendekode simbol menjadi untaian teks (misal: `BK-17-001`) dan mengirimkannya ke sistem operasi seolah-olah diketikkan langsung melalui keyboard fisik dengan kecepatan tinggi, diakhiri dengan kode ASCII Enter (`\r\n`).
 - **Penerapan pada Pinjam.In**:
   - Pada halaman `admin/peminjaman.php`, kursor input otomatis difokuskan ke kolom *Kode Buku*. Saat petugas men-scan punggung buku, kode item langsung terisi dan form otomatis mengirim request validasi tanpa perlu menekan tombol submit secara manual.
 
 ### 9.2 Kamera Webcam (HTML5 Realtime QR Reader)
+
+![Gambar 9.2: Spesifikasi & Peranan Kamera Webcam Realtime Scanner](assets/screenshots/hw_02_webcam.png)
+*Gambar 9.2: Spesifikasi & Peranan Kamera Webcam Realtime Scanner*
 - **Tipe & Antarmuka**: Kamera webcam terintegrasi laptop atau Webcam USB eksternal (Resolusi minimal 720p HD).
 - **Mekanisme Kerja**: Menggunakan Javascript Web API `navigator.mediaDevices.getUserMedia()` yang dibungkus oleh pustaka `html5-qrcode`. Kamera mengambil video stream kontinu secara lokal di browser, menganalisis frame video per milidetik untuk mendeteksi pola posisi matriks QR Code, lalu mengekstrak muatan teks kode buku.
 - **Penerapan pada Pinjam.In**:
   - Berfungsi sebagai alternatif fleksibel jika meja sirkulasi tidak memiliki scanner gun fisik. Petugas cukup mengarahkan sampul buku ke arah kamera laptop, dan sistem akan langsung membunyikan nada bip (*beep*) serta memproses data buku secara otomatis.
 
 ### 9.3 Printer Thermal Mini (ESC/POS Receipt Printer)
+
+![Gambar 9.3: Spesifikasi & Peranan Printer Thermal Mini untuk Struk Transaksi](assets/screenshots/hw_03_printer_thermal.png)
+*Gambar 9.3: Spesifikasi & Peranan Printer Thermal Mini untuk Struk Transaksi*
 - **Tipe & Antarmuka**: Printer Kasir Thermal lebar kertas 58mm atau 80mm dengan koneksi USB / Bluetooth.
 - **Mekanisme Kerja**: Memanfaatkan media pemanas (*thermal head*) pada kertas peka panas (*thermal paper*) sehingga tidak memerlukan tinta (ribbon/cartridge). Diatur menggunakan aturan stylesheet khusus `@media print` dengan lebar tetap (`width: 58mm`), margin nol, serta pemotongan kertas otomatis (*cut*).
 - **Penerapan pada Pinjam.In**:
@@ -648,6 +676,9 @@ flowchart LR
   - Mencetak **Slip Bukti Pengembalian & Denda**: Menjadi bukti sah bahwa siswa telah mengembalikan buku fisik ke perpustakaan serta bukti penerimaan uang kas denda jika terlambat.
 
 ### 9.4 Printer Standar Desktop (Dokumen A4 & Label Stiker)
+
+![Gambar 9.4: Spesifikasi & Peranan Printer Standar untuk Laporan & Stiker QR](assets/screenshots/hw_04_printer_standar.png)
+*Gambar 9.4: Spesifikasi & Peranan Printer Standar untuk Laporan & Stiker QR*
 - **Tipe & Antarmuka**: Printer Inkjet / Laserjet standar perkantoran (Ukuran kertas A4 / F4).
 - **Mekanisme Kerja**: Menggunakan driver cetak browser native dengan layout resolusi tinggi (300 DPI) untuk memastikan ketajaman teks dokumen resmi dan kode matriks QR code.
 - **Penerapan pada Pinjam.In**:
@@ -656,6 +687,9 @@ flowchart LR
   - **Pencetakan Laporan Eksekutif Bulanan**: Dokumen arsip resmi sekolah lengkap dengan format KOP Surat SMKN 1 Panyingkiran dan kolom tanda tangan Kepala Perpustakaan.
 
 ### 9.5 RFID Card Reader (USB Proximity 13.56 MHz / 125 kHz)
+
+![Gambar 9.5: Spesifikasi & Peranan RFID Card Reader untuk Identifikasi Siswa](assets/screenshots/hw_05_rfid_reader.png)
+*Gambar 9.5: Spesifikasi & Peranan RFID Card Reader untuk Identifikasi Siswa*
 - **Tipe & Antarmuka**: USB Contactless Smart IC/ID Card Reader (Mifare 13.56 MHz / EM4100 125 kHz).
 - **Mekanisme Kerja**: Menggunakan gelombang radio elektromagnetik untuk menginduksi chip pada kartu pelajar RFID yang ditempelkan dalam radius 0–5 cm. Reader membaca nomor identifikasi unik pabrik (*Card Unique Identification* / UID) dan mentransmisikannya ke komputer sebagai teks serial/keyboard.
 - **Penerapan pada Pinjam.In**:
