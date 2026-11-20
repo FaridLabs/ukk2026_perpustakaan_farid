@@ -47,7 +47,7 @@ Penulis menyadari bahwa sistem maupun laporan ini masih memiliki ruang untuk pen
 <div align="right">
   Majalengka, Februari 2026<br><br><br>
   <b>Muhammad Farid Malik</b><br>
-  NIS. 2425123
+  NIS. 24250223
 </div>
 
 ---
@@ -55,69 +55,47 @@ Penulis menyadari bahwa sistem maupun laporan ini masih memiliki ruang untuk pen
 # 3. DAFTAR ISI
 
 - **HALAMAN JUDUL / COVER** ................................................................ i
-- **KATA PENGANTAR** ........................................................................ ii
-- **DAFTAR ISI** ............................................................................ iii
-- **BAB I: DESKRIPSI PROJEK** ............................................................... 1
-  - 1.1 Latar Belakang Masalah .............................................................. 1
-  - 1.2 Tujuan Aplikasi ..................................................................... 2
-  - 1.3 Fungsi dan Fitur Utama .............................................................. 2
-  - 1.4 Teknologi yang Digunakan ............................................................ 3
-  - 1.5 Identifikasi Pengguna Aplikasi (User Role) .......................................... 4
-- **BAB II: FLOWCHART SISTEM** .............................................................. 5
-  - 2.1 Flowchart Autentikasi Pengguna & Multi-Role Login (Standar ANSI/ISO) ................ 5
-  - 2.2 Flowchart Transaksi Peminjaman Meja Sirkulasi (Standar ANSI/ISO) .................... 6
-  - 2.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda (Standar ANSI/ISO) ............... 7
-- **BAB III: PERANCANGAN DATABASE** ......................................................... 8
-  - 3.1 Entity Relationship Diagram (ERD) Kardinalitas 1 : N ................................ 8
-  - 3.2 Struktur & Spesifikasi Tabel Basis Data ............................................. 9
-    - 3.2.1 Tabel `admin` ................................................................... 9
-    - 3.2.2 Tabel `anggota` ................................................................. 10
-    - 3.2.3 Tabel `buku` .................................................................... 10
-    - 3.2.4 Tabel `buku_item` ............................................................... 11
-    - 3.2.5 Tabel `kategori` ................................................................ 11
-    - 3.2.6 Tabel `transaksi` ............................................................... 12
-    - 3.2.7 Tabel `pengaturan` .............................................................. 12
-    - 3.2.8 Tabel `log_aktivitas` ........................................................... 13
-- **BAB IV: IMPLEMENTASI ANTARMUKA PENGGUNA (PUBLIC & SISWA)** .............................. 14
-  - 4.1 Halaman Beranda Publik (`index.php`) ................................................ 14
-  - 4.2 Halaman Autentikasi Pengguna (`login.php`) .......................................... 15
-  - 4.3 Halaman Pendaftaran Siswa Mandiri (`daftar.php`) .................................... 16
-  - 4.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`) ....................... 17
-  - 4.5 Halaman Dashboard Siswa (`siswa/dashboard.php`) ..................................... 18
-  - 4.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`) ................................ 19
-  - 4.7 Halaman Riwayat Transaksi Siswa (`siswa/riwayat.php`) ............................... 20
-- **BAB V: IMPLEMENTASI ANTARMUKA PENGGUNA (ADMINISTRATOR)** ................................ 21
-  - 5.1 Dashboard Utama Administrator (`admin/dashboard.php`) .............................. 21
-  - 5.2 Manajemen Koleksi Buku (`admin/buku.php`) ........................................... 22
-  - 5.3 Manajemen Eksemplar Fisik & Cetak Stiker QR (`admin/buku_item.php`) ................. 23
-  - 5.4 Manajemen Anggota & Pairing Kartu RFID (`admin/anggota.php`) ....................... 24
-  - 5.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`) ............................. 25
-  - 5.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`) ......................... 26
-  - 5.7 Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`) ..................... 27
-  - 5.8 Ekspor Rekapitulasi Laporan Excel (.xls) ............................................ 28
-  - 5.9 Log Aktivitas Sistem (`admin/log_aktivitas.php`) .................................... 29
-- **BAB VI: IMPLEMENTASI ALAT PENDUKUNG (HARDWARE PERIPHERAL)** ............................. 30
-  - 6.1 Barcode Scanner Gun (USB Handheld) .................................................. 30
-  - 6.2 Kamera Webcam (HTML5 Realtime QR Reader) ............................................ 31
-  - 6.3 Printer Thermal Mini (ESC/POS Receipt Printer) ...................................... 32
-  - 6.4 Printer Standar Desktop (Dokumen A4 & Label Stiker) ................................. 33
-  - 6.5 RFID Card Reader (USB Proximity 13.56 MHz / 125 kHz) ................................ 34
-- **BAB VII: PENUTUP** ...................................................................... 35
-  - 7.1 Kesimpulan .......................................................................... 35
-  - 7.2 Saran Pengembangan .................................................................. 36
-- **LAMPIRAN** .............................................................................. 37
-  - 4.1 Tampilan Publik & Siswa
-  - 4.2 Tampilan Administrator Perpustakaan
-- **BAB V: IMPLEMENTASI PERANGKAT KERAS PENDUKUNG**
-  - 5.1 Barcode Scanner Gun (USB HID)
-  - 5.2 Kamera Webcam (HTML5 Realtime QR Reader)
-  - 5.3 Printer Thermal (Slip Bukti Transaksi ESC/POS)
-  - 5.4 Printer Desktop Standar (Laporan & Label Stiker QR)
-  - 5.5 RFID Card Reader (Identifikasi Kartu Pelajar Cepat)
-- **BAB VI: PENUTUP**
-  - 6.1 Kesimpulan
-  - 6.2 Saran Pengembangan
-- **LAMPIRAN**
+- **KATA PENGANTAR** ....................................................................... ii
+- **DAFTAR ISI** ........................................................................... iii
+- **4. DESKRIPSI PROJEK** .................................................................. 1
+  - 4.1 Latar Belakang Masalah ............................................................. 1
+  - 4.2 Tujuan Aplikasi .................................................................... 2
+  - 4.3 Fungsi dan Fitur Utama ............................................................. 3
+  - 4.4 Teknologi yang Digunakan ........................................................... 4
+  - 4.5 Pengguna Aplikasi (User Role) ...................................................... 5
+- **5. FLOWCHART SISTEM** .................................................................. 6
+  - 5.1 Flowchart Autentikasi & Multi-Role Login ............................................ 6
+  - 5.2 Flowchart Transaksi Peminjaman Meja Sirkulasi ....................................... 8
+  - 5.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda ................................. 10
+- **6. PERANCANGAN DATABASE** .............................................................. 12
+  - 6.1 Entity Relationship Diagram (ERD Relasional) ........................................ 12
+  - 6.2 Struktur & Spesifikasi 8 Tabel Basis Data ........................................... 14
+- **7. TAMPILAN PUBLIC (SISWA & UMUM)** .................................................... 18
+  - 7.1 Halaman Beranda Publik (`index.php`) ............................................... 18
+  - 7.2 Halaman Autentikasi Login (`login.php`) ............................................ 19
+  - 7.3 Halaman Pendaftaran Anggota Mandiri (`daftar.php`) ................................. 20
+  - 7.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`) ....................... 21
+  - 7.5 Halaman Dashboard Siswa (`siswa/dashboard.php`) .................................... 22
+  - 7.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`) ............................... 23
+  - 7.7 Halaman Riwayat Sirkulasi Siswa (`siswa/riwayat.php`) ............................... 24
+- **8. TAMPILAN ADMIN (PETUGAS PERPUSTAKAAN)** ............................................. 25
+  - 8.1 Dashboard Utama Administrator (`admin/dashboard.php`) .............................. 25
+  - 8.2 Manajemen Data Buku Koleksi (`admin/buku.php`) ..................................... 26
+  - 8.3 Manajemen Eksemplar Fisik & Cetak QR (`admin/buku_item.php`) ....................... 27
+  - 8.4 Manajemen Anggota & Pairing Kartu RFID (`admin/anggota.php`) ....................... 28
+  - 8.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`) ............................ 29
+  - 8.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`) ........................ 30
+  - 8.7 Arsip Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`) .............. 31
+  - 8.8 Ekspor Rekapitulasi Laporan Excel (.xls) ............................................ 32
+  - 8.9 Log Aktivitas Sistem & Audit Trail (`admin/log_aktivitas.php`) ...................... 33
+- **9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE)** ............................................ 34
+  - 9.1 Barcode Scanner Gun (USB HID Keyboard Wedge) ....................................... 34
+  - 9.2 RFID Card Reader USB (Identifikasi Cepat Kartu Siswa) ............................... 35
+  - 9.3 Printer Thermal Mini 58mm/80mm (Slip Bukti Transaksi) .............................. 36
+- **10. PENUTUP** .......................................................................... 37
+  - 10.1 Kesimpulan ........................................................................ 37
+  - 10.2 Saran Pengembangan ................................................................ 38
+- **LAMPIRAN** ............................................................................. 39
 
 ---
 
@@ -649,80 +627,62 @@ Berikut adalah dokumentasi antarmuka kerja Administrator / Staf Perpustakaan:
 
 # 9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE PERIPHERAL)
 
-Keunggulan utama aplikasi **Pinjam.In** adalah kemampuannya berkomunikasi secara *seamless* dengan 5 jenis perangkat keras tanpa memerlukan instalasi driver perangkat lunak yang rumit di sisi klien:
+Keunggulan utama operasional meja sirkulasi **Pinjam.In** adalah efisiensi kerja tinggi berkat integrasi **3 perangkat keras (hardware) utama**: **Barcode Scanner Gun**, **RFID Card Reader USB**, dan **Printer Thermal Mini 58mm/80mm** tanpa memerlukan driver rumit:
 
 ```mermaid
 flowchart LR
-    subgraph Perangkat_Input["Perangkat Input (Identifikasi Cepat)"]
+    subgraph Input_Sirkulasi["Perangkat Input Sirkulasi Cepat"]
         RFID["RFID Card Reader USB<br/>(Identifikasi Siswa)"]
-        Barcode["Barcode Scanner Gun<br/>(Scan Kode Buku)"]
-        Webcam["Webcam Kamera Laptop<br/>(HTML5 QR Scanner)"]
+        Barcode["Barcode Scanner Gun<br/>(Scan Kode Buku Eksemplar)"]
     end
 
     subgraph Server_Aplikasi["Sistem Web Pinjam.In"]
         App["Aplikasi Web Pinjam.In<br/>(PHP Native & PDO MySQL)"]
     end
 
-    subgraph Perangkat_Output["Perangkat Output (Cetak Fisik)"]
-        Thermal["Printer Thermal 58mm/80mm<br/>(Slip Struk Transaksi)"]
-        PrinterA4["Printer Standar A4<br/>(Laporan Resmi & Stiker QR)"]
+    subgraph Output_Sirkulasi["Perangkat Output Cetak Fisik"]
+        Thermal["Printer Thermal POS 58mm/80mm<br/>(Slip Bukti Transaksi)"]
     end
 
-    RFID -->|Input UID Siswa| App
-    Barcode -->|Input String Kode Item| App
-    Webcam -->|Stream Video QR Code| App
-    App -->|CSS @media print Struk| Thermal
-    App -->|Format KOP & Label Grid| PrinterA4
+    RFID -->|Input UID Kartu Siswa| App
+    Barcode -->|Input String Kode Eksemplar| App
+    App -->|Format Struk @media print| Thermal
 ```
 
 ### 9.1 Barcode Scanner Gun (USB Handheld)
 
-![Gambar 9.1: Spesifikasi & Peranan Barcode Scanner Gun di Meja Sirkulasi](assets/screenshots/hw_01_barcode_scanner.png)
-*Gambar 9.1: Spesifikasi & Peranan Barcode Scanner Gun di Meja Sirkulasi*
+![Gambar 9.1: Perangkat Keras Barcode Scanner Gun Handheld di Meja Sirkulasi](assets/screenshots/hw_barcode_scanner.png)
+*Gambar 9.1: Perangkat Keras Barcode Scanner Gun Handheld di Meja Sirkulasi*
+
 - **Tipe & Antarmuka**: Barcode / 2D QR Scanner Gun dengan koneksi USB (Plug and Play).
-- **Mekanisme Kerja**: Bekerja dalam mode **HID (Human Interface Device) Keyboard Wedge**. Ketika scanner menembakkan laser/sensor optik ke kode QR stiker buku fisik, scanner mendekode simbol menjadi untaian teks (misal: `BK-17-001`) dan mengirimkannya ke sistem operasi seolah-olah diketikkan langsung melalui keyboard fisik dengan kecepatan tinggi, diakhiri dengan kode ASCII Enter (`\r\n`).
+- **Mekanisme Kerja**: Bekerja dalam mode **HID (Human Interface Device) Keyboard Wedge**. Ketika sensor optik membaca stiker QR pada punggung buku fisik, alat mentransmisikan kode seri unik eksemplar (misal: `BK-17-001`) secara instan dan otomatis diakhiri dengan karakter ASCII Enter (`\r\n`).
 - **Penerapan pada Pinjam.In**:
-  - Pada halaman `admin/peminjaman.php`, kursor input otomatis difokuskan ke kolom *Kode Buku*. Saat petugas men-scan punggung buku, kode item langsung terisi dan form otomatis mengirim request validasi tanpa perlu menekan tombol submit secara manual.
+  - Pada halaman peminjaman (`admin/peminjaman.php`) dan pengembalian (`admin/pengembalian.php`), kursor input otomatis aktif (*autofocus*). Begitu label kode buku fisik di-scan, form langsung memproses data tanpa perlu klik mouse atau pengetikan manual keyboard.
 
-### 9.2 Kamera Webcam (HTML5 Realtime QR Reader)
+---
 
-![Gambar 9.2: Spesifikasi & Peranan Kamera Webcam Realtime Scanner](assets/screenshots/hw_02_webcam.png)
-*Gambar 9.2: Spesifikasi & Peranan Kamera Webcam Realtime Scanner*
-- **Tipe & Antarmuka**: Kamera webcam terintegrasi laptop atau Webcam USB eksternal (Resolusi minimal 720p HD).
-- **Mekanisme Kerja**: Menggunakan Javascript Web API `navigator.mediaDevices.getUserMedia()` yang dibungkus oleh pustaka `html5-qrcode`. Kamera mengambil video stream kontinu secara lokal di browser, menganalisis frame video per milidetik untuk mendeteksi pola posisi matriks QR Code, lalu mengekstrak muatan teks kode buku.
+### 9.2 RFID Card Reader USB (Identifikasi Cepat Kartu Siswa)
+
+![Gambar 9.2: Perangkat Keras RFID Card Reader USB dan Kartu Pintar Pelajar](assets/screenshots/hw_rfid_reader.png)
+*Gambar 9.2: Perangkat Keras RFID Card Reader USB dan Kartu Pintar Pelajar*
+
+- **Tipe & Antarmuka**: USB Contactless Proximity Smart IC/ID Card Reader (Mifare 13.56 MHz / EM4100 125 kHz).
+- **Mekanisme Kerja**: Menggunakan gelombang radio elektromagnetik jarak dekat (0–5 cm) untuk membaca nomor identifikasi unik (*Card Unique Identification* / UID) dari kartu pelajar siswa dan mentransmisikannya langsung sebagai input teks ke sistem secara instan (< 1 detik).
 - **Penerapan pada Pinjam.In**:
-  - Berfungsi sebagai alternatif fleksibel jika meja sirkulasi tidak memiliki scanner gun fisik. Petugas cukup mengarahkan sampul buku ke arah kamera laptop, dan sistem akan langsung membunyikan nada bip (*beep*) serta memproses data buku secara otomatis.
+  - Siswa cukup men-tap kartu pelajar di atas reader pada meja sirkulasi untuk memunculkan identitas peminjam seketika tanpa perlu menyebutkan atau mengetikkan NIS. Modul ini juga terhubung dengan menu `admin/anggota.php` untuk mem-pairing kartu fisik baru.
+
+---
 
 ### 9.3 Printer Thermal Mini (ESC/POS Receipt Printer)
 
-![Gambar 9.3: Spesifikasi & Peranan Printer Thermal Mini untuk Struk Transaksi](assets/screenshots/hw_03_printer_thermal.png)
-*Gambar 9.3: Spesifikasi & Peranan Printer Thermal Mini untuk Struk Transaksi*
-- **Tipe & Antarmuka**: Printer Kasir Thermal lebar kertas 58mm atau 80mm dengan koneksi USB / Bluetooth.
-- **Mekanisme Kerja**: Memanfaatkan media pemanas (*thermal head*) pada kertas peka panas (*thermal paper*) sehingga tidak memerlukan tinta (ribbon/cartridge). Diatur menggunakan aturan stylesheet khusus `@media print` dengan lebar tetap (`width: 58mm`), margin nol, serta pemotongan kertas otomatis (*cut*).
+![Gambar 9.3: Perangkat Keras Printer Thermal Mini 58mm untuk Struk Transaksi](assets/screenshots/hw_printer_thermal.png)
+*Gambar 9.3: Perangkat Keras Printer Thermal Mini 58mm untuk Struk Transaksi*
+
+- **Tipe & Antarmuka**: Direct Thermal Receipt POS Printer lebar kertas 58mm / 80mm dengan koneksi USB / ESC-POS.
+- **Mekanisme Kerja**: Menggunakan elemen pemanas pada kertas peka panas (*thermal paper roll*) berkecepatan tinggi tanpa memerlukan pita tinta atau toner. Output dikontrol melalui stylesheet cetak browser `@media print` berukuran kertas struk kasir.
 - **Penerapan pada Pinjam.In**:
-  - Mencetak **Slip Bukti Peminjaman**: Berisi identitas siswa, nomor transaksi, daftar buku yang dipinjam, tanggal kembali jatuh tempo, dan pesan pengingat denda.
-  - Mencetak **Slip Bukti Pengembalian & Denda**: Menjadi bukti sah bahwa siswa telah mengembalikan buku fisik ke perpustakaan serta bukti penerimaan uang kas denda jika terlambat.
-
-### 9.4 Printer Standar Desktop (Dokumen A4 & Label Stiker)
-
-![Gambar 9.4: Spesifikasi & Peranan Printer Standar untuk Laporan & Stiker QR](assets/screenshots/hw_04_printer_standar.png)
-*Gambar 9.4: Spesifikasi & Peranan Printer Standar untuk Laporan & Stiker QR*
-- **Tipe & Antarmuka**: Printer Inkjet / Laserjet standar perkantoran (Ukuran kertas A4 / F4).
-- **Mekanisme Kerja**: Menggunakan driver cetak browser native dengan layout resolusi tinggi (300 DPI) untuk memastikan ketajaman teks dokumen resmi dan kode matriks QR code.
-- **Penerapan pada Pinjam.In**:
-  - **Pencetakan Label Stiker QR Buku (`config/generate_qr.php`)**: Menghasilkan tata letak grid stiker bergaris putus-putus (*cut guide*) yang memuat judul buku, kode item, dan kode QR siap tempel.
-  - **Pencetakan Kartu Tanda Anggota Perpustakaan**: Menghasilkan kartu pelajar digital siap laminating.
-  - **Pencetakan Laporan Eksekutif Bulanan**: Dokumen arsip resmi sekolah lengkap dengan format KOP Surat SMKN 1 Panyingkiran dan kolom tanda tangan Kepala Perpustakaan.
-
-### 9.5 RFID Card Reader (USB Proximity 13.56 MHz / 125 kHz)
-
-![Gambar 9.5: Spesifikasi & Peranan RFID Card Reader untuk Identifikasi Siswa](assets/screenshots/hw_05_rfid_reader.png)
-*Gambar 9.5: Spesifikasi & Peranan RFID Card Reader untuk Identifikasi Siswa*
-- **Tipe & Antarmuka**: USB Contactless Smart IC/ID Card Reader (Mifare 13.56 MHz / EM4100 125 kHz).
-- **Mekanisme Kerja**: Menggunakan gelombang radio elektromagnetik untuk menginduksi chip pada kartu pelajar RFID yang ditempelkan dalam radius 0–5 cm. Reader membaca nomor identifikasi unik pabrik (*Card Unique Identification* / UID) dan mentransmisikannya ke komputer sebagai teks serial/keyboard.
-- **Penerapan pada Pinjam.In**:
-  - **Meja Sirkulasi Peminjaman & Pengembalian**: Siswa cukup melakukan *Tap Kartu* di reader. Data siswa, foto, dan status peminjaman aktif langsung terbuka seketika di layar petugas tanpa perlu mencari nama atau menanyakan NIS.
-  - **Menu Pairing Anggota (`admin/anggota.php`)**: Menautkan kartu fisik baru ke akun siswa yang baru mendaftar hanya dengan sekali tap kartu.
+  - Mencetak **Slip Bukti Peminjaman**: Memuat nomor transaksi, identitas siswa, daftar buku yang dipinjam, serta batas tanggal pengembalian jatuh tempo (H+7 hari).
+  - Mencetak **Slip Bukti Pengembalian & Kas Denda**: Menjadi bukti sah pengembalian fisik buku dan rincian pelunasan denda kas jika terjadi keterlambatan.
 
 ---
 
