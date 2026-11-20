@@ -57,43 +57,43 @@ Penulis menyadari bahwa sistem maupun laporan ini masih memiliki ruang untuk pen
 - **HALAMAN JUDUL / COVER** ................................................................ i
 - **KATA PENGANTAR** ....................................................................... ii
 - **DAFTAR ISI** ........................................................................... iii
-- **4. DESKRIPSI PROJEK** .................................................................. 1
-  - 4.1 Latar Belakang Masalah ............................................................. 1
-  - 4.2 Tujuan Aplikasi .................................................................... 2
-  - 4.3 Fungsi dan Fitur Utama ............................................................. 3
-  - 4.4 Teknologi yang Digunakan ........................................................... 4
-  - 4.5 Pengguna Aplikasi (User Role) ...................................................... 5
-- **5. FLOWCHART SISTEM** .................................................................. 6
-  - 5.1 Flowchart Autentikasi & Multi-Role Login ............................................ 6
-  - 5.2 Flowchart Transaksi Peminjaman Meja Sirkulasi ....................................... 8
-  - 5.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda ................................. 10
-- **6. PERANCANGAN DATABASE** .............................................................. 12
-  - 6.1 Entity Relationship Diagram (ERD Relasional) ........................................ 12
-  - 6.2 Struktur & Spesifikasi 8 Tabel Basis Data ........................................... 14
-- **7. TAMPILAN PUBLIC (SISWA & UMUM)** .................................................... 18
-  - 7.1 Halaman Beranda Publik (`index.php`) ............................................... 18
-  - 7.2 Halaman Autentikasi Login (`login.php`) ............................................ 19
-  - 7.3 Halaman Pendaftaran Anggota Mandiri (`daftar.php`) ................................. 20
-  - 7.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`) ....................... 21
-  - 7.5 Halaman Dashboard Siswa (`siswa/dashboard.php`) .................................... 22
-  - 7.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`) ............................... 23
-  - 7.7 Halaman Riwayat Sirkulasi Siswa (`siswa/riwayat.php`) ............................... 24
-- **8. TAMPILAN ADMIN (PETUGAS PERPUSTAKAAN)** ............................................. 25
-  - 8.1 Dashboard Utama Administrator (`admin/dashboard.php`) .............................. 25
-  - 8.2 Manajemen Data Buku Koleksi (`admin/buku.php`) ..................................... 26
-  - 8.3 Manajemen Eksemplar Fisik & Cetak QR (`admin/buku_item.php`) ....................... 27
-  - 8.4 Manajemen Anggota & Pairing Kartu RFID (`admin/anggota.php`) ....................... 28
-  - 8.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`) ............................ 29
-  - 8.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`) ........................ 30
-  - 8.7 Arsip Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`) .............. 31
-  - 8.8 Ekspor Rekapitulasi Laporan Excel (.xls) ............................................ 32
+- **4. DESKRIPSI PROJEK** .................................................................. 6
+  - 4.1 Latar Belakang Masalah ............................................................. 6
+  - 4.2 Tujuan Aplikasi .................................................................... 7
+  - 4.3 Fungsi dan Fitur Utama ............................................................. 7
+  - 4.4 Teknologi yang Digunakan ........................................................... 8
+  - 4.5 Pengguna Aplikasi (User Role) ...................................................... 8
+- **5. FLOWCHART SISTEM** .................................................................. 10
+  - 5.1 Flowchart Autentikasi & Multi-Role Login ............................................ 10
+  - 5.2 Flowchart Transaksi Peminjaman Meja Sirkulasi ....................................... 12
+  - 5.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda ................................. 14
+- **6. PERANCANGAN DATABASE** .............................................................. 16
+  - 6.1 Entity Relationship Diagram (ERD Relasional) ........................................ 16
+  - 6.2 Struktur & Spesifikasi 8 Tabel Basis Data ........................................... 17
+- **7. TAMPILAN PUBLIC (SISWA & UMUM)** .................................................... 21
+  - 7.1 Halaman Beranda Publik (`index.php`) ............................................... 21
+  - 7.2 Halaman Autentikasi Login (`login.php`) ............................................ 21
+  - 7.3 Halaman Pendaftaran Anggota Mandiri (`daftar.php`) ................................. 22
+  - 7.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`) ....................... 23
+  - 7.5 Halaman Dashboard Siswa (`siswa/dashboard.php`) .................................... 24
+  - 7.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`) ............................... 25
+  - 7.7 Halaman Riwayat Sirkulasi Siswa (`siswa/riwayat.php`) ............................... 26
+- **8. TAMPILAN ADMIN (PETUGAS PERPUSTAKAAN)** ............................................. 27
+  - 8.1 Dashboard Utama Administrator (`admin/dashboard.php`) .............................. 27
+  - 8.2 Manajemen Data Buku Koleksi (`admin/buku.php`) ..................................... 27
+  - 8.3 Manajemen Eksemplar Fisik & Cetak QR (`admin/buku_item.php`) ....................... 28
+  - 8.4 Manajemen Anggota & Pairing Kartu RFID (`admin/anggota.php`) ....................... 29
+  - 8.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`) ............................ 30
+  - 8.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`) ........................ 31
+  - 8.7 Arsip Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`) .............. 32
+  - 8.8 Ekspor Rekapitulasi Laporan Excel (.xls) ............................................ 33
   - 8.9 Log Aktivitas Sistem & Audit Trail (`admin/log_aktivitas.php`) ...................... 33
-- **9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE)** ............................................ 34
-  - 9.1 Barcode Scanner Gun (USB HID Keyboard Wedge) ....................................... 34
+- **9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE)** ............................................ 35
+  - 9.1 Barcode Scanner Gun (USB HID Keyboard Wedge) ....................................... 35
   - 9.2 RFID Card Reader USB (Identifikasi Cepat Kartu Siswa) ............................... 35
   - 9.3 Printer (Laporan, Kartu Anggota & Label QR Stiker) ................................. 36
-- **10. PENUTUP** .......................................................................... 37
-  - 10.1 Kesimpulan ........................................................................ 37
+- **10. PENUTUP** .......................................................................... 38
+  - 10.1 Kesimpulan ........................................................................ 38
   - 10.2 Saran Pengembangan ................................................................ 38
 - **LAMPIRAN** ............................................................................. 39
 
