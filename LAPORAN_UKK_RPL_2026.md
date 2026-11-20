@@ -1,39 +1,57 @@
-# DRAFT LAPORAN UJI KOMPETENSI KEAHLIAN (UKK)
-## PROGRAM KEAHLIAN REKAYASA PERANGKAT LUNAK (RPL)
-### TAHUN PELAJARAN 2025 / 2026
+# LAPORAN PRAKTIK UJI KOMPETENSI KEAHLIAN (UKK)
+## TAHUN PELAJARAN 2025/2026
+
+### **RANCANG BANGUN APLIKASI PERPUSTAKAAN DIGITAL BERBASIS WEB TERINTEGRASI SISTEM IDENTIFIKASI RFID DAN SCANNER QR CODE ("PINJAM.IN") PADA SMK NEGERI 1 PANYINGKIRAN**
 
 ---
 
-# 1. COVER
+<p align="center">
+  <img src="assets/screenshots/logo_smkn1panyingkiran.png" width="160" alt="Logo Resmi SMKN 1 Panyingkiran">
+</p>
 
-```text
-                     LAPORAN PRAKTIK UJI KOMPETENSI KEAHLIAN
-                   REKAYASA PERANGKAT LUNAK (RPL) TAHUN 2026
+**Disusun Oleh:**
+- **Nama Siswa**: MUHAMMAD FARID MALIK
+- **NIS**: 2425123
+- **Kelas**: XII RPL 2
+- **Program Keahlian**: Pengembangan Perangkat Lunak dan Gim (PPLG)
+- **Konsentrasi Keahlian**: Rekayasa Perangkat Lunak (RPL)
 
-      RANCANG BANGUN APLIKASI PERPUSTAKAAN DIGITAL BERBASIS WEB
-      TERINTEGRASI SISTEM IDENTIFIKASI RFID DAN SCANNER QR CODE
-                              "PINJAM.IN"
-                 PADA SMK NEGERI 1 PANYINGKIRAN
+---
 
+**PEMERINTAH DAERAH PROVINSI JAWA BARAT**  
+**DINAS PENDIDIKAN**  
+**CABANG DINAS PENDIDIKAN WILAYAH IX**  
+**SMK NEGERI 1 PANYINGKIRAN**  
+*(NPSN: 20247198 - Terakreditasi A)*  
+*Jl. Kirapandak, Desa Karyamukti, Kec. Panyingkiran, Kabupaten Majalengka, Jawa Barat 45459*  
+*Website: smkn1panyingkiran.sch.id | Tahun 2026*
 
-                                  [ LOGO ]
-                            SMKN 1 PANYINGKIRAN
+---
 
+# LEMBAR PENGESAHAN
+### LAPORAN PRAKTIK UJI KOMPETENSI KEAHLIAN (UKK)
 
-                                Disusun Oleh:
-                            MUHAMMAD FARID MALIK
-                                NIS: 2425123
-                               KELAS: XII RPL 2
+**Judul Proyek**: Rancang Bangun Aplikasi Perpustakaan Digital Berbasis Web Terintegrasi Sistem Identifikasi RFID dan Scanner QR Code (Pinjam.In) pada SMK Negeri 1 Panyingkiran  
+**Nama Siswa**: Muhammad Farid Malik  
+**NIS**: 2425123  
+**Kelas**: XII RPL 2  
+**Program Keahlian**: Pengembangan Perangkat Lunak dan Gim (PPLG)  
+**Konsentrasi Keahlian**: Rekayasa Perangkat Lunak (RPL)  
+**Asal Sekolah**: SMK Negeri 1 Panyingkiran  
 
+Laporan Praktik Uji Kompetensi Keahlian (UKK) ini telah diperiksa, disetujui, dan disahkan oleh Tim Pembimbing serta Tim Penguji Uji Kompetensi Keahlian SMK Negeri 1 Panyingkiran pada:
 
-                    PEMERINTAH DAERAH PROVINSI JAWA BARAT
-                            DINAS PENDIDIKAN
-                 CABANG DINAS PENDIDIKAN WILAYAH IX
-                       SMK NEGERI 1 PANYINGKIRAN
-             Jl. Kirapandawa No. 46, Liangjulang, Kec. Panyingkiran,
-                          Kabupaten Majalengka, Jawa Barat 45459
-                                  2026
-```
+Hari : ........................................  
+Tanggal : ................... Februari 2026  
+Tempat : SMK Negeri 1 Panyingkiran  
+
+| Penguji Internal / Guru Pembimbing | Penguji Eksternal / Mitra Industri |
+| :---: | :---: |
+| <br><br><br>_______________________________<br>NIP. | <br><br><br>_______________________________<br>NIP / ID Industri. |
+
+| Ketua Konsentrasi Keahlian RPL | Mengetahui, Kepala SMKN 1 Panyingkiran |
+| :---: | :---: |
+| <br><br><br>_______________________________<br>NIP. | <br><br><br>**H. AKHMAD KARYONO, S.Pd., M.Pd.**<br>NIP. 19690312 199702 1 002 |
 
 ---
 
@@ -191,6 +209,9 @@ Aplikasi Pinjam.In dilengkapi fitur-fitur komprehensif sebagai berikut:
 ### 5.1 Flowchart Proses Utama: Autentikasi & Multi-Role Login
 Diagram alir proses autentikasi mencakup dua opsi login: kredensial username/password tradisional dan Single Sign-On Google OAuth 2.0.
 
+![Gambar 5.1: Flowchart Autentikasi Pengguna & Integrasi Google OAuth 2.0](assets/screenshots/fc_01_login.png)
+*Gambar 5.1: Flowchart Autentikasi Pengguna & Integrasi Google OAuth 2.0*
+
 ```mermaid
 flowchart TD
     Start(["Mulai"]) --> PilihLogin{"Pilih Metode Login"}
@@ -226,6 +247,9 @@ flowchart TD
 
 ### 5.2 Flowchart Proses Utama: Transaksi Peminjaman Buku di Meja Sirkulasi
 Diagram alir proses peminjaman yang mengintegrasikan pemindaian RFID/NIS dan kode QR buku fisik dengan validasi kuota pinjaman.
+
+![Gambar 5.2: Flowchart Alur Transaksi Peminjaman Buku di Meja Sirkulasi](assets/screenshots/fc_02_peminjaman.png)
+*Gambar 5.2: Flowchart Alur Transaksi Peminjaman Buku di Meja Sirkulasi*
 
 ```mermaid
 flowchart TD
@@ -270,6 +294,9 @@ flowchart TD
 ### 5.3 Flowchart Proses Utama: Transaksi Pengembalian Buku & Perhitungan Denda
 Diagram alir pengembalian buku fisik di meja sirkulasi yang mengkalkulasi selisih hari keterlambatan dan pembukuan kas denda.
 
+![Gambar 5.3: Flowchart Alur Transaksi Pengembalian Buku & Perhitungan Denda](assets/screenshots/fc_03_pengembalian.png)
+*Gambar 5.3: Flowchart Alur Transaksi Pengembalian Buku & Perhitungan Denda*
+
 ```mermaid
 flowchart TD
     A(["Mulai Pengembalian Buku"]) --> B["Admin Buka admin/pengembalian.php"]
@@ -312,6 +339,9 @@ flowchart TD
 
 ### 6.1 Entity Relationship Diagram (ERD)
 Database sistem bernama `pinjam_in` dirancang dengan normalisasi tingkat ketiga (3NF) guna menjamin konsistensi data, relasi foreign key yang kokoh, dan integritas referensial.
+
+![Gambar 6.1: Entity Relationship Diagram (ERD) Basis Data pinjam_in](assets/screenshots/erd_database.png)
+*Gambar 6.1: Entity Relationship Diagram (ERD) Basis Data pinjam_in*
 
 ```mermaid
 erDiagram
