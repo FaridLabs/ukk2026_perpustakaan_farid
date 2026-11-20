@@ -56,46 +56,46 @@ Penulis menyadari bahwa sistem maupun laporan ini masih memiliki ruang untuk pen
 
 - **HALAMAN JUDUL / COVER** ................................................................ i
 - **KATA PENGANTAR** ....................................................................... ii
-- **DAFTAR ISI** ........................................................................... iii
-- **4. DESKRIPSI PROJEK** .................................................................. 6
-  - 4.1 Latar Belakang Masalah ............................................................. 6
-  - 4.2 Tujuan Aplikasi .................................................................... 7
-  - 4.3 Fungsi dan Fitur Utama ............................................................. 7
-  - 4.4 Teknologi yang Digunakan ........................................................... 8
-  - 4.5 Pengguna Aplikasi (User Role) ...................................................... 8
-- **5. FLOWCHART SISTEM** .................................................................. 10
-  - 5.1 Flowchart Autentikasi & Multi-Role Login ............................................ 10
-  - 5.2 Flowchart Transaksi Peminjaman Meja Sirkulasi ....................................... 12
-  - 5.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda ................................. 14
-- **6. PERANCANGAN DATABASE** .............................................................. 16
-  - 6.1 Entity Relationship Diagram (ERD Relasional) ........................................ 16
-  - 6.2 Struktur & Spesifikasi 8 Tabel Basis Data ........................................... 17
-- **7. TAMPILAN PUBLIC (SISWA & UMUM)** .................................................... 21
-  - 7.1 Halaman Beranda Publik (`index.php`) ............................................... 21
-  - 7.2 Halaman Autentikasi Login (`login.php`) ............................................ 21
-  - 7.3 Halaman Pendaftaran Anggota Mandiri (`daftar.php`) ................................. 22
-  - 7.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`) ....................... 23
-  - 7.5 Halaman Dashboard Siswa (`siswa/dashboard.php`) .................................... 24
-  - 7.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`) ............................... 25
-  - 7.7 Halaman Riwayat Sirkulasi Siswa (`siswa/riwayat.php`) ............................... 26
-- **8. TAMPILAN ADMIN (PETUGAS PERPUSTAKAAN)** ............................................. 27
-  - 8.1 Dashboard Utama Administrator (`admin/dashboard.php`) .............................. 27
-  - 8.2 Manajemen Data Buku Koleksi (`admin/buku.php`) ..................................... 27
-  - 8.3 Manajemen Eksemplar Fisik & Cetak QR (`admin/buku_item.php`) ....................... 28
-  - 8.4 Manajemen Anggota & Pairing Kartu RFID (`admin/anggota.php`) ....................... 29
-  - 8.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`) ............................ 30
-  - 8.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`) ........................ 31
-  - 8.7 Arsip Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`) .............. 32
-  - 8.8 Ekspor Rekapitulasi Laporan Excel (.xls) ............................................ 33
-  - 8.9 Log Aktivitas Sistem & Audit Trail (`admin/log_aktivitas.php`) ...................... 33
-- **9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE)** ............................................ 35
-  - 9.1 Barcode Scanner Gun (USB HID Keyboard Wedge) ....................................... 35
-  - 9.2 RFID Card Reader USB (Identifikasi Cepat Kartu Siswa) ............................... 35
-  - 9.3 Printer (Laporan, Kartu Anggota & Label QR Stiker) ................................. 36
-- **10. PENUTUP** .......................................................................... 38
-  - 10.1 Kesimpulan ........................................................................ 38
-  - 10.2 Saran Pengembangan ................................................................ 38
-- **LAMPIRAN** ............................................................................. 39
+- **DAFTAR ISI**
+- **4. DESKRIPSI PROJEK** .................................................................. 1
+  - 4.1 Latar Belakang Masalah ............................................................. 1
+  - 4.2 Tujuan Aplikasi .................................................................... 2
+  - 4.3 Fungsi dan Fitur Utama ............................................................. 2
+  - 4.4 Teknologi yang Digunakan ........................................................... 3
+  - 4.5 Pengguna Aplikasi (User Role) ...................................................... 4
+- **5. FLOWCHART SISTEM** .................................................................. 5
+  - 5.1 Flowchart Autentikasi & Multi-Role Login ............................................ 5
+  - 5.2 Flowchart Transaksi Peminjaman Meja Sirkulasi ....................................... 6
+  - 5.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda ................................. 7
+- **6. PERANCANGAN DATABASE** .............................................................. 8
+  - 6.1 Entity Relationship Diagram (ERD Relasional) ........................................ 8
+  - 6.2 Struktur & Spesifikasi 8 Tabel Basis Data ........................................... 9
+- **7. TAMPILAN PUBLIC (SISWA & UMUM)** .................................................... 13
+  - 7.1 Halaman Beranda Publik (`index.php`) ............................................... 13
+  - 7.2 Halaman Autentikasi Login (`login.php`) ............................................ 14
+  - 7.3 Halaman Pendaftaran Anggota Mandiri (`daftar.php`) ................................. 15
+  - 7.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`) ....................... 16
+  - 7.5 Halaman Dashboard Siswa (`siswa/dashboard.php`) .................................... 17
+  - 7.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`) ............................... 18
+  - 7.7 Halaman Riwayat Sirkulasi Siswa (`siswa/riwayat.php`) ............................... 19
+- **8. TAMPILAN ADMIN (PETUGAS PERPUSTAKAAN)** ............................................. 20
+  - 8.1 Dashboard Utama Administrator (`admin/dashboard.php`) .............................. 20
+  - 8.2 Manajemen Data Buku Koleksi (`admin/buku.php`) ..................................... 21
+  - 8.3 Manajemen Eksemplar Fisik & Cetak QR (`admin/buku_item.php`) ....................... 22
+  - 8.4 Manajemen Anggota & Pairing Kartu RFID (`admin/anggota.php`) ....................... 23
+  - 8.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`) ............................ 24
+  - 8.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`) ........................ 25
+  - 8.7 Arsip Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`) .............. 26
+  - 8.8 Ekspor Rekapitulasi Laporan Excel (.xls) ............................................ 27
+  - 8.9 Log Aktivitas Sistem & Audit Trail (`admin/log_aktivitas.php`) ...................... 28
+- **9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE)** ............................................ 29
+  - 9.1 Barcode Scanner Desktop 2D / QR Code (Taffware Omnidirectional) .................... 29
+  - 9.2 RFID Card Reader USB 13.56 MHz (Identifikasi Kartu Pelajar Siswa) .................. 30
+  - 9.3 Printer Epson All-in-One Ink Tank (Cetak Laporan, KTA & Label QR) .................. 31
+- **10. PENUTUP** .......................................................................... 34
+  - 10.1 Kesimpulan ........................................................................ 34
+  - 10.2 Saran Pengembangan ................................................................ 35
+- **LAMPIRAN** ............................................................................. 36
 
 ---
 
@@ -627,13 +627,13 @@ Berikut adalah dokumentasi antarmuka kerja Administrator / Staf Perpustakaan:
 
 # 9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE PERIPHERAL)
 
-Keunggulan utama operasional meja sirkulasi **Pinjam.In** adalah efisiensi kerja tinggi berkat integrasi **3 perangkat keras (hardware) utama**: **Barcode Scanner Gun**, **RFID Card Reader USB**, dan **Printer Inkjet/Laserjet** tanpa memerlukan driver rumit:
+Keunggulan utama operasional meja sirkulasi **Pinjam.In** adalah efisiensi kerja tinggi berkat integrasi **3 perangkat keras (hardware) fisik utama**: **Barcode & QR Scanner Desktop Taffware**, **USB RFID Card Reader 13.56 MHz**, dan **Printer Epson All-in-One Ink Tank** tanpa memerlukan instalasi driver yang rumit:
 
 ```mermaid
 flowchart LR
-    subgraph Input_Sirkulasi["Perangkat Input Sirkulasi Cepat"]
-        RFID["RFID Card Reader USB<br/>(Identifikasi Siswa)"]
-        Barcode["Barcode Scanner Gun<br/>(Scan Kode Buku Eksemplar)"]
+    subgraph Input_Sirkulasi["Perangkat Input Sirkulasi Meja Kasir"]
+        RFID["RFID Card Reader USB 13.56 MHz<br/>(Identifikasi Kartu Pelajar)"]
+        Barcode["Barcode Scanner Desktop Taffware<br/>(Scan QR Code Eksemplar)"]
     end
 
     subgraph Server_Aplikasi["Sistem Web Pinjam.In"]
@@ -641,7 +641,7 @@ flowchart LR
     end
 
     subgraph Output_Cetak["Perangkat Output Cetak Dokumen & Fisik"]
-        Printer["Printer Inkjet / Laserjet<br/>(Laporan, KTA & Label QR)"]
+        Printer["Printer Epson Ink Tank L-Series<br/>(Laporan Resmi, KTA & Label QR)"]
     end
 
     RFID -->|Input UID Kartu Siswa| App
@@ -649,39 +649,39 @@ flowchart LR
     App -->|Format Cetak Laporan & Grid Stiker| Printer
 ```
 
-### 9.1 Barcode Scanner Gun (USB Handheld)
+### 9.1 Barcode Scanner Desktop 2D / QR Code (Taffware Omnidirectional)
 
-![Gambar 9.1: Perangkat Keras Barcode Scanner Gun Handheld di Meja Sirkulasi](assets/screenshots/hw_barcode_scanner.png)
-*Gambar 9.1: Perangkat Keras Barcode Scanner Gun Handheld di Meja Sirkulasi*
+![Gambar 9.1: Foto Fisik Barcode & QR Code Scanner Desktop Taffware di Meja Sirkulasi](assets/screenshots/hw_barcode_scanner.png)
+*Gambar 9.1: Foto Fisik Barcode & QR Code Scanner Desktop Taffware di Meja Sirkulasi*
 
-- **Tipe & Antarmuka**: Barcode / 2D QR Scanner Gun dengan koneksi USB (Plug and Play).
-- **Mekanisme Kerja**: Bekerja dalam mode **HID (Human Interface Device) Keyboard Wedge**. Ketika sensor optik membaca stiker QR pada punggung buku fisik, alat mentransmisikan kode seri unik eksemplar (misal: `BK-17-001`) secara instan dan otomatis diakhiri dengan karakter ASCII Enter (`\r\n`).
+- **Tipe & Antarmuka**: Desktop Hands-Free 2D QR / Barcode Scanner (Taffware) dengan koneksi USB Plug and Play.
+- **Mekanisme Kerja**: Bekerja dalam mode **HID (Human Interface Device) Keyboard Wedge** dengan modul sensor imager omnidirectional. Buku cukup didekatkan ke hadapan jendela optik tanpa perlu menekan tuas (*hands-free*). Alat secara otomatis membaca pola kode matriks QR eksemplar buku (misal: `BK-17-001`) dan mengirimkan untaian karakter diakhiri ASCII Enter (`\r\n`).
 - **Penerapan pada Pinjam.In**:
-  - Pada halaman peminjaman (`admin/peminjaman.php`) dan pengembalian (`admin/pengembalian.php`), kursor input otomatis aktif (*autofocus*). Begitu label kode buku fisik di-scan, form langsung memproses data tanpa perlu klik mouse atau pengetikan manual keyboard.
+  - Dipasang pada meja sirkulasi perpustakaan. Begitu kode eksemplar buku fisik diarahkan ke sensor scanner pada form peminjaman maupun pengembalian, sistem langsung memproses transaksi secara cepat tanpa intervensi mouse.
 
 ---
 
-### 9.2 RFID Card Reader USB (Identifikasi Cepat Kartu Siswa)
+### 9.2 RFID Card Reader USB 13.56 MHz (Identifikasi Kartu Pelajar Siswa)
 
-![Gambar 9.2: Perangkat Keras RFID Card Reader USB dan Kartu Pintar Pelajar](assets/screenshots/hw_rfid_reader.png)
-*Gambar 9.2: Perangkat Keras RFID Card Reader USB dan Kartu Pintar Pelajar*
+![Gambar 9.2: Foto Fisik USB RFID Reader 13.56 MHz dan Kartu Pelajar SMKN 1 Panyingkiran](assets/screenshots/hw_rfid_reader.png)
+*Gambar 9.2: Foto Fisik USB RFID Reader 13.56 MHz dan Kartu Pelajar SMKN 1 Panyingkiran*
 
-- **Tipe & Antarmuka**: USB Contactless Proximity Smart IC/ID Card Reader (Mifare 13.56 MHz / EM4100 125 kHz).
-- **Mekanisme Kerja**: Menggunakan gelombang radio elektromagnetik jarak dekat (0–5 cm) untuk membaca nomor identifikasi unik (*Card Unique Identification* / UID) dari kartu pelajar siswa dan mentransmisikannya langsung sebagai input teks ke sistem secara instan (< 1 detik).
+- **Tipe & Antarmuka**: Contactless Smart IC Card Reader frekuensi 13.56 MHz (Mifare) dengan koneksi USB.
+- **Mekanisme Kerja**: Menggunakan induksi gelombang elektromagnetik jarak dekat (0–5 cm) untuk membaca nomor *Card Unique Identification* (UID) dari Kartu Pelajar SMKN 1 Panyingkiran dan mentransmisikannya langsung sebagai input identitas siswa secara instan (< 1 detik).
 - **Penerapan pada Pinjam.In**:
-  - Siswa cukup men-tap kartu pelajar di atas reader pada meja sirkulasi untuk memunculkan identitas peminjam seketika tanpa perlu menyebutkan atau mengetikkan NIS. Modul ini juga terhubung dengan menu `admin/anggota.php` untuk mem-pairing kartu fisik baru.
+  - Siswa cukup menempelkan (*tap*) Kartu Pelajar ke unit reader di meja kasir sirkulasi. Profil siswa, foto, serta batas peminjaman aktif langsung terbuka di layar petugas. Fitur ini juga digunakan pada menu `admin/anggota.php` untuk mem-pairing kartu fisik baru.
 
 ---
 
-### 9.3 Printer (Laporan, Kartu Anggota Digital & Label Stiker QR)
+### 9.3 Printer Epson All-in-One Ink Tank (Cetak Laporan, KTA & Label QR)
 
-![Gambar 9.3: Perangkat Keras Printer untuk Cetak Laporan, Kartu Anggota, dan Label QR](assets/screenshots/hw_printer.png)
-*Gambar 9.3: Perangkat Keras Printer untuk Cetak Laporan, Kartu Anggota, dan Label QR*
+![Gambar 9.3: Foto Fisik Printer Epson Ink Tank All-in-One untuk Cetak Dokumen & Label QR](assets/screenshots/hw_printer.png)
+*Gambar 9.3: Foto Fisik Printer Epson Ink Tank All-in-One untuk Cetak Dokumen & Label QR*
 
-- **Tipe & Antarmuka**: Printer Inkjet / Laserjet standar perkantoran (Ukuran Kertas A4 / F4).
-- **Mekanisme Kerja**: Menggunakan driver pencetakan sistem operasi native dengan resolusi tinggi (300 DPI) untuk memastikan ketajaman teks dokumen resmi dan presisi matriks kode QR.
+- **Tipe & Antarmuka**: Printer Inkjet All-in-One Sistem Tabung Tinta (Epson EcoTank L-Series).
+- **Mekanisme Kerja**: Mencetak dokumen warna maupun monokrom beresolusi tinggi (hingga 5760 x 1440 DPI) pada media kertas A4/F4 maupun kertas stiker melalui driver printer native sistem operasi.
 - **Penerapan pada Pinjam.In**:
-  - **Pencetakan Lembar Label Stiker QR Buku (`admin/buku_item.php` & `config/generate_qr.php`)**: Menghasilkan tata letak grid stiker bergaris putus-putus (*cut guide*) yang memuat judul buku, kode unik eksemplar, dan kode QR siap tempel pada punggung buku fisik.
+  - **Pencetakan Lembar Label Stiker QR Buku (`admin/buku_item.php` & `config/generate_qr.php`)**: Menghasilkan tata letak grid stiker bergaris putus-putus (*cut guide*) yang memuat judul buku, kode unik eksemplar, dan kode QR siap tempel pada punggung buku fisik di rak perpustakaan.
   - **Pencetakan Kartu Tanda Anggota (KTA) Pelajar Digital**: Menghasilkan kartu anggota perpustakaan digital lengkap dengan foto siswa dan QR Code identitas untuk dilaminasi.
   - **Pencetakan Laporan Rekapitulasi Sirkulasi Eksekutif**: Dokumen arsip resmi sekolah lengkap dengan format KOP Surat SMKN 1 Panyingkiran dan kolom tanda tangan Kepala Perpustakaan.
 
