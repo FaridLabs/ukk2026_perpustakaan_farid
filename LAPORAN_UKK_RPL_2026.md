@@ -91,7 +91,7 @@ Penulis menyadari bahwa sistem maupun laporan ini masih memiliki ruang untuk pen
 - **9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE)** ............................................ 34
   - 9.1 Barcode Scanner Gun (USB HID Keyboard Wedge) ....................................... 34
   - 9.2 RFID Card Reader USB (Identifikasi Cepat Kartu Siswa) ............................... 35
-  - 9.3 Printer Thermal Mini 58mm/80mm (Slip Bukti Transaksi) .............................. 36
+  - 9.3 Printer (Laporan, Kartu Anggota & Label QR Stiker) ................................. 36
 - **10. PENUTUP** .......................................................................... 37
   - 10.1 Kesimpulan ........................................................................ 37
   - 10.2 Saran Pengembangan ................................................................ 38
@@ -108,7 +108,7 @@ Perpustakaan sekolah merupakan jantung sumber belajar dan jendela literasi bagi 
 3. **Keterlambatan dan Pengawasan Kas Denda**: Perhitungan denda harian yang dihitung manual rawan terjadi kekeliruan pembukuan serta kebocoran kas perpustakaan. Siswa pun kerap lupa batas tanggal pengembalian karena tidak memiliki kartu pengingat digital.
 4. **Kebutuhan Aksesibilitas Modern**: Generasi siswa saat ini terbiasa dengan kemudahan *Single Sign-On* (SSO) akun Google sekolah serta katalog online yang responsif melalui smartphone tanpa harus datang ke rak buku hanya untuk mengecek ketersediaan stok.
 
-Berdasarkan permasalahan di atas, dirancanglah **Pinjam.In**, sebuah sistem perpustakaan digital terintegrasi yang menggabungkan aplikasi web modular dengan 5 perangkat keras operasional (RFID Reader, Barcode/QR Scanner, Webcam, Thermal Printer, dan Printer Standar) untuk mewujudkan konsep *Smart School Library* yang akuntabel, cepat, dan presisi.
+Berdasarkan permasalahan di atas, dirancanglah **Pinjam.In**, sebuah sistem perpustakaan digital terintegrasi yang menggabungkan aplikasi web modular dengan 3 perangkat keras operasional (RFID Reader, Barcode Scanner Gun, dan Printer) untuk mewujudkan konsep *Smart School Library* yang akuntabel, cepat, dan presisi.
 
 ### 4.2 Tujuan Aplikasi
 Pengembangan aplikasi **Pinjam.In** bertujuan untuk:
@@ -116,7 +116,7 @@ Pengembangan aplikasi **Pinjam.In** bertujuan untuk:
 2. **Menjamin Akurasi Inventaris Koleksi Fisik**: Mengimplementasikan model pendataan buku berbasis fisik (1 judul memiliki banyak `buku_item` berkode QR unik).
 3. **Meningkatkan Transparansi Finansial Kas Denda**: Mengotomatisasi kalkulasi denda keterlambatan berjalan serta status pelunasan kas secara transparan.
 4. **Menyediakan Layanan Mandiri (*Self-Service*) Bagi Siswa**: Memudahkan siswa menelusuri katalog buku, ketersediaan rak, status peminjaman aktif, serta integrasi login instan via akun Google.
-5. **Mempermudah Rekapitulasi & Pelaporan Resmi**: Menyediakan fasilitas cetak dokumen resmi ber-KOP sekolah, format cetak struk kasir thermal, serta ekspor file Microsoft Excel (.xls) berstandar industri.
+5. **Mempermudah Rekapitulasi & Pelaporan Resmi**: Menyediakan fasilitas cetak dokumen resmi ber-KOP sekolah, cetak kartu anggota dan label stiker QR via printer, serta ekspor file Microsoft Excel (.xls) berstandar industri.
 
 ### 4.3 Fungsi dan Fitur Utama
 Aplikasi Pinjam.In dilengkapi fitur-fitur komprehensif sebagai berikut:
@@ -147,7 +147,7 @@ Aplikasi Pinjam.In dilengkapi fitur-fitur komprehensif sebagai berikut:
   - Preservasi parameter query string (pencarian kata kunci, filter kategori, status, rentang tanggal tetap aktif saat berpindah halaman).
 - **Pelaporan & Ekspor Berkas**:
   - Ekspor laporan sirkulasi ke spreadsheet **Microsoft Excel (.xls)** dengan tata letak resmi, KOP sekolah, border rapi, badge warna, dan format mata uang rupiah.
-  - Cetak slip transaksi mini menggunakan printer thermal (58mm/80mm).
+  - Cetak bukti transaksi, kartu anggota, dan label stiker QR via printer.
   - Cetak laporan arsip A4 berstandar dinas dengan jam WIB dan tanda tangan pengesahan.
 - **Audit Trail & Log Aktivitas**:
   - Pencatatan seluruh aksi pengguna (login, tambah, ubah, hapus data, transaksi, pelunasan denda) lengkap dengan IP Address dan timestamp waktu WIB.
@@ -260,8 +260,8 @@ flowchart TD
     P -- "Sukses" --> R["commit() Data Permanen"]
     
     R --> S["Tampilkan Struk Transaksi"]
-    S --> T{"Cetak Struk Thermal?"}
-    T -- "Ya" --> U["Cetak Struk via Printer Thermal 58mm"] --> Selesai(["Selesai"])
+    S --> T{"Cetak Bukti Transaksi?"}
+    T -- "Ya" --> U["Cetak Bukti Transaksi via Printer"] --> Selesai(["Selesai"])
     T -- "Tidak" --> Selesai
 ```
 
@@ -303,7 +303,7 @@ flowchart TD
     
     R --> S{"Ada Denda Keterlambatan?"}
     S -- "Ya" --> T["Munculkan Opsi: Siswa Membayar Denda Sekarang?"]
-    T -- "Siswa Bayar Langsung" --> U["Klik 'Tandai Lunas'<br/>UPDATE transaksi SET status_denda = 'lunas'<br/>Catat ke Kas Denda"] --> V["Cetak Slip Thermal Pengembalian"]
+    T -- "Siswa Bayar Langsung" --> U["Klik 'Tandai Lunas'<br/>UPDATE transaksi SET status_denda = 'lunas'<br/>Catat ke Kas Denda"] --> V["Cetak Bukti Pengembalian via Printer"]
     T -- "Ditangguhkan" --> V
     S -- "Tidak" --> V
     V --> W(["Selesai (Buku Siap Dipinjam Siswa Lain)"])
@@ -596,13 +596,13 @@ Berikut adalah dokumentasi antarmuka kerja Administrator / Staf Perpustakaan:
 
 ### 8.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`)
 - **Fungsi**: Halaman operasional utama kasir perpustakaan untuk memproses peminjaman buku oleh siswa dalam hitungan detik.
-- **Elemen Penting**: Input scan kartu RFID siswa / NIS, panel identitas siswa aktif, pemindai Barcode Gun / Webcam HTML5, validasi kuota 3 buku, dan tombol cetak struk thermal peminjaman.
+- **Elemen Penting**: Input scan kartu RFID siswa / NIS, panel identitas siswa aktif, pemindai Barcode Gun / Webcam HTML5, validasi kuota 3 buku, dan tombol cetak bukti peminjaman.
 ![Gambar 8.6: Meja Sirkulasi Peminjaman Cepat Berbasis Scan RFID & QR](assets/screenshots/13_admin_peminjaman.png)
 *Gambar 8.6: Meja Sirkulasi Peminjaman Cepat Berbasis Scan RFID & QR*
 
 ### 8.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`)
 - **Fungsi**: Memproses pengembalian buku fisik, kalkulasi selisih hari denda otomatis, dan pencatatan kas denda.
-- **Elemen Penting**: Tombol "Kembalikan", label peringatan telat, kalkulator estimasi denda berjalan, konfirmasi pelunasan kas denda, dan cetak struk thermal pengembalian.
+- **Elemen Penting**: Tombol "Kembalikan", label peringatan telat, kalkulator estimasi denda berjalan, konfirmasi pelunasan kas denda, dan cetak bukti pengembalian.
 ![Gambar 8.7: Meja Sirkulasi Pengembalian Buku & Deteksi Denda Keterlambatan](assets/screenshots/14_admin_pengembalian.png)
 *Gambar 8.7: Meja Sirkulasi Pengembalian Buku & Deteksi Denda Keterlambatan*
 
@@ -627,7 +627,7 @@ Berikut adalah dokumentasi antarmuka kerja Administrator / Staf Perpustakaan:
 
 # 9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE PERIPHERAL)
 
-Keunggulan utama operasional meja sirkulasi **Pinjam.In** adalah efisiensi kerja tinggi berkat integrasi **3 perangkat keras (hardware) utama**: **Barcode Scanner Gun**, **RFID Card Reader USB**, dan **Printer Thermal Mini 58mm/80mm** tanpa memerlukan driver rumit:
+Keunggulan utama operasional meja sirkulasi **Pinjam.In** adalah efisiensi kerja tinggi berkat integrasi **3 perangkat keras (hardware) utama**: **Barcode Scanner Gun**, **RFID Card Reader USB**, dan **Printer Inkjet/Laserjet** tanpa memerlukan driver rumit:
 
 ```mermaid
 flowchart LR
@@ -640,13 +640,13 @@ flowchart LR
         App["Aplikasi Web Pinjam.In<br/>(PHP Native & PDO MySQL)"]
     end
 
-    subgraph Output_Sirkulasi["Perangkat Output Cetak Fisik"]
-        Thermal["Printer Thermal POS 58mm/80mm<br/>(Slip Bukti Transaksi)"]
+    subgraph Output_Cetak["Perangkat Output Cetak Dokumen & Fisik"]
+        Printer["Printer Inkjet / Laserjet<br/>(Laporan, KTA & Label QR)"]
     end
 
     RFID -->|Input UID Kartu Siswa| App
     Barcode -->|Input String Kode Eksemplar| App
-    App -->|Format Struk @media print| Thermal
+    App -->|Format Cetak Laporan & Grid Stiker| Printer
 ```
 
 ### 9.1 Barcode Scanner Gun (USB Handheld)
@@ -673,16 +673,17 @@ flowchart LR
 
 ---
 
-### 9.3 Printer Thermal Mini (ESC/POS Receipt Printer)
+### 9.3 Printer (Laporan, Kartu Anggota Digital & Label Stiker QR)
 
-![Gambar 9.3: Perangkat Keras Printer Thermal Mini 58mm untuk Struk Transaksi](assets/screenshots/hw_printer_thermal.png)
-*Gambar 9.3: Perangkat Keras Printer Thermal Mini 58mm untuk Struk Transaksi*
+![Gambar 9.3: Perangkat Keras Printer untuk Cetak Laporan, Kartu Anggota, dan Label QR](assets/screenshots/hw_printer.png)
+*Gambar 9.3: Perangkat Keras Printer untuk Cetak Laporan, Kartu Anggota, dan Label QR*
 
-- **Tipe & Antarmuka**: Direct Thermal Receipt POS Printer lebar kertas 58mm / 80mm dengan koneksi USB / ESC-POS.
-- **Mekanisme Kerja**: Menggunakan elemen pemanas pada kertas peka panas (*thermal paper roll*) berkecepatan tinggi tanpa memerlukan pita tinta atau toner. Output dikontrol melalui stylesheet cetak browser `@media print` berukuran kertas struk kasir.
+- **Tipe & Antarmuka**: Printer Inkjet / Laserjet standar perkantoran (Ukuran Kertas A4 / F4).
+- **Mekanisme Kerja**: Menggunakan driver pencetakan sistem operasi native dengan resolusi tinggi (300 DPI) untuk memastikan ketajaman teks dokumen resmi dan presisi matriks kode QR.
 - **Penerapan pada Pinjam.In**:
-  - Mencetak **Slip Bukti Peminjaman**: Memuat nomor transaksi, identitas siswa, daftar buku yang dipinjam, serta batas tanggal pengembalian jatuh tempo (H+7 hari).
-  - Mencetak **Slip Bukti Pengembalian & Kas Denda**: Menjadi bukti sah pengembalian fisik buku dan rincian pelunasan denda kas jika terjadi keterlambatan.
+  - **Pencetakan Lembar Label Stiker QR Buku (`admin/buku_item.php` & `config/generate_qr.php`)**: Menghasilkan tata letak grid stiker bergaris putus-putus (*cut guide*) yang memuat judul buku, kode unik eksemplar, dan kode QR siap tempel pada punggung buku fisik.
+  - **Pencetakan Kartu Tanda Anggota (KTA) Pelajar Digital**: Menghasilkan kartu anggota perpustakaan digital lengkap dengan foto siswa dan QR Code identitas untuk dilaminasi.
+  - **Pencetakan Laporan Rekapitulasi Sirkulasi Eksekutif**: Dokumen arsip resmi sekolah lengkap dengan format KOP Surat SMKN 1 Panyingkiran dan kolom tanda tangan Kepala Perpustakaan.
 
 ---
 
@@ -708,7 +709,7 @@ Demi kesempurnaan dan keberlanjutan sistem di masa depan, beberapa saran pengemb
 *(Bagian ini dapat diisi dengan dokumentasi tambahan saat laporan dicetak)*
 
 - **Lampiran 1**: Lembar Verifikasi & Checklist Uji Coba Fitur Aplikasi (Semua Fitur Berstatus PASS).
-- **Lampiran 2**: Foto Alat Pendukung Perangkat Keras (Barcode Scanner, RFID Reader, Thermal Printer, Kamera Webcam).
+- **Lampiran 2**: Foto Alat Pendukung Perangkat Keras (Barcode Scanner Gun, RFID Card Reader USB, dan Printer).
 - **Lampiran 3**: Foto Kegiatan Simulasi Peminjaman Buku di Meja Sirkulasi Perpustakaan SMKN 1 Panyingkiran.
 - **Lampiran 4**: Salinan Kode Program Utama Database & Koneksi PDO (`config/koneksi.php`, `config/google_config.php`).
-- **Lampiran 5**: Contoh Hasil Cetak Fisik Struk Thermal dan Stiker Label QR Code Buku.
+- **Lampiran 5**: Contoh Hasil Cetak Fisik Dokumen Laporan, Kartu Anggota Digital, dan Lembar Stiker Label QR Code Buku.
