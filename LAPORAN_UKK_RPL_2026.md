@@ -28,42 +28,15 @@
 
 ---
 
-# LEMBAR PENGESAHAN
-### LAPORAN PRAKTIK UJI KOMPETENSI KEAHLIAN (UKK)
-
-**Judul Proyek**: Rancang Bangun Aplikasi Perpustakaan Digital Berbasis Web Terintegrasi Sistem Identifikasi RFID dan Scanner QR Code (Pinjam.In) pada SMK Negeri 1 Panyingkiran  
-**Nama Siswa**: Muhammad Farid Malik  
-**NIS**: 2425123  
-**Kelas**: XII RPL 2  
-**Program Keahlian**: Pengembangan Perangkat Lunak dan Gim (PPLG)  
-**Konsentrasi Keahlian**: Rekayasa Perangkat Lunak (RPL)  
-**Asal Sekolah**: SMK Negeri 1 Panyingkiran  
-
-Laporan Praktik Uji Kompetensi Keahlian (UKK) ini telah diperiksa, disetujui, dan disahkan oleh Tim Pembimbing serta Tim Penguji Uji Kompetensi Keahlian SMK Negeri 1 Panyingkiran pada:
-
-Hari : ........................................  
-Tanggal : ................... Februari 2026  
-Tempat : SMK Negeri 1 Panyingkiran  
-
-| Penguji Internal / Guru Pembimbing | Penguji Eksternal / Mitra Industri |
-| :---: | :---: |
-| <br><br><br>_______________________________<br>NIP. | <br><br><br>_______________________________<br>NIP / ID Industri. |
-
-| Ketua Konsentrasi Keahlian RPL | Mengetahui, Kepala SMKN 1 Panyingkiran |
-| :---: | :---: |
-| <br><br><br>_______________________________<br>NIP. | <br><br><br>**H. AKHMAD KARYONO, S.Pd., M.Pd.**<br>NIP. 19690312 199702 1 002 |
-
----
-
 # 2. KATA PENGANTAR
 
 Puji dan syukur penulis panjatkan ke hadirat Allah SWT atas limpahan rahmat, taufik, serta hidayah-Nya, sehingga penulis dapat menyelesaikan penulisan Laporan Praktik Uji Kompetensi Keahlian (UKK) yang berjudul **"Rancang Bangun Aplikasi Perpustakaan Digital Berbasis Web Terintegrasi Sistem Identifikasi RFID dan Scanner QR Code (Pinjam.In) pada SMK Negeri 1 Panyingkiran"** dengan baik dan tepat waktu.
 
-Laporan ini disusun sebagai salah satu syarat mutlak guna menyelesaikan pendidikan pada Kompetensi Keahlian Rekayasa Perangkat Lunak (RPL) di SMK Negeri 1 Panyingkiran Tahun Pelajaran 2025/2026, sekaligus sebagai pertanggungjawaban karya proyek perangkat lunak mandiri yang telah dirancang, diimplementasikan, dan diuji.
+Laporan ini disusun sebagai salah satu syarat mutlak guna menyelesaikan pendidikan pada Kompetensi Keahlian Rekayasa Perangkat Lunak (RPL), Program Keahlian Pengembangan Perangkat Lunak dan Gim (PPLG) di SMK Negeri 1 Panyingkiran Tahun Pelajaran 2025/2026, sekaligus sebagai pertanggungjawaban karya proyek perangkat lunak mandiri yang telah dirancang, diimplementasikan, dan diuji.
 
 Dalam proses perancangan sistem hingga terselesaikannya penulisan laporan ini, penulis mendapatkan banyak bimbingan, arahan, dan dukungan moril dari berbagai pihak. Oleh karena itu, penulis ingin menyampaikan ucapan terima kasih yang tulus dan penghargaan setinggi-tingginya kepada:
 
-1. **Bapak/Ibu Kepala SMK Negeri 1 Panyingkiran**, yang senantiasa memfasilitasi sarana dan prasarana pendidikan teknologi yang unggul.
+1. **Bapak H. Akhmad Karyono, S.Pd., M.Pd.**, selaku Kepala SMK Negeri 1 Panyingkiran, yang senantiasa memfasilitasi sarana dan prasarana pendidikan teknologi yang unggul.
 2. **Bapak/Ibu Penguji Internal dan Penguji Eksternal (Industri)**, yang telah meluangkan waktu untuk menguji, membimbing, dan memvalidasi kelayakan proyek perangkat lunak ini.
 3. **Bapak/Ibu Guru Produktif Rekayasa Perangkat Lunak SMK Negeri 1 Panyingkiran**, atas dedikasi dan transfer ilmu pengetahuan seputar pemrograman web, basis data, dan rekayasa sistem.
 4. **Kedua Orang Tua dan Keluarga Tercinta**, yang tiada henti memanjatkan doa, memberikan dorongan motivasi, serta pengorbanan materiel maupun spiritual.
@@ -81,33 +54,58 @@ Penulis menyadari bahwa sistem maupun laporan ini masih memiliki ruang untuk pen
 
 # 3. DAFTAR ISI
 
-- **LEMBAR PENGESAHAN SEKOLAH & PENGUJI**
-- **KATA PENGANTAR**
-- **DAFTAR ISI**
-- **DAFTAR GAMBAR & FLOWCHART**
-- **DAFTAR TABEL**
-- **BAB I: DESKRIPSI PROJEK**
-  - 1.1 Latar Belakang Masalah
-  - 1.2 Tujuan Aplikasi
-  - 1.3 Fungsi dan Fitur Utama
-  - 1.4 Teknologi yang Digunakan
-  - 1.5 Identifikasi Pengguna Aplikasi (User Role)
-- **BAB II: FLOWCHART SISTEM**
-  - 2.1 Flowchart Autentikasi Pengguna & Multi-Role Login
-  - 2.2 Flowchart Transaksi Peminjaman Meja Sirkulasi
-  - 2.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda
-- **BAB III: PERANCANGAN DATABASE**
-  - 3.1 Entity Relationship Diagram (ERD)
-  - 3.2 Struktur & Spesifikasi Tabel Basis Data
-    - 3.2.1 Tabel `admin`
-    - 3.2.2 Tabel `anggota`
-    - 3.2.3 Tabel `buku`
-    - 3.2.4 Tabel `buku_item`
-    - 3.2.5 Tabel `kategori`
-    - 3.2.6 Tabel `transaksi`
-    - 3.2.7 Tabel `pengaturan`
-    - 3.2.8 Tabel `log_aktivitas`
-- **BAB IV: IMPLEMENTASI ANTARMUKA PENGGUNA (USER INTERFACE)**
+- **HALAMAN JUDUL / COVER** ................................................................ i
+- **KATA PENGANTAR** ........................................................................ ii
+- **DAFTAR ISI** ............................................................................ iii
+- **BAB I: DESKRIPSI PROJEK** ............................................................... 1
+  - 1.1 Latar Belakang Masalah .............................................................. 1
+  - 1.2 Tujuan Aplikasi ..................................................................... 2
+  - 1.3 Fungsi dan Fitur Utama .............................................................. 2
+  - 1.4 Teknologi yang Digunakan ............................................................ 3
+  - 1.5 Identifikasi Pengguna Aplikasi (User Role) .......................................... 4
+- **BAB II: FLOWCHART SISTEM** .............................................................. 5
+  - 2.1 Flowchart Autentikasi Pengguna & Multi-Role Login (Standar ANSI/ISO) ................ 5
+  - 2.2 Flowchart Transaksi Peminjaman Meja Sirkulasi (Standar ANSI/ISO) .................... 6
+  - 2.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda (Standar ANSI/ISO) ............... 7
+- **BAB III: PERANCANGAN DATABASE** ......................................................... 8
+  - 3.1 Entity Relationship Diagram (ERD) Kardinalitas 1 : N ................................ 8
+  - 3.2 Struktur & Spesifikasi Tabel Basis Data ............................................. 9
+    - 3.2.1 Tabel `admin` ................................................................... 9
+    - 3.2.2 Tabel `anggota` ................................................................. 10
+    - 3.2.3 Tabel `buku` .................................................................... 10
+    - 3.2.4 Tabel `buku_item` ............................................................... 11
+    - 3.2.5 Tabel `kategori` ................................................................ 11
+    - 3.2.6 Tabel `transaksi` ............................................................... 12
+    - 3.2.7 Tabel `pengaturan` .............................................................. 12
+    - 3.2.8 Tabel `log_aktivitas` ........................................................... 13
+- **BAB IV: IMPLEMENTASI ANTARMUKA PENGGUNA (PUBLIC & SISWA)** .............................. 14
+  - 4.1 Halaman Beranda Publik (`index.php`) ................................................ 14
+  - 4.2 Halaman Autentikasi Pengguna (`login.php`) .......................................... 15
+  - 4.3 Halaman Pendaftaran Siswa Mandiri (`daftar.php`) .................................... 16
+  - 4.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`) ....................... 17
+  - 4.5 Halaman Dashboard Siswa (`siswa/dashboard.php`) ..................................... 18
+  - 4.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`) ................................ 19
+  - 4.7 Halaman Riwayat Transaksi Siswa (`siswa/riwayat.php`) ............................... 20
+- **BAB V: IMPLEMENTASI ANTARMUKA PENGGUNA (ADMINISTRATOR)** ................................ 21
+  - 5.1 Dashboard Utama Administrator (`admin/dashboard.php`) .............................. 21
+  - 5.2 Manajemen Koleksi Buku (`admin/buku.php`) ........................................... 22
+  - 5.3 Manajemen Eksemplar Fisik & Cetak Stiker QR (`admin/buku_item.php`) ................. 23
+  - 5.4 Manajemen Anggota & Pairing Kartu RFID (`admin/anggota.php`) ....................... 24
+  - 5.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`) ............................. 25
+  - 5.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`) ......................... 26
+  - 5.7 Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`) ..................... 27
+  - 5.8 Ekspor Rekapitulasi Laporan Excel (.xls) ............................................ 28
+  - 5.9 Log Aktivitas Sistem (`admin/log_aktivitas.php`) .................................... 29
+- **BAB VI: IMPLEMENTASI ALAT PENDUKUNG (HARDWARE PERIPHERAL)** ............................. 30
+  - 6.1 Barcode Scanner Gun (USB Handheld) .................................................. 30
+  - 6.2 Kamera Webcam (HTML5 Realtime QR Reader) ............................................ 31
+  - 6.3 Printer Thermal Mini (ESC/POS Receipt Printer) ...................................... 32
+  - 6.4 Printer Standar Desktop (Dokumen A4 & Label Stiker) ................................. 33
+  - 6.5 RFID Card Reader (USB Proximity 13.56 MHz / 125 kHz) ................................ 34
+- **BAB VII: PENUTUP** ...................................................................... 35
+  - 7.1 Kesimpulan .......................................................................... 35
+  - 7.2 Saran Pengembangan .................................................................. 36
+- **LAMPIRAN** .............................................................................. 37
   - 4.1 Tampilan Publik & Siswa
   - 4.2 Tampilan Administrator Perpustakaan
 - **BAB V: IMPLEMENTASI PERANGKAT KERAS PENDUKUNG**
