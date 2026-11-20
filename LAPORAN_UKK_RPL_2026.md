@@ -54,48 +54,48 @@ Penulis menyadari bahwa sistem maupun laporan ini masih memiliki ruang untuk pen
 
 # 3. DAFTAR ISI
 
-- **HALAMAN JUDUL / COVER** ................................................................ i
-- **KATA PENGANTAR** ....................................................................... ii
+- **HALAMAN JUDUL / COVER**
+- **KATA PENGANTAR**
 - **DAFTAR ISI**
 - **4. DESKRIPSI PROJEK** .................................................................. 1
   - 4.1 Latar Belakang Masalah ............................................................. 1
   - 4.2 Tujuan Aplikasi .................................................................... 2
   - 4.3 Fungsi dan Fitur Utama ............................................................. 2
   - 4.4 Teknologi yang Digunakan ........................................................... 3
-  - 4.5 Pengguna Aplikasi (User Role) ...................................................... 4
+  - 4.5 Pengguna Aplikasi (User Role) ...................................................... 3
 - **5. FLOWCHART SISTEM** .................................................................. 5
   - 5.1 Flowchart Autentikasi & Multi-Role Login ............................................ 5
-  - 5.2 Flowchart Transaksi Peminjaman Meja Sirkulasi ....................................... 6
-  - 5.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda ................................. 7
-- **6. PERANCANGAN DATABASE** .............................................................. 8
-  - 6.1 Entity Relationship Diagram (ERD Relasional) ........................................ 8
-  - 6.2 Struktur & Spesifikasi 8 Tabel Basis Data ........................................... 9
-- **7. TAMPILAN PUBLIC (SISWA & UMUM)** .................................................... 13
-  - 7.1 Halaman Beranda Publik (`index.php`) ............................................... 13
-  - 7.2 Halaman Autentikasi Login (`login.php`) ............................................ 14
-  - 7.3 Halaman Pendaftaran Anggota Mandiri (`daftar.php`) ................................. 15
-  - 7.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`) ....................... 16
-  - 7.5 Halaman Dashboard Siswa (`siswa/dashboard.php`) .................................... 17
-  - 7.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`) ............................... 18
-  - 7.7 Halaman Riwayat Sirkulasi Siswa (`siswa/riwayat.php`) ............................... 19
-- **8. TAMPILAN ADMIN (PETUGAS PERPUSTAKAAN)** ............................................. 20
-  - 8.1 Dashboard Utama Administrator (`admin/dashboard.php`) .............................. 20
-  - 8.2 Manajemen Data Buku Koleksi (`admin/buku.php`) ..................................... 21
-  - 8.3 Manajemen Eksemplar Fisik & Cetak QR (`admin/buku_item.php`) ....................... 22
-  - 8.4 Manajemen Anggota & Pairing Kartu RFID (`admin/anggota.php`) ....................... 23
-  - 8.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`) ............................ 24
-  - 8.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`) ........................ 25
-  - 8.7 Arsip Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`) .............. 26
-  - 8.8 Ekspor Rekapitulasi Laporan Excel (.xls) ............................................ 27
+  - 5.2 Flowchart Transaksi Peminjaman Meja Sirkulasi ....................................... 7
+  - 5.3 Flowchart Transaksi Pengembalian & Kalkulasi Denda ................................. 9
+- **6. PERANCANGAN DATABASE** .............................................................. 11
+  - 6.1 Entity Relationship Diagram (ERD Relasional) ........................................ 11
+  - 6.2 Struktur & Spesifikasi 8 Tabel Basis Data ........................................... 12
+- **7. TAMPILAN PUBLIC (SISWA & UMUM)** .................................................... 16
+  - 7.1 Halaman Beranda Publik (`index.php`) ............................................... 16
+  - 7.2 Halaman Autentikasi Login (`login.php`) ............................................ 16
+  - 7.3 Halaman Pendaftaran Anggota Mandiri (`daftar.php`) ................................. 17
+  - 7.4 Halaman Onboarding Google SSO (`lengkapi_profil_google.php`) ....................... 18
+  - 7.5 Halaman Dashboard Siswa (`siswa/dashboard.php`) .................................... 19
+  - 7.6 Halaman Katalog Buku Siswa (`siswa/daftar_buku.php`) ............................... 20
+  - 7.7 Halaman Riwayat Sirkulasi Siswa (`siswa/riwayat.php`) ............................... 21
+- **8. TAMPILAN ADMIN (PETUGAS PERPUSTAKAAN)** ............................................. 22
+  - 8.1 Dashboard Utama Administrator (`admin/dashboard.php`) .............................. 22
+  - 8.2 Manajemen Data Buku Koleksi (`admin/buku.php`) ..................................... 22
+  - 8.3 Manajemen Eksemplar Fisik & Cetak QR (`admin/buku_item.php`) ....................... 23
+  - 8.4 Manajemen Anggota & Pairing Kartu RFID (`admin/anggota.php`) ....................... 24
+  - 8.5 Meja Sirkulasi Peminjaman Buku (`admin/peminjaman.php`) ............................ 25
+  - 8.6 Meja Sirkulasi Pengembalian Buku (`admin/pengembalian.php`) ........................ 26
+  - 8.7 Arsip Riwayat Transaksi & Pelunasan Kas Denda (`admin/transaksi.php`) .............. 27
+  - 8.8 Ekspor Rekapitulasi Laporan Excel (.xls) ............................................ 28
   - 8.9 Log Aktivitas Sistem & Audit Trail (`admin/log_aktivitas.php`) ...................... 28
-- **9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE)** ............................................ 29
-  - 9.1 Barcode Scanner Desktop 2D / QR Code (Taffware Omnidirectional) .................... 29
-  - 9.2 RFID Card Reader USB 13.56 MHz (Identifikasi Kartu Pelajar Siswa) .................. 30
-  - 9.3 Printer Epson All-in-One Ink Tank (Cetak Laporan, KTA & Label QR) .................. 31
+- **9. IMPLEMENTASI ALAT PENDUKUNG (HARDWARE)** ............................................ 30
+  - 9.1 Barcode Scanner Desktop 2D / QR Code (Taffware Omnidirectional) .................... 30
+  - 9.2 RFID Card Reader USB 13.56 MHz (Identifikasi Kartu Pelajar Siswa) .................. 31
+  - 9.3 Printer Epson All-in-One Ink Tank (Cetak Laporan, KTA & Label QR) .................. 32
 - **10. PENUTUP** .......................................................................... 34
   - 10.1 Kesimpulan ........................................................................ 34
-  - 10.2 Saran Pengembangan ................................................................ 35
-- **LAMPIRAN** ............................................................................. 36
+  - 10.2 Saran Pengembangan ................................................................ 34
+- **LAMPIRAN** ............................................................................. 35
 
 ---
 
